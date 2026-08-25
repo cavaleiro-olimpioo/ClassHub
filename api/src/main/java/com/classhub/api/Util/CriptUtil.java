@@ -11,4 +11,10 @@ public class CriptUtil {
 
         return hash;
     }
+
+    public boolean verifyPassword(String hashPass, String hashPassDB){
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        return encoder.matches(hashPass, hashPassDB);
+    }
 }
