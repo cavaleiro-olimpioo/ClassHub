@@ -1,6 +1,7 @@
 package com.classhub.api.Controller;
 
 import com.classhub.api.Models.User;
+import com.classhub.api.Services.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,8 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class LoginController {
 
+    private boolean[] verify = new boolean[2];
+
     @PostMapping
-    public User returnData(@RequestBody User user){
-        return user;
+    public boolean[] returnData(@RequestBody User user){
+        LoginService loginVerify = new LoginService();
+        verify = loginVerify.verifyLogin(user.getName(), user.getPassword());
+        return verify;
     }
 }
