@@ -12,9 +12,9 @@ public class CriptUtil {
         return hash;
     }
 
-    public boolean verifyPassword(String hashPass, String hashPassDB){
+    public boolean verifyPassword(String password, String hashPassDB){
         PasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        return encoder.matches(hashPass, hashPassDB);
+        return encoder.matches(password, hashPassDB);
     }
 }
