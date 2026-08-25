@@ -19,7 +19,7 @@ public class LoginController {
     @PostMapping
     public boolean[] returnData(@RequestBody User user){
         LoginService loginVerify = new LoginService();
-        verify = loginVerify.verifyLogin(user.getName(), user.getPassword());
+        verify = loginVerify.verifyLogin(user.getName(), user.getPassword(), user.getWhoami());
         return verify;
     }
 }

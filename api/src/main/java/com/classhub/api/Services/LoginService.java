@@ -21,9 +21,9 @@ public class LoginService {
         this.bcrypt = new CriptUtil();
     }
 
-    public boolean[] verifyLogin(String username, String password){
+    public boolean[] verifyLogin(String username, String password, String whoami){
         for(String[] user : users){
-            if(user[0].equals(username)){
+            if(user[0].equals(username) && user[2].equals(whoami)){
                 verify[0] = true;
                 verify[1] = bcrypt.verifyPassword(password, user[1]);
                 break;
