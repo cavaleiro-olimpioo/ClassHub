@@ -2,7 +2,9 @@ package com.classhub.api.Util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CriptUtil {
     public String criptografar(String password){
         PasswordEncoder encoder = new BCryptPasswordEncoder();
