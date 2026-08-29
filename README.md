@@ -1,3 +1,3 @@
 # ClassHub
  Sistema de gerenciamento escolar (Projeto da etec)
- by Guilherme e Luiz
+ by Guilherme, Luiz e Thiago
