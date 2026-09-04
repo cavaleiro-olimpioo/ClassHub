@@ -16,8 +16,8 @@ public class User {
     @Setter
     private String whoami;
 
-    public User(String nome, String password, String whoami){
-        this.name = nome;
+    public User(String name, String password, String whoami){
+        this.name = name;
         this.password = password;
         this.whoami = whoami;
     }
