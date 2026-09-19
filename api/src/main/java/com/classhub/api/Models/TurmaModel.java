@@ -10,22 +10,27 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity 
-@Table (name = "tb_diciplina")
-public class DiciplinaModel {
+@Table (name = "tb_turma")
+public class TurmaModel {
+    @Id 
     @Column 
-    @Id
     @GeneratedValue (strategy = GenerationType.AUTO)
+    private int id_turma;
+
+    @Column
     @Getter 
     @Setter
-    private int id_diciplina;
+    private int serie;
 
     @Column 
     @Getter 
     @Setter 
-    private String nome;
+    private char nome;
 
     @Column 
     @Getter 
     @Setter 
-    private int carga_horaria;
+    private String turno;
+
+
 }
