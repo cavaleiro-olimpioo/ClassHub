@@ -3,6 +3,7 @@ package com.classhub.api.Models;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;;
 
@@ -18,4 +19,12 @@ public class ProfessorModel extends UserModel {
     @Getter 
     @Setter 
     private String whoami = "professor";
+
+    @OneToMany(mappedBy = "professorResponsavel")
+    @Getter @Setter
+    private java.util.List<TurmaModel> turmasResponsaveis = new java.util.ArrayList<>();
+
+    @OneToMany(mappedBy = "professor")
+    @Getter @Setter
+    private java.util.List<OcorrenciaModel> ocorrenciasGeradas = new java.util.ArrayList<>();
 }

@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +20,11 @@ public class AchadosePerdidos {
     @Column 
     @GeneratedValue (strategy = GenerationType.AUTO)
     private int id_achado;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "funcionario_id", nullable = false)
+    @Getter @Setter
+    private FuncionarioModel funcionario;
 
     @Column 
     @Getter 
