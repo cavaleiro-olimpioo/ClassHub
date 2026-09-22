@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - Sistema Escolar</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <header id="app-header" class="app-header"></header>
+
+      <div class="content-area">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Painel Administrativo</h1>
+            <p class="page-subtitle">Visão geral da instituição e atalhos de gerenciamento</p>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👨‍🎓</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-alunos">-</div>
+              <div class="stat-label">Alunos Cadastrados</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">👩‍🏫</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-professores">-</div>
+              <div class="stat-label">Professores</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-turmas">-</div>
+              <div class="stat-label">Turmas Ativas</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-disciplinas">-</div>
+              <div class="stat-label">Disciplinas</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Ações Rápidas</h2>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <a href="alunos.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">👨‍🎓</span>
+              <span>Gerenciar Alunos</span>
+            </a>
+            <a href="professores.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">👩‍🏫</span>
+              <span>Gerenciar Professores</span>
+            </a>
+            <a href="turmas.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">👥</span>
+              <span>Turmas & Vínculos</span>
+            </a>
+            <a href="horarios.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">⏰</span>
+              <span>Montar Grade Horária</span>
+            </a>
+            <a href="bimestre.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">📋</span>
+              <span>Fechamento de Bimestre</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const [alunos, professores, turmas, disciplinas] = await Promise.all([
+          api.get('/alunos').catch(() => []),
+          api.get('/professores').catch(() => []),
+          api.get('/turmas').catch(() => []),
+          api.get('/disciplinas').catch(() => [])
+        ]);
+
+        document.getElementById('stat-alunos').textContent = Array.isArray(alunos) ? alunos.length : 0;
+        document.getElementById('stat-professores').textContent = Array.isArray(professores) ? professores.length : 0;
+        document.getElementById('stat-turmas').textContent = Array.isArray(turmas) ? turmas.length : 0;
+        document.getElementById('stat-disciplinas').textContent = Array.isArray(disciplinas) ? disciplinas.length : 0;
+      } catch (err) {
+        console.error('Erro ao carregar estatísticas:', err);
+      }
+    });
+  </script>
+</body>
+</html>

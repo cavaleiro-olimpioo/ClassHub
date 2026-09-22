@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciar Alunos - Sistema Escolar</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <header id="app-header" class="app-header"></header>
+
+      <div class="content-area">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Gerenciamento de Alunos</h1>
+            <p class="page-subtitle">Cadastro, edição e alocação de alunos em turmas</p>
+          </div>
+          <button class="btn btn-primary" onclick="openAlunoModal()">
+            ➕ Novo Aluno
+          </button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card" style="padding: 1rem; margin-bottom: 1.5rem;">
+          <div class="form-row" style="align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="filter-nome">Buscar por Nome</label>
+              <input type="text" id="filter-nome" class="form-control" placeholder="Digite o nome...">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="filter-turma">Filtrar por Turma</label>
+              <select id="filter-turma" class="form-select">
+                <option value="">Todas as Turmas</option>
+              </select>
+            </div>
+            <div>
+              <button class="btn btn-secondary" onclick="loadAlunos()">🔍 Filtrar</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="table-container"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    let turmasList = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadTurmasSelect();
+      await loadAlunos();
+    });
+
+    async function loadTurmasSelect() {
+      try {
+        turmasList = await api.get('/turmas').catch(() => []);
+        const select = document.getElementById('filter-turma');
+        select.innerHTML = '<option value="">Todas as Turmas</option>';
+        turmasList.forEach(t => {
+          select.innerHTML += `<option value="${t.id}">${t.nome} (${t.anoLetivo})</option>`;
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadAlunos() {
+      const container = document.getElementById('table-container');
+      container.innerHTML = UI.renderLoading('Carregando alunos...');
+
+      const nome = document.getElementById('filter-nome').value.trim();
+      const turmaId = document.getElementById('filter-turma').value;
+
+      let queryParams = [];
+      if (nome) queryParams.push(`nome=${encodeURIComponent(nome)}`);
+      if (turmaId) queryParams.push(`turmaId=${encodeURIComponent(turmaId)}`);
+      const queryString = queryParams.length ? `?${queryParams.join('&')}` : '';
+
+      try {
+        const alunos = await api.get(`/alunos${queryString}`);
+
+        const columns = [
+          { key: 'matricula', label: 'Matrícula' },
+          { key: 'nome', label: 'Nome' },
+          { key: 'email', label: 'E-mail' },
+          {
+            key: 'dataNascimento',
+            label: 'Data Nasc.',
+            render: (val) => UI.formatDate(val)
+          },
+          {
+            key: 'turma',
+            label: 'Turma',
+            render: (val, row) => {
+              if (row.turmaNome) return row.turmaNome;
+              if (val && val.nome) return val.nome;
+              const found = turmasList.find(t => t.id === row.turmaId);
+              return found ? found.nome : '<span style="color: var(--text-muted)">Sem Turma</span>';
+            }
+          },
+          {
+            key: 'acoes',
+            label: 'Ações',
+            render: (_, row) => `
+              <div class="table-actions">
+                <button class="btn btn-sm btn-secondary" onclick="openAlunoModal('${row.id}')">✏️ Editar</button>
+                <button class="btn btn-sm btn-secondary" onclick="openAlocarModal('${row.id}', '${row.turmaId || ''}')">👥 Alocar</button>
+              </div>
+            `
+          }
+        ];
+
+        container.innerHTML = UI.renderTable(columns, alunos, 'Nenhum aluno encontrado.');
+      } catch (err) {
+        container.innerHTML = UI.renderEmptyState('Erro ao carregar', 'Não foi possível carregar a lista de alunos.');
+      }
+    }
+
+    let currentAlunosCache = [];
+
+    async function openAlunoModal(id = null) {
+      let aluno = { nome: '', email: '', matricula: '', dataNascimento: '', turmaId: '' };
+
+      if (id) {
+        try {
+          aluno = await api.get(`/alunos/${id}`);
+        } catch (e) { return; }
+      }
+
+      const turmasOptions = turmasList.map(t =>
+        `<option value="${t.id}" ${aluno.turmaId === t.id ? 'selected' : ''}>${t.nome}</option>`
+      ).join('');
+
+      const formHtml = `
+        <form id="form-aluno">
+          <div class="form-group">
+            <label>Nome Completo <span class="required">*</span></label>
+            <input type="text" id="aluno-nome" class="form-control" value="${aluno.nome || ''}" required>
+          </div>
+          <div class="form-group">
+            <label>E-mail <span class="required">*</span></label>
+            <input type="email" id="aluno-email" class="form-control" value="${aluno.email || ''}" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Matrícula <span class="required">*</span></label>
+              <input type="text" id="aluno-matricula" class="form-control" value="${aluno.matricula || ''}" required>
+            </div>
+            <div class="form-group">
+              <label>Data de Nascimento <span class="required">*</span></label>
+              <input type="date" id="aluno-nascimento" class="form-control" value="${aluno.dataNascimento || ''}" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Turma</label>
+            <select id="aluno-turma" class="form-select">
+              <option value="">Selecione uma turma (opcional)...</option>
+              ${turmasOptions}
+            </select>
+          </div>
+        </form>
+      `;
+
+      UI.modal({
+        title: id ? 'Editar Aluno' : 'Novo Aluno',
+        content: formHtml,
+        actions: [
+          { label: 'Cancelar', class: 'btn-secondary', onClick: () => UI.closeModal() },
+          {
+            label: 'Salvar',
+            class: 'btn-primary',
+            onClick: async () => {
+              const body = {
+                nome: document.getElementById('aluno-nome').value.trim(),
+                email: document.getElementById('aluno-email').value.trim(),
+                matricula: document.getElementById('aluno-matricula').value.trim(),
+                dataNascimento: document.getElementById('aluno-nascimento').value,
+                turmaId: document.getElementById('aluno-turma').value || null
+              };
+
+              if (!body.nome || !body.email || !body.matricula || !body.dataNascimento) {
+                UI.toast('Preencha os campos obrigatórios!', 'warning');
+                return;
+              }
+
+              try {
+                if (id) {
+                  await api.put(`/alunos/${id}`, body);
+                  UI.toast('Aluno atualizado com sucesso!', 'success');
+                } else {
+                  await api.post('/alunos', body);
+                  UI.toast('Aluno cadastrado com sucesso!', 'success');
+                }
+                UI.closeModal();
+                loadAlunos();
+              } catch (e) {}
+            }
+          }
+        ]
+      });
+    }
+
+    function openAlocarModal(alunoId, currentTurmaId) {
+      const turmasOptions = turmasList.map(t =>
+        `<option value="${t.id}" ${currentTurmaId === t.id ? 'selected' : ''}>${t.nome} (${t.anoLetivo})</option>`
+      ).join('');
+
+      const formHtml = `
+        <div class="form-group">
+          <label>Selecione a nova Turma</label>
+          <select id="alocar-turma-select" class="form-select">
+            <option value="">Remover de qualquer turma</option>
+            ${turmasOptions}
+          </select>
+        </div>
+      `;
+
+      UI.modal({
+        title: 'Alocar Aluno em Turma',
+        content: formHtml,
+        actions: [
+          { label: 'Cancelar', class: 'btn-secondary', onClick: () => UI.closeModal() },
+          {
+            label: 'Confirmar Alocação',
+            class: 'btn-primary',
+            onClick: async () => {
+              const novaTurmaId = document.getElementById('alocar-turma-select').value || null;
+              try {
+                await api.put(`/alunos/${alunoId}/turma`, { turmaId: novaTurmaId });
+                UI.toast('Turma do aluno atualizada!', 'success');
+                UI.closeModal();
+                loadAlunos();
+              } catch (e) {}
+            }
+          }
+        ]
+      });
+    }
+  </script>
+</body>
+</html>

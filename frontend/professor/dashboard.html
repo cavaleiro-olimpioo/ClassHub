@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Professor - Sistema Escolar</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <header id="app-header" class="app-header"></header>
+
+      <div class="content-area">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Painel do Professor</h1>
+            <p class="page-subtitle">Aulas do dia, registro de frequências e lançamentos</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-turmas">-</div>
+              <div class="stat-label">Minhas Turmas</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏰</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-aulas">-</div>
+              <div class="stat-label">Aulas Hoje</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-chamadas-pendentes">-</div>
+              <div class="stat-label">Chamadas Pendentes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Minhas Aulas de Hoje</h2>
+          </div>
+          <div id="aulas-hoje-container"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Acesso Rápido</h2>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <a href="chamada.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">✅</span>
+              <span>Realizar Chamada</span>
+            </a>
+            <a href="notas.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">📝</span>
+              <span>Lançar Notas</span>
+            </a>
+            <a href="ocorrencias.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">⚠️</span>
+              <span>Registrar Ocorrência</span>
+            </a>
+            <a href="alunos.html" class="btn btn-secondary" style="padding: 1rem; text-align: center; flex-direction: column;">
+              <span style="font-size: 1.5rem;">🔍</span>
+              <span>Consultar Alunos</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = Auth.getSession();
+      const profId = session ? session.vinculoId : null;
+
+      if (!profId) {
+        document.getElementById('aulas-hoje-container').innerHTML = UI.renderEmptyState('Sem dados de vínculo', 'Seu usuário não possui um registro de professor associado.');
+        return;
+      }
+
+      try {
+        const [vinculos, horarios] = await Promise.all([
+          api.get(`/vinculos?professorId=${profId}`).catch(() => []),
+          api.get(`/horarios/professor/${profId}`).catch(() => [])
+        ]);
+
+        document.getElementById('stat-turmas').textContent = Array.isArray(vinculos) ? new Set(vinculos.map(v => v.turmaId)).size : 0;
+
+        // Dia da semana de hoje (1=segunda, ..., 5=sexta)
+        const today = new Date();
+        let dayOfWeek = today.getDay(); // 0=dom, 1=seg, ...
+        if (dayOfWeek === 0) dayOfWeek = 7;
+
+        const aulasHoje = Array.isArray(horarios) ? horarios.filter(h => Number(h.diaSemana) === dayOfWeek) : [];
+        document.getElementById('stat-aulas').textContent = aulasHoje.length;
+        document.getElementById('stat-chamadas-pendentes').textContent = aulasHoje.length;
+
+        if (aulasHoje.length === 0) {
+          document.getElementById('aulas-hoje-container').innerHTML = UI.renderEmptyState('Nenhuma aula hoje', 'Você não possui aulas agendadas na grade para o dia de hoje.');
+        } else {
+          const columns = [
+            { key: 'horario', label: 'Horário', render: (_, r) => `${r.horaInicio} - ${r.horaFim}` },
+            { key: 'turmaNome', label: 'Turma', render: (val, r) => val || r.turma?.nome || 'Turma' },
+            { key: 'disciplinaNome', label: 'Disciplina', render: (val, r) => val || r.disciplina?.nome || 'Disciplina' },
+            {
+              key: 'acao',
+              label: 'Ação',
+              render: (_, r) => `<a href="chamada.html?turmaId=${r.turmaId}&disciplinaId=${r.disciplinaId}" class="btn btn-sm btn-primary">Fazer Chamada</a>`
+            }
+          ];
+          document.getElementById('aulas-hoje-container').innerHTML = UI.renderTable(columns, aulasHoje);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minhas Ocorrências - Sistema Escolar</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <header id="app-header" class="app-header"></header>
+
+      <div class="content-area">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Meu Histórico de Ocorrências</h1>
+            <p class="page-subtitle">Acompanhamento dos registros disciplinares e pedagógicos</p>
+          </div>
+        </div>
+
+        <div id="table-container"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadMinhasOcorrencias();
+    });
+
+    async function loadMinhasOcorrencias() {
+      const session = Auth.getSession();
+      const alunoId = session ? session.vinculoId : null;
+      const container = document.getElementById('table-container');
+
+      if (!alunoId) {
+        container.innerHTML = UI.renderEmptyState('Sem dados de estudante', 'Sessão de aluno não encontrada.');
+        return;
+      }
+
+      container.innerHTML = UI.renderLoading('Carregando suas ocorrências...');
+
+      try {
+        const ocorrencias = await api.get(`/ocorrencias?alunoId=${alunoId}`);
+
+        if (!ocorrencias || ocorrencias.length === 0) {
+          container.innerHTML = UI.renderEmptyState('Nenhuma ocorrência', 'Você não possui registros de ocorrências em seu histórico.');
+          return;
+        }
+
+        const columns = [
+          { key: 'tipo', label: 'Tipo de Ocorrência', render: (val) => UI.badge(val) },
+          { key: 'descricao', label: 'Descrição dos Fatos' },
+          { key: 'status', label: 'Status Atual', render: (val) => UI.badge(val) }
+        ];
+
+        container.innerHTML = UI.renderTable(columns, ocorrencias, 'Sem ocorrências.');
+      } catch (err) {
+        container.innerHTML = UI.renderEmptyState('Erro', 'Não foi possível carregar seu histórico de ocorrências.');
+      }
+    }
+  </script>
+</body>
+</html>

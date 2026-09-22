@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fechamento de Bimestre - Sistema Escolar</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <header id="app-header" class="app-header"></header>
+
+      <div class="content-area">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Fechamento de Bimestre e Boletins</h1>
+            <p class="page-subtitle">Consolidação de médias e geração automatizada dos boletins escolares</p>
+          </div>
+        </div>
+
+        <div class="card" style="max-width: 600px; margin: 0 auto;">
+          <div class="card-header">
+            <h2 class="card-title">Parâmetros de Fechamento</h2>
+          </div>
+          <form id="form-fechamento" onsubmit="confirmarFechamento(event)">
+            <div class="form-group">
+              <label for="f-ano">Ano Letivo <span class="required">*</span></label>
+              <input type="number" id="f-ano" class="form-control" value="2025" required>
+            </div>
+
+            <div class="form-group">
+              <label for="f-bimestre">Bimestre <span class="required">*</span></label>
+              <select id="f-bimestre" class="form-select" required>
+                <option value="1">1º Bimestre</option>
+                <option value="2">2º Bimestre</option>
+                <option value="3">3º Bimestre</option>
+                <option value="4">4º Bimestre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="f-turma">Turma Específica (Opcional)</label>
+              <select id="f-turma" class="form-select">
+                <option value="">Todas as Turmas do Ano Letivo</option>
+              </select>
+              <div class="form-help">Deixe em branco para fechar o bimestre de todas as turmas cadastradas.</div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+              <button type="submit" id="btn-fechar" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+                📋 Fechar Bimestre e Gerar Boletins
+              </button>
+            </div>
+          </form>
+
+          <div id="result-summary" style="margin-top: 1.5rem;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const turmas = await api.get('/turmas').catch(() => []);
+        const select = document.getElementById('f-turma');
+        turmas.forEach(t => {
+          select.innerHTML += `<option value="${t.id}">${t.nome} (${t.anoLetivo})</option>`;
+        });
+      } catch (e) {}
+    });
+
+    function confirmarFechamento(e) {
+      e.preventDefault();
+
+      const anoLetivo = Number(document.getElementById('f-ano').value);
+      const bimestre = Number(document.getElementById('f-bimestre').value);
+      const turmaId = document.getElementById('f-turma').value || null;
+
+      const turmaTexto = turmaId ? 'para a turma selecionada' : 'para TODAS as turmas';
+
+      UI.confirm({
+        title: '⚠️ Confirmação Dupla de Fechamento',
+        message: `Atenção: Você está prestes a fechar o ${bimestre}º Bimestre de ${anoLetivo} ${turmaTexto}. Os boletins dos alunos serão consolidados e liberados para visualização. Deseja prosseguir?`,
+        confirmText: 'Sim, Fechar Bimestre',
+        onConfirm: async () => {
+          const btn = document.getElementById('btn-fechar');
+          const summaryDiv = document.getElementById('result-summary');
+          btn.disabled = true;
+          btn.textContent = 'Processando fechamento...';
+          summaryDiv.innerHTML = UI.renderLoading('Consolidando notas e gerando boletins...');
+
+          const body = { anoLetivo, bimestre };
+          if (turmaId) body.turmaId = turmaId;
+
+          try {
+            const res = await api.post('/boletins/gerar', body);
+            UI.toast('Fechamento de bimestre e geração de boletins concluídos com sucesso!', 'success', 6000);
+
+            summaryDiv.innerHTML = `
+              <div class="card" style="background-color: var(--color-success-bg); border-color: var(--color-success); color: #065f46;">
+                <h3 style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;">✓ Processamento Concluído</h3>
+                <p>O ${bimestre}º Bimestre foi oficialmente fechado com sucesso.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem;">${res?.mensagem || 'Todos os boletins estão disponíveis na área do aluno.'}</p>
+              </div>
+            `;
+          } catch (err) {
+            summaryDiv.innerHTML = '';
+          } finally {
+            btn.disabled = false;
+            btn.textContent = '📋 Fechar Bimestre e Gerar Boletins';
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Horários - Sistema Escolar</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <header id="app-header" class="app-header"></header>
+
+      <div class="content-area">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Grade Semanal de Aulas</h1>
+            <p class="page-subtitle">Agenda das turmas e disciplinas que você leciona</p>
+          </div>
+        </div>
+
+        <div id="schedule-container"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    const DIAS_SEMANA = [
+      { id: 1, nome: 'Segunda-feira' },
+      { id: 2, nome: 'Terça-feira' },
+      { id: 3, nome: 'Quarta-feira' },
+      { id: 4, nome: 'Quinta-feira' },
+      { id: 5, nome: 'Sexta-feira' }
+    ];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadAgendaProfessor();
+    });
+
+    async function loadAgendaProfessor() {
+      const session = Auth.getSession();
+      const profId = session ? session.vinculoId : null;
+
+      const container = document.getElementById('schedule-container');
+
+      if (!profId) {
+        container.innerHTML = UI.renderEmptyState('Sem identificação', 'Registro de professor não localizado na sessão.');
+        return;
+      }
+
+      container.innerHTML = UI.renderLoading('Carregando grade de aulas...');
+
+      try {
+        const horarios = await api.get(`/horarios/professor/${profId}`);
+
+        if (!horarios || horarios.length === 0) {
+          container.innerHTML = UI.renderEmptyState('Sem horários', 'Você não possui horários cadastrados na grade.');
+          return;
+        }
+
+        let gridHtml = `
+          <div class="table-responsive">
+            <table class="schedule-table">
+              <thead>
+                <tr>
+                  ${DIAS_SEMANA.map(d => `<th>${d.nome}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  ${DIAS_SEMANA.map(d => {
+                    const aulasDia = horarios.filter(h => Number(h.diaSemana) === d.id);
+                    aulasDia.sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
+
+                    return `
+                      <td>
+                        ${aulasDia.length === 0 ? '<div style="color: var(--text-light); text-align: center; font-size: 0.8rem; padding: 1rem;">Sem aula</div>' : ''}
+                        ${aulasDia.map(h => `
+                          <div class="schedule-item" style="margin-bottom: 0.5rem;">
+                            <div class="subject">${h.disciplinaNome || h.disciplina?.nome || 'Disciplina'}</div>
+                            <div class="detail">👥 ${h.turmaNome || h.turma?.nome || 'Turma'}</div>
+                            <div class="detail">⏰ ${h.horaInicio} - ${h.horaFim}</div>
+                          </div>
+                        `).join('')}
+                      </td>
+                    `;
+                  }).join('')}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        container.innerHTML = gridHtml;
+      } catch (err) {
+        container.innerHTML = UI.renderEmptyState('Erro', 'Não foi possível carregar os horários.');
+      }
+    }
+  </script>
+</body>
+</html>

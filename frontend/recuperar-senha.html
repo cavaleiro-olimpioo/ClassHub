@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar Senha - Sistema de Gerenciamento Escolar</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;">🔑</div>
+      <h1 class="auth-title">Recuperar Senha</h1>
+      <p class="auth-subtitle">Informe seu e-mail cadastrado para receber as instruções</p>
+    </div>
+
+    <form id="recovery-form">
+      <div class="form-group">
+        <label for="email">E-mail Cadastrado <span class="required">*</span></label>
+        <input type="email" id="email" class="form-control" placeholder="seu.email@escola.com" required autocomplete="email">
+      </div>
+
+      <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+        Enviar Instruções
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <a href="index.html">← Voltar para a tela de login</a>
+    </div>
+  </div>
+
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const recoveryForm = document.getElementById('recovery-form');
+      const btnSubmit = document.getElementById('btn-submit');
+
+      recoveryForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+
+        if (!email) {
+          UI.toast('Informe o seu e-mail.', 'warning');
+          return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Enviando...';
+
+        try {
+          await api.post('/auth/recuperar-senha', { email }).catch(() => {});
+          UI.toast('Se o e-mail estiver cadastrado, as instruções para redefinição de senha foram enviadas.', 'success', 6000);
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2500);
+        } catch (err) {
+          UI.toast('Instruções enviadas com sucesso.', 'info');
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Enviar Instruções';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

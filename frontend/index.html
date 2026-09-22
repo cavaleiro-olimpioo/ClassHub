@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Sistema de Gerenciamento Escolar</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;">🎓</div>
+      <h1 class="auth-title">Gestão Escolar</h1>
+      <p class="auth-subtitle">Acesse o portal do ensino fundamental</p>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">E-mail <span class="required">*</span></label>
+        <input type="email" id="email" class="form-control" placeholder="seu.email@escola.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="senha">Senha <span class="required">*</span></label>
+        <input type="password" id="senha" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+        Entrar no Sistema
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <a href="recuperar-senha.html">Esqueceu sua senha?</a>
+    </div>
+  </div>
+
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mensagem de sessão expirada
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('expired') === 'true') {
+        UI.toast('Sua sessão expirou. Faça login novamente.', 'warning');
+      }
+
+      const loginForm = document.getElementById('login-form');
+      const btnSubmit = document.getElementById('btn-submit');
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value;
+
+        if (!email || !senha) {
+          UI.toast('Por favor, preencha todos os campos.', 'warning');
+          return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Autenticando...';
+
+        try {
+          const response = await api.post('/auth/login', { email, senha });
+
+          if (response && response.token) {
+            UI.toast('Login realizado com sucesso!', 'success');
+            Auth.setSession({
+              token: response.token,
+              perfil: response.perfil,
+              vinculoId: response.vinculoId,
+              nome: response.nome || email.split('@')[0]
+            });
+
+            setTimeout(() => {
+              Auth.redirectToDashboard(response.perfil);
+            }, 500);
+          } else {
+            UI.toast('Resposta de login inválida do servidor.', 'error');
+          }
+        } catch (error) {
+          console.error('Erro no login:', error);
+          // O erro já é notificado via api.js
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Entrar no Sistema';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
