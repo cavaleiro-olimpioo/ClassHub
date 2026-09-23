@@ -1,4 +1,4 @@
-package com.classhub.api.config;
+package com.classhub.api.Config;
 
 import com.classhub.api.domain.*;
 import com.classhub.api.repository.*;
