@@ -5,6 +5,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Legacy persistence model retained only for historical reference.
+ * This package is intentionally not part of the active JPA domain model.
+ * It should not be used in current business logic or persistence configuration.
+ */
+@Deprecated(since = "2026-09-23", forRemoval = true)
 @Entity
 @Table(name = "tb_nota", uniqueConstraints = @UniqueConstraint(columnNames = {"aluno_id", "disciplina_id", "bimestre"}))
 public class NotaModel {

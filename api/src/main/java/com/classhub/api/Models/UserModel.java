@@ -9,6 +9,12 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Legacy persistence base model retained only for historical reference.
+ * This package is intentionally not part of the active JPA domain model.
+ * It should not be used in current business logic or persistence configuration.
+ */
+@Deprecated(since = "2026-09-23", forRemoval = true)
 @MappedSuperclass 
 public class UserModel {
     @Id 

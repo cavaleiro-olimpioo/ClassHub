@@ -11,23 +11,22 @@ Este é o frontend completo do Sistema de Gerenciamento Escolar para Ensino Fund
 1. Abra um terminal e navegue até a raiz do projeto ou diretório `frontend/`.
 2. Inicie o servidor estático. Exemplo com `npx serve`:
    ```bash
-   npx serve frontend -p 3000
-   ```
+npx serve frontend -p 5173
+```
    Ou com Python 3:
    ```bash
-   python3 -m http.server 3000 --directory frontend
+   python3 -m http.server 5173 --directory frontend
    ```
-3. Abra o navegador no endereço: `http://localhost:3000`
+3. Abra o navegador no endereço: `http://localhost:5173`
 
 ## ⚙️ Configuração da URL da API Backend
 
-Por padrão, a aplicação consome o backend Java/Spring Boot na URL `http://localhost:8080/api/v1`.
+Por padrão, a aplicação serve o frontend em `http://localhost:5173` e usa a API do backend em `http://localhost:5173/api` quando a aplicação é executada por proxy local.
 
 Se precisar alterar a URL base da API, defina a variável `API_BASE_URL` no objeto global `window` antes de carregar o script `api.js` ou altere a constante em `frontend/assets/js/api.js`:
 
 ```javascript
-const API_BASE_URL = window.API_BASE_URL || 'http://localhost:8080/api/v1';
-```
+const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5173/api';
 
 ## 📁 Estrutura do Projeto
 
