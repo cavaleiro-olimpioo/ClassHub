@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: taskmanager-db
+    container_name: classhub-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: root
@@ -11,22 +11,45 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d classhubdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
-      - taskmanager-net
+      - classhub-net
 
-  # backend:
-  #   build: ./backend
-  #   depends_on:
-  #     - db
+  backend:
+    build: ./api
+    container_name: classhub-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/classhubdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      APP_CORS_ALLOWED_ORIGIN: http://localhost:5173
+    ports:
+      - "8080:8080"
+    networks:
+      - classhub-net
 
-  # frontend:
-  #   build: ./frontend
-  #   depends_on:
-  #     - backend
+  frontend:
+    build: ./frontend
+    container_name: classhub-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    networks:
+      - classhub-net
 
 volumes:
   pgdata:
 
 networks:
-  taskmanager-net:
+  classhub-net:
     driver: bridge
