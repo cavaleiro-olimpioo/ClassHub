@@ -2,7 +2,7 @@
  * Wrapper de Fetch para comunicação com a API REST do Sistema Escolar
  */
 
-const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5173/api';
+const API_BASE_URL = window.API_BASE_URL || '/api';
 
 const api = {
   /**
