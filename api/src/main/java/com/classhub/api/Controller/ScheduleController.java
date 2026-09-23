@@ -1,4 +1,4 @@
-package com.classhub.api.controller;
+package com.classhub.api.Controller;
 
 import com.classhub.api.dto.ApiDtos.*;
 import com.classhub.api.service.ScheduleService;
