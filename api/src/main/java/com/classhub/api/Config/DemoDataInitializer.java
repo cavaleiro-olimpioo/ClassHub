@@ -21,6 +21,8 @@ public class DemoDataInitializer {
                 ApiProfessor created = new ApiProfessor();
                 created.setNome("Professor Demo");
                 created.setEmail("professor@classhub.local");
+                created.setTelefone("(11) 90000-0001");
+                created.setDataNascimento(java.time.LocalDate.of(1985, 1, 15));
                 created.setPerfil("PROFESSOR");
                 created.setSenhaHash(passwordEncoder.encode("professor123"));
                 return professors.save(created);
@@ -29,16 +31,19 @@ public class DemoDataInitializer {
                 ApiAluno created = new ApiAluno();
                 created.setNome("Aluno Demo");
                 created.setEmail("aluno@classhub.local");
+                created.setTelefone("(11) 90000-0002");
+                created.setDataNascimento(java.time.LocalDate.of(2012, 1, 1));
                 created.setPerfil("ALUNO");
                 created.setSenhaHash(passwordEncoder.encode("aluno123"));
                 created.setMatricula("2026001");
-                created.setDataNascimento(java.time.LocalDate.of(2012, 1, 1));
                 return alunos.save(created);
             });
             ApiFuncionario funcionario = funcionarios.findByEmailIgnoreCase("funcionario@classhub.local").orElseGet(() -> {
                 ApiFuncionario created = new ApiFuncionario();
                 created.setNome("Funcionário Demo");
                 created.setEmail("funcionario@classhub.local");
+                created.setTelefone("(11) 90000-0003");
+                created.setDataNascimento(java.time.LocalDate.of(1990, 5, 20));
                 created.setPerfil("FUNCIONARIO");
                 created.setSenhaHash(passwordEncoder.encode("funcionario123"));
                 created.setCargo("Administrativo");
@@ -60,6 +65,8 @@ public class DemoDataInitializer {
         user.setSenhaHash(encoder.encode(password));
         user.setPerfil(perfil);
         user.setNome(nome);
+        user.setTelefone("(11) 90000-0000");
+        user.setDataNascimento(java.time.LocalDate.of(1990, 1, 1));
         user.setVinculoId(vinculoId);
         users.save(user);
     }

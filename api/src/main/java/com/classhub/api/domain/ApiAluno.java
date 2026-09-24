@@ -9,14 +9,21 @@ import java.time.Year;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Entity
-@Table(name = "api_alunos")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("ALUNO")
 @Getter @Setter @NoArgsConstructor
 public class ApiAluno extends ApiUser {
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String matricula;
-    @Column(nullable = false)
-    private LocalDate dataNascimento;
+
+    @Column
+    private String sexo;
+
+    @Column
+    private String cpf;
+
+    @Column
+    private String foto;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "turma_id")
     private ApiTurma turma;

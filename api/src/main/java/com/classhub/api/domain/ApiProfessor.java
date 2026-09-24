@@ -6,8 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "api_professores")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("PROFESSOR")
 @Getter @Setter @NoArgsConstructor
 public class ApiProfessor extends ApiUser {
+    @Column
+    private String formacao;
 }

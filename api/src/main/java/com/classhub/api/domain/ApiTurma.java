@@ -13,4 +13,6 @@ public class ApiTurma {
     @Column(nullable = false) private String nome;
     @ManyToOne(optional = false, fetch = FetchType.LAZY) @JoinColumn(name = "serie_id") private ApiSerie serie;
     @Column(nullable = false) private Integer anoLetivo;
+    @Column(nullable = false) private String turno;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "professor_responsavel_id") private ApiProfessor professorResponsavel;
 }
