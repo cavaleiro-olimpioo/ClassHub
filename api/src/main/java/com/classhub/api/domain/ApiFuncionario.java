@@ -6,8 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "api_professores")
+@Table(name = "api_funcionarios")
 @PrimaryKeyJoinColumn(name = "id")
 @Getter @Setter @NoArgsConstructor
-public class ApiProfessor extends ApiUser {
+public class ApiFuncionario extends ApiUser {
+    @Column(nullable = false)
+    private String cargo;
+
+    @Column(nullable = false)
+    private String setor;
 }

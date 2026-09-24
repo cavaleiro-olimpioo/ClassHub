@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,6 +26,27 @@ class ApiApplicationTests {
 
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void alunoEProfessorHerdamDoUsuario() throws Exception {
+        assertThat(com.classhub.api.domain.ApiAluno.class.getSuperclass()).isEqualTo(com.classhub.api.domain.ApiUser.class);
+        assertThat(com.classhub.api.domain.ApiProfessor.class.getSuperclass()).isEqualTo(com.classhub.api.domain.ApiUser.class);
+        assertThat(com.classhub.api.domain.ApiAluno.class.getDeclaredFields())
+            .extracting(field -> field.getName())
+            .doesNotContain("email", "nome");
+        assertThat(com.classhub.api.domain.ApiProfessor.class.getDeclaredFields())
+            .extracting(field -> field.getName())
+            .doesNotContain("email", "nome");
+    }
+
+    @Test
+    void funcionarioHerdarDoUsuarioEManterDadosEspecificos() {
+        assertThat(com.classhub.api.domain.ApiFuncionario.class.getSuperclass()).isEqualTo(com.classhub.api.domain.ApiUser.class);
+        assertThat(com.classhub.api.domain.ApiFuncionario.class.getDeclaredFields())
+            .extracting(field -> field.getName())
+            .contains("cargo", "setor")
+            .doesNotContain("email", "nome");
     }
 
     @Test

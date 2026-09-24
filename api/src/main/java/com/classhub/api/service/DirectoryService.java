@@ -131,11 +131,20 @@ public class DirectoryService {
     private ApiVinculo requireVinculo(Long id) { return vinculos.findById(id).orElseThrow(() -> new NotFoundException("Vínculo não encontrado.")); }
 
     private void applyAluno(ApiAluno entity, AlunoRequest request) {
-        entity.setNome(request.nome().trim()); entity.setEmail(request.email().trim().toLowerCase());
-        entity.setMatricula(request.matricula().trim()); entity.setDataNascimento(request.dataNascimento());
+        entity.setNome(request.nome().trim());
+        entity.setEmail(request.email().trim().toLowerCase());
+        entity.setPerfil("ALUNO");
+        entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("aluno123"));
+        entity.setMatricula(request.matricula().trim());
+        entity.setDataNascimento(request.dataNascimento());
         entity.setTurma(request.turmaId() == null ? null : requireTurma(request.turmaId()));
     }
-    private void applyProfessor(ApiProfessor entity, ProfessorRequest request) { entity.setNome(request.nome().trim()); entity.setEmail(request.email().trim().toLowerCase()); }
+    private void applyProfessor(ApiProfessor entity, ProfessorRequest request) {
+        entity.setNome(request.nome().trim());
+        entity.setEmail(request.email().trim().toLowerCase());
+        entity.setPerfil("PROFESSOR");
+        entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("professor123"));
+    }
     private void applyTurma(ApiTurma entity, TurmaRequest request) { entity.setNome(request.nome().trim()); entity.setSerie(requireSerie(request.serieId())); entity.setAnoLetivo(request.anoLetivo()); }
     private void applyDisciplina(ApiDisciplina entity, DisciplinaRequest request) { entity.setNome(request.nome().trim()); entity.setCargaHoraria(request.cargaHoraria()); }
 
