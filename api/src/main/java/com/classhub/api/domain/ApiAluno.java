@@ -10,20 +10,15 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Entity
 @Table(name = "api_alunos")
-@DiscriminatorValue("ALUNO")
 @Getter @Setter @NoArgsConstructor
 public class ApiAluno extends ApiUser {
     @Column(unique = true)
     private String matricula;
 
-    @Column
-    private String sexo;
-
-    @Column
-    private String cpf;
-
-    @Column
-    private String foto;
+    @Override
+    public String getPerfil() {
+        return "ALUNO";
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "turma_id")

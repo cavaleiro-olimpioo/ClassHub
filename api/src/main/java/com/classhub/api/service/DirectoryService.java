@@ -133,7 +133,6 @@ public class DirectoryService {
     private void applyAluno(ApiAluno entity, AlunoRequest request) {
         entity.setNome(request.nome().trim());
         entity.setEmail(request.email().trim().toLowerCase());
-        entity.setPerfil("ALUNO");
         entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("aluno123"));
         entity.setTelefone("(11) 90000-0000");
         entity.setMatricula(request.matricula().trim());
@@ -143,7 +142,6 @@ public class DirectoryService {
     private void applyProfessor(ApiProfessor entity, ProfessorRequest request) {
         entity.setNome(request.nome().trim());
         entity.setEmail(request.email().trim().toLowerCase());
-        entity.setPerfil("PROFESSOR");
         entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("professor123"));
         entity.setTelefone("(11) 90000-0000");
         entity.setDataNascimento(java.time.LocalDate.of(1990, 1, 1));

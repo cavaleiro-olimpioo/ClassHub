@@ -7,7 +7,6 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "api_funcionarios")
-@DiscriminatorValue("FUNCIONARIO")
 @Getter @Setter @NoArgsConstructor
 public class ApiFuncionario extends ApiUser {
     @Column
@@ -15,4 +14,9 @@ public class ApiFuncionario extends ApiUser {
 
     @Column
     private String setor;
+
+    @Override
+    public String getPerfil() {
+        return "FUNCIONARIO";
+    }
 }

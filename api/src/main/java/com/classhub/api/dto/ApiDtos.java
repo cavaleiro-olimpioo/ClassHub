@@ -10,7 +10,7 @@ public final class ApiDtos {
 
     public record MessageResponse(String mensagem) { }
     public record LoginRequest(@NotBlank @Email String email, @NotBlank String senha) { }
-    public record LoginResponse(String token, String perfil, String nome, Long vinculoId) { }
+    public record LoginResponse(String token, String perfil, String nome) { }
 
     public record SerieRequest(@NotBlank String nome, @NotBlank String nivel) { }
     public record SerieResponse(Long id, String nome, String nivel) { }

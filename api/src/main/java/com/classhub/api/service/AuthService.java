@@ -27,6 +27,6 @@ public class AuthService {
         if (!passwordEncoder.matches(request.senha(), user.getSenhaHash())) {
             throw new UnauthorizedException("E-mail ou senha inválidos.");
         }
-        return new LoginResponse(jwtService.generate(user), user.getPerfil(), user.getNome(), user.getVinculoId());
+        return new LoginResponse(jwtService.generate(user), user.getPerfil(), user.getNome());
     }
 }
