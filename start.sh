@@ -3,7 +3,7 @@
 set -e
 
 echo "==> Subindo ClassHub..."
-docker compose up -d --build --force-recreate
+docker-compose up -d --build --force-recreate
 
 
 echo "==> Configurando Tailscale Funnel..."
