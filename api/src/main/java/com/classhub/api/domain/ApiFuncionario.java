@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "api_funcionarios")
 @DiscriminatorValue("FUNCIONARIO")
 @Getter @Setter @NoArgsConstructor
 public class ApiFuncionario extends ApiUser {

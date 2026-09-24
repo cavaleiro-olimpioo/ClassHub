@@ -9,6 +9,7 @@ import java.time.Year;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Entity
+@Table(name = "api_alunos")
 @DiscriminatorValue("ALUNO")
 @Getter @Setter @NoArgsConstructor
 public class ApiAluno extends ApiUser {

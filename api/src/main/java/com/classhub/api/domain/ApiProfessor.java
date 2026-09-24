@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "api_professores")
 @DiscriminatorValue("PROFESSOR")
 @Getter @Setter @NoArgsConstructor
 public class ApiProfessor extends ApiUser {
