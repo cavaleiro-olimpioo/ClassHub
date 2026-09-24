@@ -46,7 +46,11 @@ public class SecurityConfig {
             }))
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/recuperar-senha").permitAll()
+                .requestMatchers(HttpMethod.POST,
+                    "/auth/login",
+                    "/api/auth/login",
+                    "/auth/recuperar-senha",
+                    "/api/auth/recuperar-senha").permitAll()
                 .anyRequest().authenticated())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

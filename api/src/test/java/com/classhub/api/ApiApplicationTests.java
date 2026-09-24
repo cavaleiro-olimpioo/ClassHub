@@ -54,15 +54,25 @@ class ApiApplicationTests {
         MockMvc mockMvc = mockMvc();
         String login = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\":\"admin@classhub.local\",\"senha\":\"admin123\"}"))
+                .content("{\"email\":\"professor@classhub.local\",\"senha\":\"professor123\"}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").isNotEmpty())
-            .andExpect(jsonPath("$.perfil").value("ADMIN"))
+            .andExpect(jsonPath("$.perfil").value("PROFESSOR"))
             .andReturn().getResponse().getContentAsString();
         JsonNode response = objectMapper.readTree(login);
 
         mockMvc.perform(get("/alunos").header("Authorization", "Bearer " + response.path("token").asText()))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void loginRouteAcceptsTheRemoteServerPrefixedPath() throws Exception {
+        MockMvc mockMvc = mockMvc();
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"professor@classhub.local\",\"senha\":\"professor123\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
     @Test
