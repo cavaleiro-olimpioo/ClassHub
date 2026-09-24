@@ -30,7 +30,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/classhubdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-      APP_CORS_ALLOWED_ORIGIN: http://localhost:5173
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:5173,https://pegasus.tail2cdb38.ts.net
     ports:
       - "8080:8080"
     networks:
