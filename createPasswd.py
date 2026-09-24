@@ -7,9 +7,8 @@ import bcrypt
 
 # Adicione aqui: (identificador, senha em texto puro)
 senhas = [
-    ("aluno@classhub.local", "123456"),
-    ("giovanni.medeiros@aluno.cps.sp.gov.br", "123456"),
-    ("guilherme.olimpio@aluno.cps.sp.gov.br", "123456"),
+    ("robson.gomes@professor.cps.sp.gov.br", "MelhorProfessorEtec123"),
+    ("guilherme.olimpio@aluno.cps.sp.gov.br", "killall123")
 ]
 
 for identificador, senha in senhas:
