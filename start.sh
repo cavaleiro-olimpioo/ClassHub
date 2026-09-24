@@ -3,7 +3,8 @@
 set -e
 
 echo "==> Subindo ClassHub..."
-docker compose up -d
+docker compose up -d --build --force-recreate
+
 
 echo "==> Configurando Tailscale Funnel..."
 sudo tailscale funnel --bg --set-path=/ http://localhost:5173
