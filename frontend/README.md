@@ -1,42 +1,92 @@
-# Frontend - Sistema de Gerenciamento Escolar
+# Frontend - ClassHub
 
-Este é o frontend completo do Sistema de Gerenciamento Escolar para Ensino Fundamental (1º ao 9º ano), desenvolvido utilizando **HTML5, CSS3 e JavaScript ES6+ puros (Vanilla JS)**, sem dependências de frameworks ou bibliotecas externas.
+SPA do Sistema de Gerenciamento Escolar (Ensino Fundamental, 1º ao 9º ano), construída com **React 18 + Vite** e **CSS puro** com design tokens. Substitui a versão anterior em HTML/JS vanilla.
+
+---
+
+## 🚀 Como Executar Localmente
+
+### Pré-requisitos
+- **Node.js 18+** e **npm** instalados.
 
 ## 🚀 Como Executar Localmente
 
 ### Pré-requisitos
 - Um servidor estático para servir a pasta `frontend/`. Pode ser executado via Node.js (`npx serve`), Python, ou extensões de código como Live Server no VS Code.
 
-### Passos para Execução
-1. Abra um terminal e navegue até a raiz do projeto ou diretório `frontend/`.
-2. Inicie o servidor estático. Exemplo com `npx serve`:
-   ```bash
-npx serve frontend -p 5173
+### Passos
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
-   Ou com Python 3:
-   ```bash
-   python3 -m http.server 5173 --directory frontend
-   ```
-3. Abra o navegador no endereço: `http://localhost:5173`
+A aplicação sobe em `http://localhost:5173`. O servidor de desenvolvimento do Vite faz proxy de `/api` para `http://localhost:8080` (mesmo comportamento do Nginx em produção); ajuste com `VITE_DEV_API_TARGET`.
+
+### Scripts
+
+| Comando           | Descrição                                   |
+| ----------------- | ------------------------------------------- |
+| `npm run dev`     | Servidor de desenvolvimento com HMR         |
+| `npm run build`   | Gera os arquivos estáticos em `dist/`       |
+| `npm run preview` | Serve o `dist/` localmente para conferência |
+
+## 🐳 Docker
+
+```bash
+docker build -t classhub-frontend .
+docker run -p 8080:80 classhub-frontend
+```
+
+Imagem multi-stage: build com `node:20-alpine` e serving com `nginx:alpine`.
 
 ## ⚙️ Configuração da URL da API Backend
 
-Por padrão, a aplicação serve o frontend em `http://localhost:5173` e usa a API do backend em `http://localhost:5173/api` quando a aplicação é executada por proxy local.
+A URL base vem da variável de ambiente `VITE_API_BASE_URL` (padrão: `/api`). Copie `.env.example` para `.env` e ajuste se necessário:
 
-Se precisar alterar a URL base da API, defina a variável `API_BASE_URL` no objeto global `window` antes de carregar o script `api.js` ou altere a constante em `frontend/assets/js/api.js`:
+```bash
+VITE_API_BASE_URL=/api
+VITE_DEV_API_TARGET=http://localhost:8080
+```
 
-```javascript
-const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5173/api';
+Em produção o próprio Nginx faz o proxy de `/api` para `http://backend:8080/`, removendo o prefixo — por isso o padrão `/api` funciona sem configuração extra.
 
 ## 📁 Estrutura do Projeto
 
-- `index.html`: Tela de Login e redirecionamento por perfil (`ADMIN`, `PROFESSOR`, `ALUNO`).
-- `recuperar-senha.html`: Solicitação de recuperação de senha.
-- `admin/`: Telas e funcionalidades administrativas (CRUD de Alunos, Professores, Séries, Turmas, Horários, Calendário, Bimestres, etc.).
-- `professor/`: Telas do perfil Professor (Chamada, Lançamento de Notas, Ocorrências, Alunos e Horários).
-- `aluno/`: Telas do perfil Aluno (Dashboard, Notas, Faltas, Boletim, Horários, Calendário, Ocorrências, Achados e Perdidos).
-- `assets/css/styles.css`: Estilos globais responsivos, temas e componentes de UI baseados em variáveis CSS.
-- `assets/js/`:
-  - `api.js`: Wrapper de requisições HTTP (`fetch`) com autenticação JWT e tratamento centralizado de erros.
-  - `auth.js`: Gerenciamento de sessão e guarda de rotas por perfil.
-  - `ui.js`: Componentes genéricos de UI (Toasts, Modais, Tabelas, Badges e Estados).
+```
+src/
+  main.jsx                  Ponto de entrada
+  App.jsx                   Rotas + guards por perfil
+  styles/index.css          Design tokens e componentes globais
+  components/
+    AppShell.jsx            Sidebar + topbar (layout interno)
+    RequireAuth.jsx         Guarda de rotas (sessão + perfil)
+    CrudPage.jsx            Página CRUD genérica (lista/modal/filtros)
+    ScheduleGrid.jsx        Grade de horários somente-leitura
+    ui.jsx                  Design system (Card, Table, Modal, Toast...)
+    Icon.jsx                Conjunto de ícones SVG
+    ToastProvider.jsx       Notificações (substitui `UI.toast`)
+  lib/
+    api.js                  Cliente HTTP (substitui `assets/js/api.js`)
+    session.js              Sessão, JWT e resolução do vinculoId
+    format.js               Formatadores, status e regras de negócio
+    menu.js                 Menu lateral por perfil
+    useAluno.js             Contexto do aluno logado
+    useProfessorVinculos.js Vínculos do professor logado
+    useReference.js         Listas de apoio (turmas, séries...)
+  pages/
+    Login.jsx  RecuperarSenha.jsx
+    admin/       (10 telas)     professor/  (6 telas)     aluno/  (8 telas)
+```
+
+## 🔐 Sobre o `vinculoId`
+
+O endpoint `POST /auth/login` devolve apenas `{ token, perfil, nome }` — **sem** `vinculoId`. Como `ApiAluno` e `ApiProfessor` estendem `ApiUser` com `TABLE_PER_CLASS`, o claim `sub` do JWT **é** o id do aluno/professor. Por isso `src/lib/session.js` decodifica o token no cliente para recuperar esse vínculo, necessário para `/vinculos`, `/notas/aluno/{id}` e `/presencas`. Nenhuma alteração no backend é necessária.
+
+## 🔑 Usuários de demonstração
+
+| Perfil      | E-mail                       | Senha             |
+| ----------- | ---------------------------- | ----------------- |
+| Professor   | `professor@classhub.local`   | `professor123`    |
+| Aluno       | `aluno@classhub.local`       | `aluno123`        |
+| Funcionário | `funcionario@classhub.local` | `funcionario123`  |
