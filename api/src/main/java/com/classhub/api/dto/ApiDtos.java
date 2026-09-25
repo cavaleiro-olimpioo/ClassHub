@@ -61,7 +61,7 @@ public final class ApiDtos {
                                String tipo, Double peso, Double valor) { }
 
     public record OcorrenciaRequest(@NotNull Long alunoId, @NotBlank String tipo, @NotBlank String descricao) { }
-    public record OcorrenciaResponse(Long id, Long alunoId, AlunoSummary aluno, String tipo, String descricao, String status) { }
+    public record OcorrenciaResponse(Long id, Long alunoId, AlunoSummary aluno, String tipo, String descricao, String status, LocalDate data) { }
 
     public record AchadoPerdidoRequest(@NotBlank String descricao, @NotBlank String categoria,
                                        @NotNull LocalDate data, @NotBlank String localEncontrado) { }

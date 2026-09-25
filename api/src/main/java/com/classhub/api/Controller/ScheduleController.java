@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@RequestMapping(path = {"", "/api"})
 public class ScheduleController {
     private final ScheduleService service;
     public ScheduleController(ScheduleService service) { this.service = service; }

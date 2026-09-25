@@ -8,12 +8,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping(path = {"", "/api"})
 public class CommunityController {
     private final CommunityService service;
     public CommunityController(CommunityService service) { this.service = service; }
 
-    @GetMapping("/ocorrencias") public List<OcorrenciaResponse> ocorrencias(@RequestParam(required = false) Long alunoId) { return service.listOcorrencias(alunoId); }
+    @GetMapping("/ocorrencias")
+    public List<OcorrenciaResponse> ocorrencias(@RequestParam(required = false) Long alunoId, @RequestParam(required = false) Long turmaId) {
+        return service.listOcorrencias(alunoId, turmaId);
+    }
     @PostMapping("/ocorrencias") @ResponseStatus(HttpStatus.CREATED) public OcorrenciaResponse criarOcorrencia(@Valid @RequestBody OcorrenciaRequest request) { return service.createOcorrencia(request); }
+    @PutMapping("/ocorrencias/{id}") public OcorrenciaResponse editarOcorrencia(@PathVariable Long id, @Valid @RequestBody OcorrenciaRequest request) { return service.updateOcorrencia(id, request); }
+    @PutMapping("/ocorrencias/{id}/encerrar") public OcorrenciaResponse encerrarOcorrencia(@PathVariable Long id) { return service.encerrarOcorrencia(id); }
+    @DeleteMapping("/ocorrencias/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirOcorrencia(@PathVariable Long id) { service.deleteOcorrencia(id); }
 
     @GetMapping("/achados-perdidos") public List<AchadoPerdidoResponse> achados(@RequestParam(required = false) String categoria, @RequestParam(required = false) String status) { return service.listAchados(categoria, status); }
     @PostMapping("/achados-perdidos") @ResponseStatus(HttpStatus.CREATED) public AchadoPerdidoResponse criarAchado(@Valid @RequestBody AchadoPerdidoRequest request) { return service.createAchado(request); }

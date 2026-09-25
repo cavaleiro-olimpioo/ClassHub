@@ -16,4 +16,14 @@ public class ApiOcorrencia {
     @Column(nullable = false) private String tipo;
     @Column(nullable = false, length = 2000) private String descricao;
     @Column(nullable = false) private String status;
+
+    @PrePersist
+    private void prePersist() {
+        if (data == null) {
+            data = java.time.LocalDate.now();
+        }
+        if (status == null || status.isBlank()) {
+            status = "ABERTA";
+        }
+    }
 }

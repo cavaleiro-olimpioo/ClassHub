@@ -66,22 +66,27 @@ export default function ProfessorNotas() {
       const alunosList = Array.isArray(lista) ? lista : [];
       setAlunos(alunosList);
 
-      // notasLocais[alunoId][TIPO] = { id, valor, peso }
-      const mapa = {};
-      TIPOS_NOTA.forEach((tipo) => {
-        mapa[tipo] = { id: null, valor: '', peso: PESOS_PADRAO[tipo] };
+      // Cada aluno possui seu proprio mapa de notas: porAluno[alunoId][TIPO] = { id, valor, peso }
+      const porAluno = {};
+      alunosList.forEach((aluno) => {
+        const mapa = {};
+        TIPOS_NOTA.forEach((tipo) => {
+          mapa[tipo] = { id: null, valor: '', peso: PESOS_PADRAO[tipo] };
+        });
+        porAluno[aluno.id] = mapa;
       });
 
       (Array.isArray(existentes) ? existentes : []).forEach((nota) => {
         const tipo = String(nota.tipo).toUpperCase();
-        if (!mapa[tipo]) return;
-        mapa[tipo] = { id: nota.id, valor: nota.valor === null ? '' : String(nota.valor), peso: nota.peso ?? PESOS_PADRAO[tipo] };
+        if (nota.alunoId && porAluno[nota.alunoId] && porAluno[nota.alunoId][tipo]) {
+          porAluno[nota.alunoId][tipo] = {
+            id: nota.id,
+            valor: nota.valor === null ? '' : String(nota.valor),
+            peso: nota.peso ?? PESOS_PADRAO[tipo]
+          };
+        }
       });
 
-      const porAluno = {};
-      alunosList.forEach((aluno) => {
-        porAluno[aluno.id] = JSON.parse(JSON.stringify(mapa));
-      });
       setNotas(porAluno);
     } catch (error) {
       setAlunos([]);

@@ -20,12 +20,11 @@ export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meu
   const [horarios, setHorarios] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // No modo professor, o filtro de turma e opcional
-  const effectiveId = mode === 'professor' ? selectedTurma || entityId : entityId;
+  // No modo professor, o endpoint busca todos os horarios do professor e filtra localmente por turma se selecionada
   const endpoint = useMemo(() => {
-    if (!effectiveId) return null;
-    return mode === 'professor' ? `/horarios/professor/${effectiveId}` : `/horarios/turma/${effectiveId}`;
-  }, [mode, effectiveId]);
+    if (!entityId) return null;
+    return mode === 'professor' ? `/horarios/professor/${entityId}` : `/horarios/turma/${entityId}`;
+  }, [mode, entityId]);
 
   useEffect(() => {
     if (!endpoint) {
@@ -51,16 +50,23 @@ export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meu
     };
   }, [endpoint]);
 
+  const filteredHorarios = useMemo(() => {
+    if (mode === 'professor' && selectedTurma) {
+      return horarios.filter((h) => String(h.turmaId ?? h.turma?.id) === String(selectedTurma));
+    }
+    return horarios;
+  }, [mode, selectedTurma, horarios]);
+
   const byDay = useMemo(() => {
     const map = new Map(WEEK.map((d) => [d, []]));
-    horarios.forEach((item) => {
+    filteredHorarios.forEach((item) => {
       const day = Number(item.diaSemana);
       if (!map.has(day)) map.set(day, []);
       map.get(day).push(item);
     });
     map.forEach((list) => list.sort((a, b) => String(a.horaInicio).localeCompare(String(b.horaInicio))));
     return map;
-  }, [horarios]);
+  }, [filteredHorarios]);
 
   return (
     <>

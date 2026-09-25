@@ -107,9 +107,9 @@ export default function ProfessorChamada() {
   }
 
   function marcarTodos() {
-    const next = {};
-    Object.keys(presencas).forEach((alunoId) => {
-      next[alunoId] = { status: 'PRESENTE', justificativa: '' };
+    const next = { ...presencas };
+    alunos.forEach((aluno) => {
+      next[aluno.id] = { status: 'PRESENTE', justificativa: '' };
     });
     setPresencas(next);
     toast.info('Todos os alunos marcados como presentes.');

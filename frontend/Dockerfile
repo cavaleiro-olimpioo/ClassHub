@@ -3,6 +3,10 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Argumento e variavel de ambiente para configurar a URL base da API durante o build
+ARG VITE_API_BASE_URL=/api
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # Instala dependencias leveraging o cache de layers do Docker
 COPY package*.json ./
 RUN npm ci

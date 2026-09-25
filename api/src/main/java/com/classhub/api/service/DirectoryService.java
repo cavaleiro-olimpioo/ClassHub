@@ -18,11 +18,19 @@ public class DirectoryService {
     private final ApiTurmaRepository turmas;
     private final ApiDisciplinaRepository disciplinas;
     private final ApiVinculoRepository vinculos;
+    private final ApiNotaRepository notas;
+    private final ApiPresencaRepository presencas;
+    private final ApiOcorrenciaRepository ocorrencias;
+    private final ApiHorarioRepository horarios;
 
     public DirectoryService(ApiAlunoRepository alunos, ApiProfessorRepository professores, ApiSerieRepository series,
-                            ApiTurmaRepository turmas, ApiDisciplinaRepository disciplinas, ApiVinculoRepository vinculos) {
+                            ApiTurmaRepository turmas, ApiDisciplinaRepository disciplinas, ApiVinculoRepository vinculos,
+                            ApiNotaRepository notas, ApiPresencaRepository presencas, ApiOcorrenciaRepository ocorrencias,
+                            ApiHorarioRepository horarios) {
         this.alunos = alunos; this.professores = professores; this.series = series;
         this.turmas = turmas; this.disciplinas = disciplinas; this.vinculos = vinculos;
+        this.notas = notas; this.presencas = presencas; this.ocorrencias = ocorrencias;
+        this.horarios = horarios;
     }
 
     @Transactional(readOnly = true)
@@ -42,6 +50,14 @@ public class DirectoryService {
         ApiAluno entity = new ApiAluno();
         applyAluno(entity, request);
         return aluno(alunos.save(entity));
+    }
+
+    public void deleteAluno(Long id) {
+        ApiAluno entity = requireAluno(id);
+        notas.findByAlunoId(id).forEach(notas::delete);
+        presencas.findByAlunoId(id).forEach(presencas::delete);
+        ocorrencias.findByAlunoId(id).forEach(ocorrencias::delete);
+        alunos.delete(entity);
     }
 
     public AlunoResponse updateAluno(Long id, AlunoRequest request) {
@@ -70,6 +86,13 @@ public class DirectoryService {
         ApiProfessor entity = requireProfessor(id); applyProfessor(entity, request); return professor(entity);
     }
 
+    public void deleteProfessor(Long id) {
+        ApiProfessor entity = requireProfessor(id);
+        horarios.findByProfessorIdOrderByDiaSemanaAscHoraInicioAsc(id).forEach(horarios::delete);
+        vinculos.findByProfessorId(id).forEach(vinculos::delete);
+        professores.delete(entity);
+    }
+
     @Transactional(readOnly = true)
     public List<SerieResponse> listSeries() {
         return series.findAll().stream().sorted(Comparator.comparing(ApiSerie::getNome, String.CASE_INSENSITIVE_ORDER)).map(this::serie).toList();
@@ -78,6 +101,18 @@ public class DirectoryService {
     public SerieResponse createSerie(SerieRequest request) {
         ApiSerie entity = new ApiSerie(); entity.setNome(request.nome().trim()); entity.setNivel(request.nivel().trim());
         return serie(series.save(entity));
+    }
+
+    public SerieResponse updateSerie(Long id, SerieRequest request) {
+        ApiSerie entity = requireSerie(id);
+        entity.setNome(request.nome().trim());
+        entity.setNivel(request.nivel().trim());
+        return serie(entity);
+    }
+
+    public void deleteSerie(Long id) {
+        ApiSerie entity = requireSerie(id);
+        series.delete(entity);
     }
 
     @Transactional(readOnly = true)
@@ -93,6 +128,14 @@ public class DirectoryService {
         ApiTurma entity = requireTurma(id); applyTurma(entity, request); return turma(entity);
     }
 
+    public void deleteTurma(Long id) {
+        ApiTurma entity = requireTurma(id);
+        alunos.findByTurmaId(id).forEach(a -> { a.setTurma(null); alunos.save(a); });
+        horarios.findByTurmaIdOrderByDiaSemanaAscHoraInicioAsc(id).forEach(horarios::delete);
+        vinculos.findAll().stream().filter(v -> v.getTurma().getId().equals(id)).forEach(vinculos::delete);
+        turmas.delete(entity);
+    }
+
     @Transactional(readOnly = true)
     public List<DisciplinaResponse> listDisciplinas() {
         return disciplinas.findAll().stream().sorted(Comparator.comparing(ApiDisciplina::getNome, String.CASE_INSENSITIVE_ORDER)).map(this::disciplina).toList();
@@ -104,6 +147,13 @@ public class DirectoryService {
 
     public DisciplinaResponse updateDisciplina(Long id, DisciplinaRequest request) {
         ApiDisciplina entity = requireDisciplina(id); applyDisciplina(entity, request); return disciplina(entity);
+    }
+
+    public void deleteDisciplina(Long id) {
+        ApiDisciplina entity = requireDisciplina(id);
+        vinculos.findAll().stream().filter(v -> v.getDisciplina().getId().equals(id)).forEach(vinculos::delete);
+        horarios.findAll().stream().filter(h -> h.getDisciplina().getId().equals(id)).forEach(horarios::delete);
+        disciplinas.delete(entity);
     }
 
     @Transactional(readOnly = true)
@@ -146,7 +196,14 @@ public class DirectoryService {
         entity.setTelefone("(11) 90000-0000");
         entity.setDataNascimento(java.time.LocalDate.of(1990, 1, 1));
     }
-    private void applyTurma(ApiTurma entity, TurmaRequest request) { entity.setNome(request.nome().trim()); entity.setSerie(requireSerie(request.serieId())); entity.setAnoLetivo(request.anoLetivo()); }
+    private void applyTurma(ApiTurma entity, TurmaRequest request) {
+        entity.setNome(request.nome().trim());
+        entity.setSerie(requireSerie(request.serieId()));
+        entity.setAnoLetivo(request.anoLetivo());
+        if (entity.getTurno() == null || entity.getTurno().isBlank()) {
+            entity.setTurno("MATUTINO");
+        }
+    }
     private void applyDisciplina(ApiDisciplina entity, DisciplinaRequest request) { entity.setNome(request.nome().trim()); entity.setCargaHoraria(request.cargaHoraria()); }
 
     public AlunoResponse aluno(ApiAluno a) {

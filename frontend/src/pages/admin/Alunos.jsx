@@ -83,7 +83,7 @@ export default function AdminAlunos() {
         email: row.email || '',
         matricula: row.matricula || '',
         dataNascimento: row.dataNascimento || '',
-        turmaId: row.turmaId || ''
+        turmaId: row.turmaId ?? row.turma?.id ?? ''
       })}
       toPayload={(values) => ({
         nome: values.nome,

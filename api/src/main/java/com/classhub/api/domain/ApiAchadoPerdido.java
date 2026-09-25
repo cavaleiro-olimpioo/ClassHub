@@ -16,5 +16,5 @@ public class ApiAchadoPerdido {
     @Column(nullable = false) private String localEncontrado;
     @Column(nullable = false) private LocalDate data;
     @Column(nullable = false) private String status;
-    @ManyToOne(optional = false, fetch = FetchType.LAZY) @JoinColumn(name = "funcionario_id") private ApiFuncionario funcionarioRegistrou;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "funcionario_id") private ApiFuncionario funcionarioRegistrou;
 }

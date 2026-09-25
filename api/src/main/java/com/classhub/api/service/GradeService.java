@@ -51,6 +51,11 @@ public class GradeService {
         apply(entity, request); return nota(entity);
     }
 
+    public void deleteNota(Long id) {
+        ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada."));
+        notas.delete(entity);
+    }
+
     public MessageResponse fecharBimestre(GerarBoletimRequest request) {
         ApiTurma turma = request.turmaId() == null ? null : directory.requireTurma(request.turmaId());
         boolean exists = turma == null

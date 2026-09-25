@@ -46,6 +46,7 @@ export default function AdminTurmas() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState(null);
   const [removingVinculo, setRemovingVinculo] = useState(null);
+  const [removingTurma, setRemovingTurma] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -161,6 +162,18 @@ export default function AdminTurmas() {
     }
   }
 
+  async function removeTurma() {
+    if (!removingTurma) return;
+    try {
+      await api.delete(`/turmas/${removingTurma.id}`);
+      toast.success('Turma excluída com sucesso.');
+      setRemovingTurma(null);
+      await load();
+    } catch (error) {
+      toast.error(error.message || 'Não foi possível excluir a turma.');
+    }
+  }
+
   return (
     <>
       <PageHead
@@ -197,10 +210,11 @@ export default function AdminTurmas() {
               {
                 key: '__actions',
                 label: 'Ações',
-                width: 100,
+                width: 120,
                 render: (_v, row) => (
                   <div className="actions">
                     <Button variant="secondary" size="sm" icon="edit" onClick={() => openEditTurma(row)} aria-label={`Editar ${row.nome}`} />
+                    <Button variant="ghost" size="sm" icon="trash" onClick={() => setRemovingTurma(row)} aria-label={`Excluir ${row.nome}`} />
                   </div>
                 )
               }
@@ -358,6 +372,16 @@ export default function AdminTurmas() {
         tone="danger"
         onCancel={() => setRemovingVinculo(null)}
         onConfirm={removeVinculo}
+      />
+
+      <ConfirmDialog
+        open={Boolean(removingTurma)}
+        title="Excluir turma"
+        message={`Tem certeza que deseja excluir a turma "${removingTurma?.nome}"? Os vínculos associados a ela também serão removidos.`}
+        confirmText="Excluir"
+        tone="danger"
+        onCancel={() => setRemovingTurma(null)}
+        onConfirm={removeTurma}
       />
     </>
   );

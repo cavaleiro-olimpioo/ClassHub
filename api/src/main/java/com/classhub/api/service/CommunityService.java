@@ -27,16 +27,44 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
-    public List<OcorrenciaResponse> listOcorrencias(Long alunoId) {
-        List<ApiOcorrencia> result = alunoId == null ? ocorrencias.findAll() : ocorrencias.findByAlunoId(alunoId);
+    public List<OcorrenciaResponse> listOcorrencias(Long alunoId, Long turmaId) {
+        List<ApiOcorrencia> result = alunoId != null ? ocorrencias.findByAlunoId(alunoId) : ocorrencias.findAll();
+        if (turmaId != null) {
+            result = result.stream().filter(o -> o.getAluno() != null && o.getAluno().getTurma() != null && o.getAluno().getTurma().getId().equals(turmaId)).toList();
+        }
         return result.stream().sorted(Comparator.comparing(ApiOcorrencia::getId).reversed()).map(this::ocorrencia).toList();
     }
 
     public OcorrenciaResponse createOcorrencia(OcorrenciaRequest request) {
         ApiOcorrencia entity = new ApiOcorrencia();
-        entity.setAluno(directory.requireAluno(request.alunoId())); entity.setTipo(request.tipo().trim().toUpperCase());
-        entity.setDescricao(request.descricao().trim()); entity.setStatus("ABERTA");
+        entity.setAluno(directory.requireAluno(request.alunoId()));
+        entity.setTipo(request.tipo().trim().toUpperCase());
+        entity.setDescricao(request.descricao().trim());
+        entity.setData(java.time.LocalDate.now());
+        entity.setStatus("ABERTA");
         return ocorrencia(ocorrencias.save(entity));
+    }
+
+    public OcorrenciaResponse updateOcorrencia(Long id, OcorrenciaRequest request) {
+        ApiOcorrencia entity = requireOcorrencia(id);
+        entity.setAluno(directory.requireAluno(request.alunoId()));
+        entity.setTipo(request.tipo().trim().toUpperCase());
+        entity.setDescricao(request.descricao().trim());
+        return ocorrencia(entity);
+    }
+
+    public OcorrenciaResponse encerrarOcorrencia(Long id) {
+        ApiOcorrencia entity = requireOcorrencia(id);
+        entity.setStatus("ENCERRADA");
+        return ocorrencia(entity);
+    }
+
+    public void deleteOcorrencia(Long id) {
+        ocorrencias.delete(requireOcorrencia(id));
+    }
+
+    private ApiOcorrencia requireOcorrencia(Long id) {
+        return ocorrencias.findById(id).orElseThrow(() -> new NotFoundException("Ocorrência não encontrada."));
     }
 
     @Transactional(readOnly = true)
@@ -94,7 +122,7 @@ public class CommunityService {
         entity.setTitulo(request.titulo().trim()); entity.setDescricao(request.descricao() == null || request.descricao().isBlank() ? null : request.descricao().trim());
     }
     private ApiAchadoPerdido requireAchado(Long id) { return achados.findById(id).orElseThrow(() -> new NotFoundException("Item não encontrado.")); }
-    private OcorrenciaResponse ocorrencia(ApiOcorrencia o) { return new OcorrenciaResponse(o.getId(), o.getAluno().getId(), directory.alunoSummary(o.getAluno()), o.getTipo(), o.getDescricao(), o.getStatus()); }
+    private OcorrenciaResponse ocorrencia(ApiOcorrencia o) { return new OcorrenciaResponse(o.getId(), o.getAluno().getId(), directory.alunoSummary(o.getAluno()), o.getTipo(), o.getDescricao(), o.getStatus(), o.getData()); }
     private AchadoPerdidoResponse achado(ApiAchadoPerdido item) { return new AchadoPerdidoResponse(item.getId(), item.getDescricao(), item.getCategoria(), item.getLocalEncontrado(), item.getData(), item.getStatus()); }
     private CalendarioResponse calendario(ApiCalendario item) { return new CalendarioResponse(item.getId(), item.getData(), item.getAnoLetivo(), item.getTipo(), item.getTitulo(), item.getDescricao()); }
 }
