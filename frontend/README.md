@@ -9,11 +9,6 @@ SPA do Sistema de Gerenciamento Escolar (Ensino Fundamental, 1º ao 9º ano), co
 ### Pré-requisitos
 - **Node.js 18+** e **npm** instalados.
 
-## 🚀 Como Executar Localmente
-
-### Pré-requisitos
-- Um servidor estático para servir a pasta `frontend/`. Pode ser executado via Node.js (`npx serve`), Python, ou extensões de código como Live Server no VS Code.
-
 ### Passos
 
 ```bash
