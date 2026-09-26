@@ -89,7 +89,7 @@ export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meu
       {mode === 'professor' && turmas.length > 0 && <div style={{ height: 16 }} />}
 
       <Card title="Grade Semanal" icon="clock" subtitle={`${horarios.length} aula(s) na semana`}>
-        {!effectiveId ? (
+        {!entityId ? (
           <EmptyState icon="clock" title="Nenhuma turma vinculada" subtitle="Você ainda não possui turmas vinculadas neste ano letivo." />
         ) : loading ? (
           <Loading />
