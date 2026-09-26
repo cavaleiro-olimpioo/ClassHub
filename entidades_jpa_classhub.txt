@@ -1,0 +1,194 @@
+ClassHub - Entidades JPA e atributos
+===================================
+Baseado nas classes anotadas com @Entity no pacote com.classhub.api.domain
+
+OBS.: As entidades abaixo refletem o modelo de persistência atual do Spring/JPA. Alguns campos são herdados de ApiUser e outros são relacionamentos @ManyToOne com chaves estrangeiras.
+
+1) ApiUser (classe base abstrata)
+Tabela: herdada por subclasses (TABLE_PER_CLASS)
+- id: Long (PK, GeneratedValue AUTO)
+- email: String (not null, unique)
+- senhaHash: String (not null)
+- nome: String (not null)
+- telefone: String
+- dataNascimento: LocalDate
+- sexo: String
+- cpf: String
+- foto: String
+- getPerfil(): String (abstrato)
+
+Subclasses:
+
+1.1) ApiAluno
+Tabela: api_alunos
+- Herda de ApiUser: id, email, senhaHash, nome, telefone, dataNascimento, sexo, cpf, foto
+- matricula: String (unique)
+- turma: ApiTurma (FK turma_id, @ManyToOne LAZY)
+- perfil: ALUNO
+
+1.2) ApiProfessor
+Tabela: api_professores
+- Herda de ApiUser: id, email, senhaHash, nome, telefone, dataNascimento, sexo, cpf, foto
+- formacao: String
+- perfil: PROFESSOR
+
+1.3) ApiFuncionario
+Tabela: api_funcionarios
+- Herda de ApiUser: id, email, senhaHash, nome, telefone, dataNascimento, sexo, cpf, foto
+- cargo: String
+- setor: String
+- perfil: FUNCIONARIO
+
+2) ApiAchadoPerdido
+Tabela: api_achados_perdidos
+- id: Long (PK)
+- descricao: String (not null, length=2000)
+- categoria: String (not null)
+- localEncontrado: String (not null)
+- data: LocalDate (not null)
+- status: String (not null)
+- funcionarioRegistrou: ApiFuncionario (FK funcionario_id, @ManyToOne LAZY)
+
+3) ApiAlunoResponsavel
+Tabela: api_aluno_responsaveis
+- id: Long (PK)
+- aluno: ApiAluno (FK aluno_id, not null, @ManyToOne LAZY)
+- responsavel: ApiResponsavel (FK responsavel_id, not null, @ManyToOne LAZY)
+- responsavelFinanceiro: Boolean (not null)
+- unique: (aluno_id, responsavel_id)
+
+4) ApiCalendario
+Tabela: api_calendario
+- id: Long (PK)
+- data: LocalDate (not null)
+- anoLetivo: Integer (not null)
+- tipo: String (not null)
+- titulo: String (not null)
+- descricao: String (length=2000)
+
+5) ApiDisciplina
+Tabela: api_disciplinas
+- id: Long (PK)
+- nome: String (not null, unique)
+- cargaHoraria: Integer (not null)
+
+6) ApiDocumento
+Tabela: api_documentos
+- id: Long (PK)
+- aluno: ApiAluno (FK aluno_id, not null, @ManyToOne LAZY)
+- arquivoUrl: String (not null)
+- dataUpload: LocalDate (not null)
+- tipoDocumento: String (not null)
+- unique: (aluno_id, tipoDocumento)
+
+7) ApiFechamentoBoletim
+Tabela: api_fechamentos_boletim
+- id: Long (PK)
+- anoLetivo: Integer (not null)
+- bimestre: Integer (not null)
+- turma: ApiTurma (FK turma_id, @ManyToOne LAZY)
+- unique: (anoLetivo, bimestre, turma_id)
+
+8) ApiHorario
+Tabela: api_horarios
+- id: Long (PK)
+- turma: ApiTurma (FK turma_id, not null, @ManyToOne LAZY)
+- disciplina: ApiDisciplina (FK disciplina_id, not null, @ManyToOne LAZY)
+- professor: ApiProfessor (FK professor_id, not null, @ManyToOne LAZY)
+- diaSemana: Integer (not null)
+- horaInicio: LocalTime (not null)
+- horaFim: LocalTime (not null)
+
+9) ApiMatricula
+Tabela: api_matriculas
+- id: Long (PK)
+- aluno: ApiAluno (FK aluno_id, not null, @ManyToOne LAZY)
+- turma: ApiTurma (FK turma_id, not null, @ManyToOne LAZY)
+- anoLetivo: Integer (not null)
+- status: String (not null)
+- dataMatricula: LocalDate (not null)
+
+10) ApiNota
+Tabela: api_notas
+- id: Long (PK)
+- aluno: ApiAluno (FK aluno_id, not null, @ManyToOne LAZY)
+- disciplina: ApiDisciplina (FK disciplina_id, not null, @ManyToOne LAZY)
+- turma: ApiTurma (FK turma_id, not null, @ManyToOne LAZY)
+- bimestre: Integer (not null)
+- tipo: String (not null)
+- peso: Double (not null)
+- valor: Double (not null)
+- unique: (aluno_id, disciplina_id, bimestre, tipo)
+
+11) ApiOcorrencia
+Tabela: api_ocorrencias
+- id: Long (PK)
+- aluno: ApiAluno (FK aluno_id, not null, @ManyToOne LAZY)
+- professor: ApiProfessor (FK professor_id, not null, @ManyToOne LAZY)
+- data: LocalDate (not null)
+- tipo: String (not null)
+- descricao: String (not null, length=2000)
+- status: String (not null)
+- PrePersist: se data for nula, define LocalDate.now(); se status for nulo/vazio, define ABERTA
+
+12) ApiPresenca
+Tabela: api_presencas
+- id: Long (PK)
+- aluno: ApiAluno (FK aluno_id, not null, @ManyToOne LAZY)
+- turma: ApiTurma (FK turma_id, not null, @ManyToOne LAZY)
+- disciplina: ApiDisciplina (FK disciplina_id, not null, @ManyToOne LAZY)
+- data: LocalDate (not null)
+- status: String (not null)
+- justificativa: String (length=2000)
+- unique: (aluno_id, turma_id, disciplina_id, data)
+
+13) ApiResponsavel
+Tabela: api_responsaveis
+- id: Long (PK)
+- nome: String (not null)
+- telefone: String
+- cpf: String
+- endereco: String
+- parentesco: String
+
+14) ApiSerie
+Tabela: api_series
+- id: Long (PK)
+- nome: String (not null, unique)
+- nivel: String (not null)
+
+15) ApiTurma
+Tabela: api_turmas
+- id: Long (PK)
+- nome: String (not null)
+- serie: ApiSerie (FK serie_id, not null, @ManyToOne LAZY)
+- anoLetivo: Integer (not null)
+- turno: String (not null, default = MATUTINO)
+- professorResponsavel: ApiProfessor (FK professor_responsavel_id, @ManyToOne LAZY)
+- unique: (nome, serie_id, anoLetivo)
+- PrePersist: se turno for nulo/vazio, define MATUTINO
+
+16) ApiVinculo
+Tabela: api_vinculos
+- id: Long (PK)
+- professor: ApiProfessor (FK professor_id, not null, @ManyToOne LAZY)
+- turma: ApiTurma (FK turma_id, not null, @ManyToOne LAZY)
+- disciplina: ApiDisciplina (FK disciplina_id, not null, @ManyToOne LAZY)
+- anoLetivo: Integer (not null)
+- unique: (professor_id, turma_id, disciplina_id, anoLetivo)
+
+Resumo de relacionamentos principais
+-----------------------------------
+- ApiAluno -> ApiTurma (muitos alunos para uma turma)
+- ApiMatricula -> ApiAluno + ApiTurma
+- ApiPresenca -> ApiAluno + ApiTurma + ApiDisciplina
+- ApiNota -> ApiAluno + ApiDisciplina + ApiTurma
+- ApiHorario -> ApiTurma + ApiDisciplina + ApiProfessor
+- ApiVinculo -> ApiProfessor + ApiTurma + ApiDisciplina
+- ApiAlunoResponsavel -> ApiAluno + ApiResponsavel
+- ApiDocumento -> ApiAluno
+- ApiOcorrencia -> ApiAluno + ApiProfessor
+- ApiAchadoPerdido -> ApiFuncionario
+- ApiFechamentoBoletim -> ApiTurma
+
+Arquivo gerado automaticamente a partir das entidades JPA do projeto.

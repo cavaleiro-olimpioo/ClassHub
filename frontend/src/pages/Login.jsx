@@ -123,13 +123,6 @@ export default function Login() {
           </Link>
         </div>
 
-        <div className="demo-box">
-          <strong>Ambiente de demonstração</strong>
-          <br />
-          Professor: <code>professor@classhub.local</code> / <code>professor123</code>
-          <br />
-          Aluno: <code>aluno@classhub.local</code> / <code>aluno123</code>
-        </div>
       </div>
     </div>
   );
