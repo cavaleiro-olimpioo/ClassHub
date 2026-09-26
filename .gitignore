@@ -34,4 +34,4 @@ build/
 node_modules/
 
 ### Testes ###
-./.createPasswd.py
+./createPasswd.py

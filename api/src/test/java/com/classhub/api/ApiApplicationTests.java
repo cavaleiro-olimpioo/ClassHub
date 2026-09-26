@@ -29,6 +29,13 @@ class ApiApplicationTests {
     }
 
     @Test
+    void healthEndpointIsPublic() throws Exception {
+        mockMvc().perform(get("/health"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("UP"));
+    }
+
+    @Test
     void alunoEProfessorHerdamDoUsuario() throws Exception {
         assertThat(com.classhub.api.domain.ApiAluno.class.getSuperclass()).isEqualTo(com.classhub.api.domain.ApiUser.class);
         assertThat(com.classhub.api.domain.ApiProfessor.class.getSuperclass()).isEqualTo(com.classhub.api.domain.ApiUser.class);
