@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icon.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 import { Button, Field, Input } from '../components/ui.jsx';
 import { useToast } from '../components/ToastProvider.jsx';
 import { api } from '../lib/api.js';
@@ -31,6 +32,7 @@ export default function RecuperarSenha() {
 
   return (
     <div className="auth">
+      <ThemeToggle className="auth__theme" />
       <div className="auth__card">
         <div className="auth__brand">
           <span className="sidebar-brand__mark" style={{ background: 'linear-gradient(135deg,#4f7cff,#2f4bd8)' }}>

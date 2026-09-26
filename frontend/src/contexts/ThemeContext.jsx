@@ -2,73 +2,59 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 const THEME_STORAGE_KEY = 'classhub-theme';
 
-const ThemeContext = createContext({
-  theme: 'light',
-  isDark: false,
-  toggleTheme: () => {},
-  setTheme: () => {}
-});
+const ThemeContext = createContext(undefined);
+
+function getStoredTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    return saved === 'dark' || saved === 'light' ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
+function getSystemTheme() {
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
 
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light';
 
-  try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY);
-    if (saved === 'dark' || saved === 'light') {
-      return saved;
-    }
-
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-  } catch (err) {
-    console.warn('Não foi possível acessar o localStorage para tema:', err);
-  }
-
-  return 'light';
+  return getStoredTheme() || getSystemTheme();
 }
 
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(getInitialTheme);
+  const [hasUserPreference, setHasUserPreference] = useState(() => Boolean(getStoredTheme()));
 
   useEffect(() => {
-    try {
-      const root = document.documentElement;
-      root.setAttribute('data-theme', theme);
-      if (theme === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch (err) {
-      console.warn('Erro ao persistir preferência de tema no localStorage:', err);
-    }
+    const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+    root.style.colorScheme = theme;
   }, [theme]);
 
-  // Listener para mudanças no sistema operacional caso o usuário não tenha definido manualmente no storage
   useEffect(() => {
-    if (!window.matchMedia) return;
+    if (!window.matchMedia || hasUserPreference) return;
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    function handleChange(e) {
-      const userPreference = localStorage.getItem(THEME_STORAGE_KEY);
-      if (!userPreference) {
-        setThemeState(e.matches ? 'dark' : 'light');
-      }
-    }
+    const handleChange = (event) => setThemeState(event.matches ? 'dark' : 'light');
 
     mediaQuery.addEventListener?.('change', handleChange);
     return () => mediaQuery.removeEventListener?.('change', handleChange);
-  }, []);
+  }, [hasUserPreference]);
 
   function toggleTheme() {
-    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   }
 
-  function setTheme(newTheme) {
-    if (newTheme === 'dark' || newTheme === 'light') {
-      setThemeState(newTheme);
+  function setTheme(nextTheme) {
+    if (nextTheme !== 'dark' && nextTheme !== 'light') return;
+
+    setThemeState(nextTheme);
+    setHasUserPreference(true);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    } catch {
+      // O tema ainda funciona quando o armazenamento esta indisponivel.
     }
   }
 
@@ -84,7 +70,7 @@ export function ThemeProvider({ children }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useTheme deve ser utilizado dentro de um ThemeProvider');
   }
   return context;

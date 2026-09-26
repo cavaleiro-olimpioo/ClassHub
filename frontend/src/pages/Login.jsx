@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '../components/Icon.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 import { Button, Field, Input } from '../components/ui.jsx';
 import { useToast } from '../components/ToastProvider.jsx';
 import { dashboardPathFor, login as doLogin } from '../lib/session.js';
@@ -51,6 +52,7 @@ export default function Login() {
 
   return (
     <div className="auth auth--split">
+      <ThemeToggle className="auth__theme" />
       <div className="auth__aside">
         <h2>
           Bem-vindo ao

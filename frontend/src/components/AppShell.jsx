@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './Icon.jsx';
+import ThemeToggle from './ThemeToggle.jsx';
 import { clearSession, getSession } from '../lib/session.js';
 import { menuFor, SECTION_LABEL, titleForPath } from '../lib/menu.js';
 import { firstName, greetingFor, initials, longDateBR } from '../lib/format.js';
@@ -116,6 +117,8 @@ export default function AppShell() {
           </nav>
 
           <div className="topbar__spacer" />
+
+          <ThemeToggle />
 
           <div className="topbar__hello">
             <div className="topbar__greeting">

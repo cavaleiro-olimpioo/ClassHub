@@ -6,10 +6,19 @@
     <meta name="description" content="ClassHub - Sistema de gerenciamento escolar" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>ClassHub - Gestão Escolar</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem('classhub-theme');
+        const theme = savedTheme === 'dark' || savedTheme === 'light'
+          ? savedTheme
+          : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-

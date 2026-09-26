@@ -6,14 +6,15 @@ import Icon from './Icon.jsx';
  * Salva e sincroniza a preferência no localStorage via ThemeContext.
  */
 export default function ThemeToggle({ showLabel = false, className = '', style = {} }) {
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
 
   return (
     <button
       type="button"
-      className={`theme-toggle ${isDark ? 'is-dark' : 'is-light'} ${className}`}
+      className={`theme-toggle ${showLabel ? 'theme-toggle--with-label' : ''} ${isDark ? 'is-dark' : 'is-light'} ${className}`}
       onClick={toggleTheme}
       aria-label={isDark ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
+      aria-pressed={isDark}
       title={isDark ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
       style={style}
     >
