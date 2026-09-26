@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 public class DemoDataInitializer {
 
     @Bean
+    @Order(1)
     @ConditionalOnProperty(name = "app.seed-demo-users", havingValue = "true", matchIfMissing = true)
     CommandLineRunner seedDemoUsers(ApiUserRepository users,
                                     ApiProfessorRepository professors,
