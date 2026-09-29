@@ -21,10 +21,10 @@ const MES_ATUAL = HOJE.getMonth() + 1;
 const HOJE_ISO = HOJE.toISOString().slice(0, 10);
 
 const LEGENDA = [
-  { tipo: 'LETIVO', cor: '#0d7fd4', label: 'Dia Letivo' },
-  { tipo: 'FERIADO', cor: '#d93a3a', label: 'Feriado' },
-  { tipo: 'RECESSO', cor: '#b8860b', label: 'Recesso' },
-  { tipo: 'EVENTO', cor: '#2f4bd8', label: 'Evento' }
+  { tipo: 'LETIVO', cor: '#0d7fd4', label: 'Dia Letivo de Phonk' },
+  { tipo: 'FERIADO', cor: '#d93a3a', label: 'Feriado da Resenha' },
+  { tipo: 'RECESSO', cor: '#b8860b', label: 'Recesso do Bora Bill' },
+  { tipo: 'EVENTO', cor: '#2f4bd8', label: 'Evento Eitcha!' }
 ];
 
 const contar = (eventos, tipo) => eventos.filter((e) => String(e.tipo).toUpperCase() === tipo).length;
@@ -101,15 +101,15 @@ export default function AlunoCalendario() {
 function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loading, letivos, diasNoMes, proximo, futuros, safePage, setPage }) {
   return (
     <>
-      <PageHead title="Calendário Escolar" subtitle="Consulte dias letivos, feriados, recesses e eventos do ano letivo." />
+      <PageHead title="Calendário Bora Bill 67" subtitle="Consulte dias letivos de phonk, feriados da resenha, recessos do Bora Bill e eventos de Kirk e Floyd. Eitxha!" />
 
       <div className="grid grid--stats">
-        <StatCard icon="calendar" tone="info" label="Mês de Referência" value={`${MONTHS[mes - 1].slice(0, 3)}/${anoLetivo}`} caption="Período selecionado" />
-        <StatCard icon="check" tone="success" label="Dias Letivos no Mês" value={letivos} caption={`de ${diasNoMes} dias`} />
+        <StatCard icon="calendar" tone="info" label="Mês da Resenha" value={`${MONTHS[mes - 1].slice(0, 3)}/${anoLetivo}`} caption="Período selecionado 67" />
+        <StatCard icon="check" tone="success" label="Dias Letivos de Phonk" value={letivos} caption={`de ${diasNoMes} dias`} />
         <StatCard
           icon="clipboard"
           tone="warning"
-          label="Próximo Evento"
+          label="Próximo Evento do Floyd"
           value={proximo ? formatDate(proximo.data) : '—'}
           caption={proximo ? proximo.titulo : 'Nenhum evento agendado'}
         />
@@ -118,7 +118,7 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
       <div style={{ height: 16 }} />
 
       <Card
-        title="Filtros de Consulta"
+        title="Filtros de Consulta da Resenha"
         icon="filter"
         actions={
           <div className="row">
@@ -156,9 +156,9 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
       <div style={{ height: 16 }} />
 
       <Card
-        title="Registros Oficiais do Calendário"
+        title="Registros Oficiais do Calendário 67"
         icon="calendar"
-        subtitle={`${eventos.length} registro(s) em ${MONTHS[mes - 1]}`}
+        subtitle={`${eventos.length} registro(s) da resenha em ${MONTHS[mes - 1]}`}
         flush
         footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={eventos.length} onPageChange={setPage} itemLabel="registros" />}
       >
@@ -166,12 +166,12 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
           loading={loading}
           rows={paginate(eventos, safePage, PAGE_SIZE)}
           emptyIcon="calendar"
-          emptyTitle="Nenhum registro neste mês"
-          emptySubtitle="Não há dias letivos, feriados ou eventos cadastrados para o período selecionado."
+          emptyTitle="Nenhum registro na resenha neste mês"
+          emptySubtitle="Lá ele! Não há dias letivos, feriados ou eventos do Bora Bill cadastrados para o período selecionado."
           columns={[
             { key: 'data', label: 'Data', width: 140, render: (v) => <span className="cell-strong mono">{formatDate(v)}</span> },
             { key: 'tipo', label: 'Tipo', width: 150, render: (v) => <StatusBadge status={v} /> },
-            { key: 'titulo', label: 'Título' },
+            { key: 'titulo', label: 'Título da Resenha' },
             { key: 'descricao', label: 'Descrição', className: 'cell-muted' },
             { key: 'anoLetivo', label: 'Ano Letivo', width: 120, className: 'mono' }
           ]}
@@ -181,9 +181,9 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
       <div style={{ height: 16 }} />
 
       <div className="grid grid--3">
-        <Card title="Próximos Eventos" icon="bell" subtitle={`Em ${MONTHS[mes - 1]}`}>
+        <Card title="Próximos Eventos do Floyd" icon="bell" subtitle={`Em ${MONTHS[mes - 1]}`}>
           {futuros.length === 0 ? (
-            <p className="text-muted" style={{ fontSize: 13 }}>Nenhum evento futuro neste mês.</p>
+            <p className="text-muted" style={{ fontSize: 13 }}>Nenhum evento futuro neste mês na resenha.</p>
           ) : (
             <div className="stack" style={{ gap: 8 }}>
               {futuros.slice(0, 4).map((evento) => (
@@ -196,7 +196,7 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
           )}
         </Card>
 
-        <Card title="Resumo do Mês" icon="trending">
+        <Card title="Resumo do Mês 67" icon="trending">
           <div className="stack" style={{ gap: 8 }}>
             {LEGENDA.map((item) => (
               <div className="row" key={item.tipo} style={{ justifyContent: 'space-between' }}>
@@ -213,13 +213,13 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
         <div className="notice-panel">
           <h3 className="notice-panel__title">
             <Icon name="info" size={17} />
-            Como funciona
+            Como funciona a resenha 67
           </h3>
           <ul>
-            <li>Dias letivos confirmam a obrigatoriedade da presença.</li>
-            <li>Feriados e recesses não geram faltas.</li>
-            <li>Eventos são comunicados e atividades extracurriculares.</li>
-            <li>O calendário é atualizado pela secretaria escolar.</li>
+            <li>Dias letivos de phonk confirmam a presença do amostradinho.</li>
+            <li>Feriados da resenha e recessos do Bora Bill não geram faltas.</li>
+            <li>Eventos eitcha são comunicados por Jennifer, Kirk e Floyd.</li>
+            <li>O calendário do 67 é atualizado pela secretaria da resenha.</li>
           </ul>
         </div>
       </div>

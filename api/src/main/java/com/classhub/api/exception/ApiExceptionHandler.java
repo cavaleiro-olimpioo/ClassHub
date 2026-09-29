@@ -32,27 +32,27 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<MessageResponse> validation(MethodArgumentNotValidException ex) {
         FieldError error = ex.getBindingResult().getFieldError();
-        return response(HttpStatus.BAD_REQUEST, error == null ? "Dados inválidos." : error.getField() + ": " + error.getDefaultMessage());
+        return response(HttpStatus.BAD_REQUEST, error == null ? "Dados inválidos na resenha 67. Lá ele!" : error.getField() + ": " + error.getDefaultMessage() + " (67)");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<MessageResponse> unreadable(HttpMessageNotReadableException ex) {
-        return response(HttpStatus.BAD_REQUEST, "JSON inválido ou campo em formato incorreto.");
+        return response(HttpStatus.BAD_REQUEST, "JSON inválido ou campo em formato incorreto no 67. Lá ele!");
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<MessageResponse> typeMismatch(MethodArgumentTypeMismatchException ex) {
-        return response(HttpStatus.BAD_REQUEST, "Parâmetro '" + ex.getName() + "' possui formato inválido.");
+        return response(HttpStatus.BAD_REQUEST, "Parâmetro '" + ex.getName() + "' possui formato inválido no 67. Lá ele!");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<MessageResponse> integrity(DataIntegrityViolationException ex) {
-        return response(HttpStatus.CONFLICT, "O registro já existe ou possui dados relacionados.");
+        return response(HttpStatus.CONFLICT, "O registro já existe ou possui dados relacionados na resenha 67. Lá ele!");
     }
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<MessageResponse> unknown(Exception ex) {
-        return response(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor.");
+        return response(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor no PhonkHub 67. Eitxha!");
     }
 
     private ResponseEntity<MessageResponse> response(HttpStatus status, String message) {

@@ -113,7 +113,7 @@ export function Alert({ tone = 'info', title, children }) {
 
 /* ========================= Loading / Empty state ======================== */
 
-export function Loading({ message = 'Carregando dados...' }) {
+export function Loading({ message = 'Carregando dados da resenha 67 (Bora Bill, Floyd)...' }) {
   return (
     <div className="loading">
       <span className="spinner" />
@@ -122,7 +122,7 @@ export function Loading({ message = 'Carregando dados...' }) {
   );
 }
 
-export function EmptyState({ icon = 'inbox', title = 'Nenhum item encontrado', subtitle }) {
+export function EmptyState({ icon = 'inbox', title = 'Nenhum item na resenha 67', subtitle = 'Lá ele, nada por aqui! Bora bill tentar de novo com Jennifer ou Floyd.' }) {
   return (
     <div className="empty">
       <span className="empty__icon">
@@ -167,7 +167,7 @@ export function Textarea({ error, ...rest }) {
   return <textarea className={`textarea ${error ? 'is-error' : ''}`} {...rest} />;
 }
 
-export function SearchBox({ value, onChange, placeholder = 'Buscar...', ...rest }) {
+export function SearchBox({ value, onChange, placeholder = 'Buscar na resenha 67...', ...rest }) {
   return (
     <div className="search-box" style={{ minWidth: 220, flex: 1 }}>
       <Icon name="search" size={16} />
@@ -185,7 +185,7 @@ export function SearchBox({ value, onChange, placeholder = 'Buscar...', ...rest 
 
 /* ============================ Chips de filtro =========================== */
 
-export function FilterChips({ label = 'Filtros', options, value, onChange }) {
+export function FilterChips({ label = 'Filtros da Resenha', options, value, onChange }) {
   if (!options?.length) return null;
   return (
     <div className="chips">
@@ -240,7 +240,7 @@ export function Modal({ title, onClose, children, footer, size }) {
       <div className={`modal ${size === 'lg' ? 'modal--lg' : ''}`}>
         <header className="modal__head">
           <h2 className="modal__title">{title}</h2>
-          <button type="button" className="modal__close" onClick={onClose} aria-label="Fechar">
+          <button type="button" className="modal__close" onClick={onClose} aria-label="Fechar (Lá Ele)">
             <Icon name="x" size={18} />
           </button>
         </header>
@@ -253,7 +253,7 @@ export function Modal({ title, onClose, children, footer, size }) {
 
 /* ============================ Confirmacao ============================== */
 
-export function ConfirmDialog({ open, title, message, confirmText = 'Confirmar', cancelText = 'Cancelar', tone = 'primary', loading, onConfirm, onCancel, children }) {
+export function ConfirmDialog({ open, title, message, confirmText = 'Confirmar (Bora Bill)', cancelText = 'Cancelar (Lá Ele)', tone = 'primary', loading, onConfirm, onCancel, children }) {
   if (!open) return null;
   return (
     <Modal
@@ -278,7 +278,7 @@ export function ConfirmDialog({ open, title, message, confirmText = 'Confirmar',
 
 /* ============================== Paginacao =============================== */
 
-export function Pagination({ page, pageSize, total, onPageChange, itemLabel = 'registros' }) {
+export function Pagination({ page, pageSize, total, onPageChange, itemLabel = 'registros da resenha 67' }) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, totalPages);
 
@@ -293,7 +293,7 @@ export function Pagination({ page, pageSize, total, onPageChange, itemLabel = 'r
   for (let i = start; i < start + 3 && i <= totalPages; i += 1) pages.push(i);
 
   return (
-    <nav className="pagination" aria-label="Paginação">
+    <nav className="pagination" aria-label="Paginação da Resenha 67">
       <div className="pagination__info">
         <span>
           Mostrando <strong className="mono">{first}</strong> a <strong className="mono">{last}</strong> de{' '}
@@ -302,9 +302,9 @@ export function Pagination({ page, pageSize, total, onPageChange, itemLabel = 'r
       </div>
       <div className="pagination__spacer" />
       <div className="pagination__pages">
-        <button type="button" className="page-btn" onClick={() => onPageChange(safePage - 1)} disabled={safePage === 1} aria-label="Página anterior">
+        <button type="button" className="page-btn" onClick={() => onPageChange(safePage - 1)} disabled={safePage === 1} aria-label="Página anterior (Lá Ele)">
           <Icon name="chevronLeft" size={14} />
-          Anterior
+          Anterior (Lá Ele)
         </button>
         {pages[0] > 1 && (
           <button type="button" className="page-btn" onClick={() => onPageChange(1)}>
@@ -334,9 +334,9 @@ export function Pagination({ page, pageSize, total, onPageChange, itemLabel = 'r
           className="page-btn"
           onClick={() => onPageChange(safePage + 1)}
           disabled={safePage === totalPages}
-          aria-label="Próxima página"
+          aria-label="Próxima página (Bora Bill)"
         >
-          Próxima
+          Próxima (Bora Bill)
           <Icon name="chevronRight" size={14} />
         </button>
       </div>

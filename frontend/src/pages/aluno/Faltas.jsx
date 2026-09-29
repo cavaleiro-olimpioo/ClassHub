@@ -60,10 +60,10 @@ export default function AlunoFaltas() {
 
   const CHIP_OPCOES = useMemo(
     () => [
-      { value: 'TODAS', label: 'Todas', count: presencas.length },
-      { value: 'FALTAS', label: 'Faltas', count: faltas.length },
-      { value: 'JUSTIFICADAS', label: 'Justificadas', count: justificadas.length },
-      { value: 'PRESENTES', label: 'Presenças', count: presentes.length }
+      { value: 'TODAS', label: 'Todas da Resenha', count: presencas.length },
+      { value: 'FALTAS', label: 'Faltas Lá Ele', count: faltas.length },
+      { value: 'JUSTIFICADAS', label: 'Justificadas no 67', count: justificadas.length },
+      { value: 'PRESENTES', label: 'Presenças Amostradinho', count: presentes.length }
     ],
     [presencas.length, faltas.length, justificadas.length, presentes.length]
   );
@@ -83,11 +83,11 @@ export default function AlunoFaltas() {
 
   const safePage = Math.min(page, Math.max(1, Math.ceil(filtradas.length / PAGE_SIZE)));
 
-  if (loadingAluno) return <Loading message="Carregando sua frequência..." />;
+  if (loadingAluno) return <Loading message="Carregando sua frequência no 67..." />;
 
   return (
     <>
-      <PageHead title="Minhas Faltas" subtitle="Acompanhe sua frequência, faltas e justificativas registradas pelos professores." />
+      <PageHead title="Minhas Faltas Lá Ele" subtitle="Acompanhe sua frequência da resenha 67, faltas do amostradinho e justificativas registradas pelo professor Floyd." />
 
       {error && (
         <div style={{ marginBottom: 16 }}>
@@ -96,13 +96,13 @@ export default function AlunoFaltas() {
       )}
 
       <div className="grid grid--stats">
-        <StatCard icon="xCircle" tone="danger" label="Faltas" value={faltas.length} caption="Faltas não justificadas" />
-        <StatCard icon="checkSquare" tone="warning" label="Justificadas" value={justificadas.length} caption="Faltas com atestado" />
-        <StatCard icon="check" tone="success" label="Presenças" value={presentes.length} caption="Aulas com presença" />
+        <StatCard icon="xCircle" tone="danger" label="Faltas Lá Ele" value={faltas.length} caption="Faltas não justificadas" />
+        <StatCard icon="checkSquare" tone="warning" label="Justificadas na Resenha" value={justificadas.length} caption="Faltas com atestado" />
+        <StatCard icon="check" tone="success" label="Presenças 67" value={presentes.length} caption="Aulas com presença" />
         <StatCard
           icon="trending"
           tone={frequencia !== null && frequencia >= 75 ? 'success' : 'danger'}
-          label="Frequência"
+          label="Frequência Amostradinho"
           value={frequencia === null ? '—' : `${frequencia}%`}
           caption="Mínimo exigido: 75%"
         />
@@ -112,19 +112,18 @@ export default function AlunoFaltas() {
 
       {frequencia !== null && frequencia < 75 && (
         <div style={{ marginBottom: 16 }}>
-          <Alert tone="warning" title="Frequência abaixo do mínimo">
-            Sua frequência está em {frequencia}%. O mínimo exigido é 75% — procure a secretaria para regularizar faltas
-            justificadas.
+          <Alert tone="warning" title="Frequência abaixo do mínimo no 67">
+            Sua frequência está em {frequencia}%. O mínimo exigido é 75% — lá ele, procure a secretaria da resenha para regularizar faltas com Bora Bill.
           </Alert>
         </div>
       )}
 
       <Card
-        title="Registros de Frequência"
+        title="Registros de Frequência da Resenha 67"
         icon="checkSquare"
-        subtitle={`${filtradas.length} registro(s)`}
+        subtitle={`${filtradas.length} registro(s) da resenha`}
         flush
-        footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={filtradas.length} onPageChange={setPage} itemLabel="registros" />}
+        footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={filtradas.length} onPageChange={setPage} itemLabel="registros de frequência" />}
       >
         <div style={{ padding: '14px 18px' }}>
           <FilterChips
@@ -140,13 +139,13 @@ export default function AlunoFaltas() {
           loading={loading}
           rows={paginate(filtradas, safePage, PAGE_SIZE)}
           emptyIcon="checkSquare"
-          emptyTitle="Nenhum registro encontrado"
-          emptySubtitle="Não há lançamentos de frequência para o filtro selecionado."
+          emptyTitle="Nenhum registro encontrado no 67"
+          emptySubtitle="Lá ele! Não há lançamentos de frequência para o filtro selecionado."
           columns={[
             { key: 'data', label: 'Data', width: 140, render: (v) => <span className="cell-strong mono">{formatDate(v)}</span> },
             { key: 'disciplinaNome', label: 'Disciplina', render: (v) => v || '-' },
             { key: 'status', label: 'Status', width: 180, render: (v) => <StatusBadge status={v} /> },
-            { key: 'justificativa', label: 'Justificativa', className: 'cell-muted' }
+            { key: 'justificativa', label: 'Justificativa do Bora Bill', className: 'cell-muted' }
           ]}
         />
       </Card>

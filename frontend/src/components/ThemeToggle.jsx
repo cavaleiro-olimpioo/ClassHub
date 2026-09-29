@@ -13,9 +13,9 @@ export default function ThemeToggle({ showLabel = false, className = '', style =
       type="button"
       className={`theme-toggle ${showLabel ? 'theme-toggle--with-label' : ''} ${isDark ? 'is-dark' : 'is-light'} ${className}`}
       onClick={toggleTheme}
-      aria-label={isDark ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
+      aria-label={isDark ? 'Alternar para modo claro (Resenha 67)' : 'Alternar para modo escuro (Phonk 67)'}
       aria-pressed={isDark}
-      title={isDark ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
+      title={isDark ? 'Alternar para modo claro (Resenha 67)' : 'Alternar para modo escuro (Phonk 67)'}
       style={style}
     >
       <span className="theme-toggle__icon">
@@ -23,7 +23,7 @@ export default function ThemeToggle({ showLabel = false, className = '', style =
       </span>
       {showLabel && (
         <span className="theme-toggle__label">
-          {isDark ? 'Modo Claro' : 'Modo Escuro'}
+          {isDark ? 'Modo Claro 67' : 'Modo Escuro Phonk'}
         </span>
       )}
     </button>

@@ -1,33 +1,33 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: classhub-db
+    container_name: phonkhub-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: classhubdb
+      POSTGRES_DB: phonkhubdb
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d classhubdb"]
+      test: ["CMD-SHELL", "pg_isready -U root -d phonkhubdb"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - classhub-net
+      - phonkhub-net
 
   backend:
     build: ./api
-    container_name: classhub-api
+    container_name: phonkhub-api
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/classhubdb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/phonkhubdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       APP_CORS_ALLOWED_ORIGINS: http://localhost:5173,https://pegasus.tail2cdb38.ts.net
@@ -40,11 +40,11 @@ services:
       retries: 12
       start_period: 30s
     networks:
-      - classhub-net
+      - phonkhub-net
 
   frontend:
     build: ./frontend
-    container_name: classhub-frontend
+    container_name: phonkhub-frontend
     restart: unless-stopped
     depends_on:
       backend:
@@ -52,11 +52,11 @@ services:
     ports:
       - "5173:80"
     networks:
-      - classhub-net
+      - phonkhub-net
 
 volumes:
   pgdata:
 
 networks:
-  classhub-net:
+  phonkhub-net:
     driver: bridge

@@ -47,9 +47,9 @@ export default function CrudPage({
   filters = [],
   deletable = false,
   pageSize = 10,
-  createLabel = 'Novo Registro',
-  emptyTitle = 'Nenhum registro encontrado',
-  emptySubtitle = 'Não há dados cadastrados para exibir.',
+  createLabel = 'Novo Registro da Resenha 67',
+  emptyTitle = 'Nenhum registro encontrado no 67',
+  emptySubtitle = 'Lá ele! Não há dados da resenha cadastrados. Bora bill criar o primeiro com Jennifer ou Floyd!',
   extraActions,
   cardTitle,
   cardSubtitle,
@@ -81,7 +81,7 @@ export default function CrudPage({
       setRows(Array.isArray(data) ? data : []);
     } catch (error) {
       setRows([]);
-      toast.error(error.message || 'Não foi possível carregar os dados.');
+      toast.error(error.message || 'Não foi possível carregar os dados da resenha 67.');
     } finally {
       setLoading(false);
     }
@@ -152,7 +152,7 @@ export default function CrudPage({
       (field) => field.required && (values[field.name] === '' || values[field.name] === null || values[field.name] === undefined)
     );
     if (missing) {
-      setFormError(`Preencha o campo "${missing.label}".`);
+      setFormError(`Preencha o campo "${missing.label}" da resenha 67.`);
       return;
     }
 
@@ -161,16 +161,16 @@ export default function CrudPage({
     try {
       if (editing) {
         await api.put(`${endpoint}/${editing.id}`, payload);
-        toast.success('Registro atualizado com sucesso!');
+        toast.success('Registro atualizado com sucesso no 67! Bora bill!');
       } else {
         await api.post(endpoint, payload);
-        toast.success('Registro criado com sucesso!');
+        toast.success('Registro criado com sucesso na resenha! Eitcha!');
       }
       setModalOpen(false);
       await load();
     } catch (error) {
-      setFormError(error.message || 'Não foi possível salvar o registro.');
-      toast.error(error.message || 'Erro ao salvar.');
+      setFormError(error.message || 'Não foi possível salvar o registro da resenha 67. Lá ele!');
+      toast.error(error.message || 'Erro ao salvar no 67.');
     } finally {
       setSaving(false);
     }
@@ -181,11 +181,11 @@ export default function CrudPage({
     setDeleteError(null);
     try {
       await api.delete(`${endpoint}/${removing.id}`);
-      toast.success('Registro excluído com sucesso!');
+      toast.success('Registro excluído com sucesso do 67!');
       setRemoving(null);
       await load();
     } catch (error) {
-      setDeleteError(error.message || 'Não foi possível excluir o registro.');
+      setDeleteError(error.message || 'Não foi possível excluir o registro do 67. Lá ele!');
     }
   }
 

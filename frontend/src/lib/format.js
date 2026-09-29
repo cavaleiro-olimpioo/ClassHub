@@ -28,50 +28,50 @@ export function todayISO() {
 
 export function greetingFor(date = new Date()) {
   const hour = date.getHours();
-  if (hour < 12) return 'Bom dia';
-  if (hour < 18) return 'Boa tarde';
-  return 'Boa noite';
+  if (hour < 12) return 'Bom dia na resenha';
+  if (hour < 18) return 'Boa tarde no 67';
+  return 'Boa noite, bora bill';
 }
 
 export function longDateBR(date = new Date()) {
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-export const WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terca-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sabado'];
-export const WEEKDAYS_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
+export const WEEKDAYS = ['Domingo da Resenha', 'Segunda-feira 67', 'Terça-feira Lá Ele', 'Quarta-feira Bora Bill', 'Quinta-feira Eitxha', 'Sexta-feira Amostradinho', 'Sábado do Floyd'];
+export const WEEKDAYS_SHORT = ['DOM', 'SEG-67', 'TER-ELE', 'QUA-BILL', 'QUI-EIT', 'SEX-AMOS', 'SAB-FLOYD'];
 export const MONTHS = [
   'Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
 export function bimestreLabel(value) {
-  return `${value}º Bimestre`;
+  return `${value}º Bimestre da Resenha 67`;
 }
 
 /** Rotulo e tom visual de um status generico. */
 const STATUS_MAP = {
   // Presenca
-  PRESENTE: { label: 'Presente', tone: 'success' },
-  FALTA: { label: 'Falta', tone: 'danger' },
-  FALTA_JUSTIFICADA: { label: 'Falta Justificada', tone: 'warning' },
+  PRESENTE: { label: 'Presente no 67', tone: 'success' },
+  FALTA: { label: 'Falta (Lá Ele)', tone: 'danger' },
+  FALTA_JUSTIFICADA: { label: 'Falta Justificada na Resenha', tone: 'warning' },
   // Ocorrencia
-  ABERTA: { label: 'Aberta', tone: 'warning' },
-  ENCERRADA: { label: 'Encerrada', tone: 'neutral' },
+  ABERTA: { label: 'Aberta (Eitxha)', tone: 'warning' },
+  ENCERRADA: { label: 'Encerrada pelo Floyd', tone: 'neutral' },
   // Achados e perdidos
-  NAO_REIVINDICADO: { label: 'Nao Reivindicado', tone: 'info' },
-  DEVOLVIDO: { label: 'Devolvido', tone: 'primary' },
+  NAO_REIVINDICADO: { label: 'Não Reivindicado (Amostradinho)', tone: 'info' },
+  DEVOLVIDO: { label: 'Devolvido pro Bora Bill', tone: 'primary' },
   // Situacao escolar
-  APROVADO: { label: 'Aprovado', tone: 'success' },
-  RECUPERACAO: { label: 'Recuperacao', tone: 'warning' },
-  REPROVADO: { label: 'Reprovado', tone: 'danger' },
+  APROVADO: { label: 'Aprovado na Resenha 67', tone: 'success' },
+  RECUPERACAO: { label: 'Recuperação (Lá Ele!)', tone: 'warning' },
+  REPROVADO: { label: 'Reprovado Amostradinho', tone: 'danger' },
   // Calendario
-  LETIVO: { label: 'Dia Letivo', tone: 'info' },
-  FERIADO: { label: 'Feriado', tone: 'danger' },
-  RECESSO: { label: 'Recesso', tone: 'warning' },
-  EVENTO: { label: 'Evento', tone: 'primary' },
+  LETIVO: { label: 'Dia Letivo de Phonk', tone: 'info' },
+  FERIADO: { label: 'Feriado da Resenha', tone: 'danger' },
+  RECESSO: { label: 'Recesso do Bora Bill', tone: 'warning' },
+  EVENTO: { label: 'Evento Eitcha!', tone: 'primary' },
   //series
-  ENSINO_FUNDAMENTAL: { label: 'Ensino Fundamental', tone: 'info' },
-  ENSINO_MEDIO: { label: 'Ensino Medio', tone: 'info' }
+  ENSINO_FUNDAMENTAL: { label: 'Ensino Fundamental 67', tone: 'info' },
+  ENSINO_MEDIO: { label: 'Ensino Médio Amostradinho', tone: 'info' }
 };
 
 export function statusInfo(status) {

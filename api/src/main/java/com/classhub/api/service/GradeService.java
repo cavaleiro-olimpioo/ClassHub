@@ -47,12 +47,12 @@ public class GradeService {
     }
 
     public NotaResponse updateNota(Long id, NotaRequest request) {
-        ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada."));
+        ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada na resenha 67. Lá ele!"));
         apply(entity, request); return nota(entity);
     }
 
     public void deleteNota(Long id) {
-        ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada."));
+        ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada na resenha 67. Lá ele!"));
         notas.delete(entity);
     }
 
@@ -66,7 +66,7 @@ public class GradeService {
             fechamento.setAnoLetivo(request.anoLetivo()); fechamento.setBimestre(request.bimestre()); fechamento.setTurma(turma);
             fechamentos.save(fechamento);
         }
-        return new MessageResponse("Boletins gerados para o " + request.bimestre() + "º bimestre.");
+        return new MessageResponse("Boletins da resenha 67 gerados para o " + request.bimestre() + "º bimestre. Bora bill!");
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +76,7 @@ public class GradeService {
         Long turmaId = aluno.getTurma() == null ? null : aluno.getTurma().getId();
         boolean fechado = fechamentos.findByAnoLetivoAndBimestreAndTurmaIsNull(ano, bimestre).isPresent()
             || turmaId != null && fechamentos.findByAnoLetivoAndBimestreAndTurmaId(ano, bimestre, turmaId).isPresent();
-        if (!fechado) throw new BusinessRuleException("Bimestre ainda não fechado.");
+        if (!fechado) throw new BusinessRuleException("Bimestre ainda não fechado na resenha 67. Lá ele!");
 
         Map<Long, List<ApiNota>> porDisciplina = notas.findByAlunoIdAndBimestre(alunoId, bimestre).stream()
             .collect(Collectors.groupingBy(n -> n.getDisciplina().getId()));
@@ -97,7 +97,7 @@ public class GradeService {
     @Transactional(readOnly = true)
     public byte[] boletimPdf(Long alunoId, int bimestre) {
         BoletimResponse boletim = boletim(alunoId, bimestre);
-        String lines = "Boletim - " + bimestre + "o Bimestre\\n" + boletim.disciplinas().stream()
+        String lines = "Boletim PhonkHub 67 - " + bimestre + "o Bimestre da Resenha\\n" + boletim.disciplinas().stream()
             .map(item -> item.disciplinaNome() + " - Media: " + item.media() + " - " + item.situacao()).collect(Collectors.joining("\\n"));
         return minimalPdf(lines).getBytes(StandardCharsets.ISO_8859_1);
     }

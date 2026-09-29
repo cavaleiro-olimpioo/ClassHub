@@ -107,11 +107,11 @@ export default function AdminHorarios() {
         disciplinaId: Number(form.disciplinaId),
         professorId: Number(form.professorId)
       });
-      toast.success('Horário criado com sucesso!');
+      toast.success('Horário criado com sucesso no 67! Bora bill!');
       setModalOpen(false);
       await reloadGrid();
     } catch (error) {
-      setFormError(error.message || 'Não foi possível salvar o horário.');
+      setFormError(error.message || 'Lá ele! Não foi possível salvar o horário.');
     } finally {
       setSaving(false);
     }
@@ -121,31 +121,31 @@ export default function AdminHorarios() {
     if (!removing) return;
     try {
       await api.delete(`/horarios/${removing.id}`);
-      toast.success('Horário removido.');
+      toast.success('Horário removido da resenha.');
       setRemoving(null);
       await reloadGrid();
     } catch (error) {
-      toast.error(error.message || 'Não foi possível remover o horário.');
+      toast.error(error.message || 'Lá ele! Não foi possível remover o horário.');
     }
   }
 
-  if (loading) return <Loading message="Carregando turmas e disciplinas..." />;
+  if (loading) return <Loading message="Carregando turmas e disciplinas da resenha 67..." />;
 
   return (
     <>
       <PageHead
-        title="Grade de Horários"
-        subtitle="Monte a grade semanal de aulas por turma, definindo disciplina, professor e faixa de horário."
+        title="Grade de Horários Bora Bill 67"
+        subtitle="Monte a grade semanal de aulas da resenha por turma, definindo disciplina, professor Kirk/Floyd e faixa de horário. Eitxha!"
       />
 
       <Card
-        title="Filtros de Consulta"
+        title="Filtros de Consulta da Resenha"
         icon="filter"
-        subtitle={selectedTurma ? `${horarios.length} registro(s) na grade` : 'Selecione uma turma para visualizar a grade'}
+        subtitle={selectedTurma ? `${horarios.length} registro(s) na grade 67` : 'Selecione uma turma da resenha para visualizar a grade'}
         actions={
           <>
             <div style={{ minWidth: 220 }}>
-              <Select value={selectedTurma} onChange={(e) => setSelectedTurma(e.target.value)} placeholder="Selecione uma turma..." aria-label="Turma">
+              <Select value={selectedTurma} onChange={(e) => setSelectedTurma(e.target.value)} placeholder="Selecione uma turma da resenha..." aria-label="Turma da Resenha">
                 {toOptions(turmas).map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -154,7 +154,7 @@ export default function AdminHorarios() {
               </Select>
             </div>
             <Button icon="plus" onClick={() => openCreate(1)} disabled={!selectedTurma}>
-              Novo Horário
+              Novo Horário Bora Bill
             </Button>
           </>
         }
@@ -162,13 +162,13 @@ export default function AdminHorarios() {
         {!selectedTurma ? (
           <EmptyState
             icon="clock"
-            title="Nenhuma turma selecionada"
-            subtitle="Escolha uma turma acima para visualizar e editar a grade de horários."
+            title="Nenhuma turma selecionada na resenha 67"
+            subtitle="Escolha uma turma da resenha acima para visualizar e editar a grade de horários do Bora Bill."
           />
         ) : loadingGrid ? (
           <Loading />
         ) : horarios.length === 0 ? (
-          <EmptyState icon="clock" title="Grade vazia" subtitle="Nenhum horário cadastrado para esta turma." />
+          <EmptyState icon="clock" title="Grade vazia na resenha" subtitle="Lá ele! Nenhum horário cadastrado para esta turma no 67." />
         ) : (
           <div className="grid grid--3">
             {WEEK.map((day) => {
@@ -223,15 +223,15 @@ export default function AdminHorarios() {
 
       {modalOpen && (
         <Modal
-          title="Novo Horário"
+          title="Novo Horário Bora Bill"
           onClose={() => !saving && setModalOpen(false)}
           footer={
             <>
               <Button variant="secondary" onClick={() => setModalOpen(false)} disabled={saving}>
-                Cancelar
+                Cancelar (Lá Ele)
               </Button>
               <Button form="horario-form" type="submit" loading={saving}>
-                Salvar
+                Salvar (Bora Bill)
               </Button>
             </>
           }
@@ -242,8 +242,8 @@ export default function AdminHorarios() {
                 <Alert tone="danger">{formError}</Alert>
               </div>
             )}
-            <Field label="Turma" required htmlFor="h-turma">
-              <Select id="h-turma" value={form.turmaId} onChange={(e) => setForm({ ...form, turmaId: e.target.value })} placeholder="Selecione...">
+            <Field label="Turma da Resenha" required htmlFor="h-turma">
+              <Select id="h-turma" value={form.turmaId} onChange={(e) => setForm({ ...form, turmaId: e.target.value })} placeholder="Selecione a turma...">
                 {toOptions(turmas).map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -266,8 +266,8 @@ export default function AdminHorarios() {
             <Field label="Hora Fim" required htmlFor="h-fim">
               <Input id="h-fim" type="time" value={form.horaFim} onChange={(e) => setForm({ ...form, horaFim: e.target.value })} required />
             </Field>
-            <Field label="Disciplina" required htmlFor="h-disc">
-              <Select id="h-disc" value={form.disciplinaId} onChange={(e) => setForm({ ...form, disciplinaId: e.target.value })} placeholder="Selecione...">
+            <Field label="Disciplina Lá Ele" required htmlFor="h-disc">
+              <Select id="h-disc" value={form.disciplinaId} onChange={(e) => setForm({ ...form, disciplinaId: e.target.value })} placeholder="Selecione a disciplina...">
                 {toOptions(disciplinas).map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -275,8 +275,8 @@ export default function AdminHorarios() {
                 ))}
               </Select>
             </Field>
-            <Field label="Professor" required htmlFor="h-prof">
-              <Select id="h-prof" value={form.professorId} onChange={(e) => setForm({ ...form, professorId: e.target.value })} placeholder="Selecione...">
+            <Field label="Professor Kirk / Floyd" required htmlFor="h-prof">
+              <Select id="h-prof" value={form.professorId} onChange={(e) => setForm({ ...form, professorId: e.target.value })} placeholder="Selecione o professor...">
                 {toOptions(professores).map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -290,9 +290,9 @@ export default function AdminHorarios() {
 
       <ConfirmDialog
         open={Boolean(removing)}
-        title="Remover horário"
-        message={`Remover o horário de ${removing?.disciplina?.nome || removing?.disciplinaNome || ''} (${removing?.horaInicio}–${removing?.horaFim})?`}
-        confirmText="Remover"
+        title="Remover horário da resenha"
+        message={`Remover o horário de ${removing?.disciplina?.nome || removing?.disciplinaNome || ''} (${removing?.horaInicio}–${removing?.horaFim})? Lá ele!`}
+        confirmText="Remover (Bora Bill)"
         tone="danger"
         onCancel={() => setRemoving(null)}
         onConfirm={handleDelete}

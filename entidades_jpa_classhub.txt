@@ -1,5 +1,6 @@
-ClassHub - Entidades JPA e atributos
-===================================
+PhonkHub - Entidades JPA e atributos da Resenha 67
+===================================================
+Sistema PhonkHub com a resenha do 67, Bora Bill, Lá Ele, Amostradinho, Jennifer, Kirk e Floyd!
 Baseado nas classes anotadas com @Entity no pacote com.classhub.api.domain
 
 OBS.: As entidades abaixo refletem o modelo de persistência atual do Spring/JPA. Alguns campos são herdados de ApiUser e outros são relacionamentos @ManyToOne com chaves estrangeiras.

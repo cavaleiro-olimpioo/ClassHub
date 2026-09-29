@@ -45,12 +45,12 @@ public class ScheduleService {
     public HorarioResponse createHorario(HorarioRequest request) {
         LocalTime inicio = parseTime(request.horaInicio());
         LocalTime fim = parseTime(request.horaFim());
-        if (!inicio.isBefore(fim)) throw new BadRequestException("A hora de início deve ser anterior à hora de fim.");
+        if (!inicio.isBefore(fim)) throw new BadRequestException("A hora de início deve ser anterior à hora de fim no 67. Lá ele!");
         ApiTurma turma = directory.requireTurma(request.turmaId());
         ApiProfessor professor = directory.requireProfessor(request.professorId());
         if (hasConflict(horarios.findByTurmaIdAndDiaSemana(turma.getId(), request.diaSemana()), inicio, fim)
                 || hasConflict(horarios.findByProfessorIdAndDiaSemana(professor.getId(), request.diaSemana()), inicio, fim)) {
-            throw new ConflictException("Conflito de horário: a turma ou o professor já possui aula nesse período.");
+            throw new ConflictException("Conflito de horário na resenha 67: a turma ou o professor Floyd já possui aula nesse período. Lá ele!");
         }
         ApiHorario entity = new ApiHorario();
         entity.setTurma(turma); entity.setProfessor(professor); entity.setDisciplina(directory.requireDisciplina(request.disciplinaId()));
@@ -59,7 +59,7 @@ public class ScheduleService {
     }
 
     public void deleteHorario(Long id) {
-        ApiHorario horario = horarios.findById(id).orElseThrow(() -> new NotFoundException("Horário não encontrado."));
+        ApiHorario horario = horarios.findById(id).orElseThrow(() -> new NotFoundException("Horário não encontrado na resenha 67. Lá ele!"));
         horarios.delete(horario);
     }
 
@@ -74,12 +74,12 @@ public class ScheduleService {
     }
 
     public List<PresencaResponse> savePresencas(List<PresencaRequest> requests) {
-        if (requests == null || requests.isEmpty()) throw new BadRequestException("Informe ao menos uma presença.");
+        if (requests == null || requests.isEmpty()) throw new BadRequestException("Informe ao menos uma presença pro Bora Bill no 67.");
         return requests.stream().map(this::savePresenca).toList();
     }
 
     private PresencaResponse savePresenca(PresencaRequest request) {
-        if (!PRESENCE_STATUS.contains(request.status())) throw new BadRequestException("Status de presença inválido.");
+        if (!PRESENCE_STATUS.contains(request.status())) throw new BadRequestException("Status de presença inválido no 67. Lá ele!");
         ApiAluno aluno = directory.requireAluno(request.alunoId());
         ApiTurma turma = directory.requireTurma(request.turmaId());
         ApiDisciplina disciplina = directory.requireDisciplina(request.disciplinaId());
@@ -95,7 +95,7 @@ public class ScheduleService {
     }
     private LocalTime parseTime(String value) {
         try { return LocalTime.parse(value, TIME); }
-        catch (DateTimeParseException ex) { throw new BadRequestException("Horário deve usar o formato HH:mm."); }
+        catch (DateTimeParseException ex) { throw new BadRequestException("Horário deve usar o formato HH:mm no 67. Eitxha!"); }
     }
     private HorarioResponse horario(ApiHorario h) {
         return new HorarioResponse(h.getId(), h.getTurma().getId(), directory.turmaSummary(h.getTurma()), h.getTurma().getNome(),

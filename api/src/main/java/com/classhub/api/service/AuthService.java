@@ -23,9 +23,9 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         ApiUser user = users.findByEmailIgnoreCase(request.email().trim())
-            .orElseThrow(() -> new UnauthorizedException("E-mail ou senha inválidos."));
+            .orElseThrow(() -> new UnauthorizedException("E-mail ou senha inválidos na resenha 67. Lá ele!"));
         if (!passwordEncoder.matches(request.senha(), user.getSenhaHash())) {
-            throw new UnauthorizedException("E-mail ou senha inválidos.");
+            throw new UnauthorizedException("E-mail ou senha inválidos na resenha 67. Lá ele!");
         }
         return new LoginResponse(jwtService.generate(user), user.getPerfil(), user.getNome());
     }

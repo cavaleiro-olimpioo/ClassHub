@@ -5,15 +5,15 @@ import useAluno from '../../lib/useAluno.js';
 export default function AlunoHorarios() {
   const { turmaId, loading, error } = useAluno();
 
-  if (loading) return <Loading message="Carregando sua grade..." />;
+  if (loading) return <Loading message="Carregando sua grade da resenha 67..." />;
 
   if (error || !turmaId) {
     return (
       <ScheduleGrid
         mode="turma"
         entityId={null}
-        title="Meus Horários"
-        subtitle="Sua grade de aulas está disponível assim que você for vinculado a uma turma."
+        title="Meus Horários Floyd"
+        subtitle="Sua grade de aulas da resenha estará disponível assim que você for vinculado a uma turma do 67."
       />
     );
   }
@@ -22,8 +22,8 @@ export default function AlunoHorarios() {
     <ScheduleGrid
       mode="turma"
       entityId={turmaId}
-      title="Meus Horários"
-      subtitle="Consulte a grade de aulas da sua turma, com disciplina, professor e horário."
+      title="Meus Horários Floyd"
+      subtitle="Consulte a grade de aulas da sua turma na resenha 67, com disciplina, professor Kirk e horários do Bora Bill."
     />
   );
 }

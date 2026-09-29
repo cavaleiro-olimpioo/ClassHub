@@ -41,7 +41,7 @@ export default function AlunoBoletim() {
         setItens([]);
       } else {
         setItens([]);
-        toast.error(err.message || 'Não foi possível carregar o boletim.');
+        toast.error(err.message || 'Lá ele! Não foi possível carregar o boletim da resenha.');
       }
     } finally {
       setLoading(false);
@@ -56,16 +56,16 @@ export default function AlunoBoletim() {
     if (!alunoId) return;
     setBaixando(true);
     try {
-      await api.downloadFile(`/boletins/aluno/${alunoId}/pdf`, `boletim_${bimestre}bimestre.pdf`, { bimestre: Number(bimestre) });
-      toast.success('Download do PDF concluído!');
+      await api.downloadFile(`/boletins/aluno/${alunoId}/pdf`, `boletim_${bimestre}bimestre_67.pdf`, { bimestre: Number(bimestre) });
+      toast.success('Download do PDF do 67 concluído! Bora bill!');
     } catch (err) {
-      toast.error(err.message || 'Não foi possível baixar o PDF.');
+      toast.error(err.message || 'Lá ele! Não foi possível baixar o PDF.');
     } finally {
       setBaixando(false);
     }
   }
 
-  if (loadingAluno) return <Loading message="Carregando seu boletim..." />;
+  if (loadingAluno) return <Loading message="Carregando seu boletim do PhonkHub 67..." />;
 
   const aprovados = itens.filter((i) => situacaoAluno(i.media, i.frequencia) === 'APROVADO').length;
 
@@ -75,23 +75,23 @@ export default function AlunoBoletim() {
         <Select value={bimestre} onChange={(e) => setBimestre(Number(e.target.value))} aria-label="Bimestre">
           {BIMESTRES.map((b) => (
             <option key={b} value={b}>
-              {b}º Bimestre
+              {b}º Bimestre 67
             </option>
           ))}
         </Select>
       </div>
       <Button icon="book" onClick={carregar} loading={loading}>
-        Visualizar Boletim
+        Visualizar Boletim da Resenha
       </Button>
       <Button variant="success" icon="download" onClick={baixarPdf} loading={baixando} disabled={fechado || itens.length === 0}>
-        Baixar PDF
+        Baixar PDF (Bora Bill)
       </Button>
     </div>
   );
 
   return (
     <>
-      <PageHead title="Meu Boletim Escolar" subtitle="Consulte o boletim do bimestre com médias, frequência e situação por disciplina." actions={acoes} />
+      <PageHead title="Meu Boletim Eitxha 67" subtitle="Consulte o boletim da resenha do bimestre com médias do Floyd, frequência do Bora Bill e situação por disciplina. Eitcha!" actions={acoes} />
 
       {error && (
         <div style={{ marginBottom: 16 }}>
@@ -105,10 +105,9 @@ export default function AlunoBoletim() {
             <span className="empty__icon" style={{ margin: '0 auto 14px' }}>
               <Icon name="shield" size={26} />
             </span>
-            <h2 style={{ fontSize: 18, marginBottom: 8 }}>Bimestre ainda não fechado</h2>
+            <h2 style={{ fontSize: 18, marginBottom: 8 }}>Bimestre 67 ainda não fechado na resenha</h2>
             <p style={{ color: 'var(--text-muted)', maxWidth: '52ch', margin: '0 auto' }}>
-              As notas e médias deste bimestre ainda estão em fase de lançamento pelos professores e conferência da
-              secretaria. O boletim será liberado assim que o fechamento for concluído.
+              As notas e médias deste bimestre ainda estão em fase de lançamento pelos professores Kirk e Floyd. Lá ele! O boletim será liberado assim que o fechamento do Bora Bill for concluído.
             </p>
           </div>
         </Card>
@@ -117,36 +116,35 @@ export default function AlunoBoletim() {
           {itens.length > 0 && (
             <>
               <div className="grid grid--stats">
-                <StatCard icon="book" tone="primary" label="Disciplinas" value={itens.length} caption="No boletim" />
-                <StatCard icon="check" tone="success" label="Aprovadas" value={aprovados} caption="Média ≥ 6 e frequência ≥ 75%" />
+                <StatCard icon="book" tone="primary" label="Disciplinas da Resenha" value={itens.length} caption="No boletim 67" />
+                <StatCard icon="check" tone="success" label="Aprovadas no 67" value={aprovados} caption="Média ≥ 6 e frequência ≥ 75%" />
                 <StatCard
                   icon="xCircle"
                   tone={itens.length - aprovados > 0 ? 'warning' : 'success'}
-                  label="Em Recuperação / Reprovação"
+                  label="Em Recuperação / Lá Ele"
                   value={itens.length - aprovados}
-                  caption="Requerem atenção"
+                  caption="Requerem atenção do Floyd"
                 />
               </div>
               <div style={{ height: 16 }} />
             </>
           )}
 
-          <Card title={`Boletim — ${bimestre}º Bimestre`} icon="file" flush>
+          <Card title={`Boletim PhonkHub 67 — ${bimestre}º Bimestre`} icon="file" flush>
             <DataTable
               loading={loading}
               rows={itens}
               emptyIcon="file"
-              emptyTitle="Nenhum dado encontrado"
-              emptySubtitle="Não há registros lançados para este bimestre."
+              emptyTitle="Nenhum dado encontrado no 67"
+              emptySubtitle="Lá ele! Não há registros da resenha lançados para este bimestre."
               columns={[
                 { key: 'disciplinaNome', label: 'Disciplina', render: (v, row) => <span className="cell-strong">{v || `Disciplina ${row.disciplinaId}`}</span> },
-                { key: 'media', label: 'Média Bimestral', width: 150, render: (v) => <strong>{formatGrade(v)}</strong> },
+                { key: 'media', label: 'Média Bimestral 67', width: 150, render: (v) => <strong>{formatGrade(v)}</strong> },
                 { key: 'frequencia', label: 'Frequência', width: 130, className: 'num', render: (v) => (v === undefined || v === null ? '-' : `${v}%`) },
                 {
                   key: 'situacao',
                   label: 'Situação',
                   width: 160,
-                  // RN-02: se o backend nao enviar situacao, aplicamos a regra
                   render: (v, row) => <StatusBadge status={v || situacaoAluno(row.media, row.frequencia)} />
                 }
               ]}

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-const THEME_STORAGE_KEY = 'classhub-theme';
+const THEME_STORAGE_KEY = 'phonkhub-theme';
 
 const ThemeContext = createContext(undefined);
 

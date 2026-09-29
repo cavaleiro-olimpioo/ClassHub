@@ -28,10 +28,10 @@ export default function AdminBimestre() {
 
       const response = await api.post('/boletins/gerar', body);
       setResult(response?.mensagem || 'Boletins gerados com sucesso.');
-      toast.success('Fechamento de bimestre concluído com sucesso!', 6000);
+      toast.success('Fechamento de bimestre da resenha 67 concluído com sucesso! Eitcha!', 6000);
       setConfirmOpen(false);
     } catch (error) {
-      toast.error(error.message || 'Não foi possível fechar o bimestre.');
+      toast.error(error.message || 'Lá ele! Não foi possível fechar o bimestre na resenha.');
     } finally {
       setProcessing(false);
     }
@@ -40,12 +40,12 @@ export default function AdminBimestre() {
   return (
     <>
       <PageHead
-        title="Fechamento de Bimestre"
-        subtitle="Consolide as notas, feche o bimestre e libere os boletins para consulta dos alunos e responsáveis."
+        title="Fechamento Bimestre 67"
+        subtitle="Consolide as notas da resenha, feche o bimestre e libere os boletins 67 para consulta de Jennifer, Bora Bill e Floyd."
       />
 
       <div className="grid grid--2">
-        <Card title="Fechar Bimestre" icon="clipboard" subtitle="Defina o período letivo que deseja consolidar">
+        <Card title="Fechar Bimestre da Resenha 67" icon="clipboard" subtitle="Defina o período letivo que o Bora Bill deseja consolidar">
           <form
             className="stack"
             style={{ gap: 14 }}
@@ -55,22 +55,22 @@ export default function AdminBimestre() {
               setConfirmOpen(true);
             }}
           >
-            <Field label="Ano Letivo" required htmlFor="f-ano">
+            <Field label="Ano Letivo da Resenha" required htmlFor="f-ano">
               <Input id="f-ano" type="number" min={2000} value={anoLetivo} onChange={(e) => setAnoLetivo(e.target.value)} required />
             </Field>
 
-            <Field label="Bimestre" required htmlFor="f-bimestre">
+            <Field label="Bimestre 67" required htmlFor="f-bimestre">
               <Select id="f-bimestre" value={bimestre} onChange={(e) => setBimestre(e.target.value)}>
                 {BIMESTRES.map((b) => (
                   <option key={b} value={b}>
-                    {b}º Bimestre
+                    {b}º Bimestre da Resenha 67
                   </option>
                 ))}
               </Select>
             </Field>
 
-            <Field label="Turma Específica (opcional)" htmlFor="f-turma" help="Deixe em branco para fechar o bimestre de todas as turmas do ano letivo.">
-              <Select id="f-turma" value={turmaId} onChange={(e) => setTurmaId(e.target.value)} placeholder="Todas as Turmas do Ano Letivo">
+            <Field label="Turma Específica da Resenha (opcional)" htmlFor="f-turma" help="Deixe em branco para fechar o bimestre de todas as turmas da resenha no ano letivo.">
+              <Select id="f-turma" value={turmaId} onChange={(e) => setTurmaId(e.target.value)} placeholder="Todas as Turmas da Resenha">
                 {turmaOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -80,7 +80,7 @@ export default function AdminBimestre() {
             </Field>
 
             <Button type="submit" size="lg" block icon="clipboard">
-              Fechar Bimestre e Gerar Boletins
+              Fechar Bimestre e Gerar Boletins da Resenha (Bora Bill!)
             </Button>
           </form>
         </Card>
@@ -88,19 +88,19 @@ export default function AdminBimestre() {
         <div className="stack">
           {processing ? (
             <Card>
-              <Loading message="Consolidando notas e gerando boletins..." />
+              <Loading message="Consolidando notas do 67 e gerando boletins com Floyd..." />
             </Card>
           ) : result ? (
-            <Alert tone="success" title="Processamento concluído">
-              O {bimestre}º Bimestre de {anoLetivo} foi oficialmente fechado. {result}
+            <Alert tone="success" title="Processamento concluído no 67">
+              O {bimestre}º Bimestre da resenha de {anoLetivo} foi oficialmente fechado. {result}
             </Alert>
           ) : (
-            <Card title="Como funciona" icon="info">
+            <Card title="Como funciona a resenha" icon="info">
               <ol style={{ margin: 0, paddingLeft: 18, color: 'var(--text-soft)', fontSize: 13, lineHeight: 1.8 }}>
-                <li>Confira se todas as notas e faltas do bimestre foram lançadas.</li>
+                <li>Confira se todas as notas 67 e faltas lá ele do bimestre foram lançadas.</li>
                 <li>Selecione o ano letivo e o bimestre desejado.</li>
-                <li>Opcionalmente, restrinja o fechamento a uma turma específica.</li>
-                <li>Confirme a operação — os boletins serão consolidados e liberados.</li>
+                <li>Opcionalmente, restrinja o fechamento a uma turma da resenha.</li>
+                <li>Bora bill confirmar a operação — os boletins serão consolidados pro amostradinho!</li>
               </ol>
             </Card>
           )}
@@ -108,12 +108,12 @@ export default function AdminBimestre() {
           <div className="notice-panel">
             <h3 className="notice-panel__title">
               <Icon name="alert" size={17} />
-              Atenção
+              Atenção Amostradinho
             </h3>
             <ul>
-              <li>O fechamento é definitivo para o bimestre selecionado.</li>
-              <li>Notas lançadas após o fechamento podem exigir um novo ajuste manual.</li>
-              <li>Confirme com a secretaria antes de executar.</li>
+              <li>O fechamento é definitivo para o bimestre 67 selecionado.</li>
+              <li>Notas lançadas após o fechamento podem exigir a intervenção do Floyd.</li>
+              <li>Lá ele! Confirme com a secretaria da resenha antes de executar.</li>
             </ul>
           </div>
         </div>
@@ -121,9 +121,9 @@ export default function AdminBimestre() {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Confirmação de fechamento"
-        message={`Você está prestes a fechar o ${bimestre}º Bimestre de ${anoLetivo} ${turmaId ? 'para a turma selecionada' : 'para TODAS as turmas'}. Os boletins serão consolidados e liberados para visualização. Deseja prosseguir?`}
-        confirmText="Sim, fechar bimestre"
+        title="Confirmação de fechamento da resenha 67"
+        message={`Você está prestes a fechar o ${bimestre}º Bimestre de ${anoLetivo} no 67 ${turmaId ? 'para a turma da resenha' : 'para TODAS as turmas'}. Bora bill! Os boletins serão consolidados para Jennifer, Floyd e Kirk. Deseja prosseguir?`}
+        confirmText="Sim, fechar bimestre (Bora Bill!)"
         loading={processing}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={handleConfirm}

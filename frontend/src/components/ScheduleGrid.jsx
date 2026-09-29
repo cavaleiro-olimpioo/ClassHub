@@ -15,7 +15,7 @@ const WEEK = [1, 2, 3, 4, 5];
  * @param entityId  id do professor ou da turma
  * @param turmas    lista de turmas para o filtro (apenas mode='professor')
  */
-export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meus Horários', subtitle }) {
+export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meus Horários Bora Bill 67', subtitle }) {
   const [selectedTurma, setSelectedTurma] = useState('');
   const [horarios, setHorarios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,13 +88,13 @@ export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meu
 
       {mode === 'professor' && turmas.length > 0 && <div style={{ height: 16 }} />}
 
-      <Card title="Grade Semanal" icon="clock" subtitle={`${horarios.length} aula(s) na semana`}>
+      <Card title="Grade Semanal da Resenha 67" icon="clock" subtitle={`${horarios.length} aula(s) de phonk na semana`}>
         {!entityId ? (
-          <EmptyState icon="clock" title="Nenhuma turma vinculada" subtitle="Você ainda não possui turmas vinculadas neste ano letivo." />
+          <EmptyState icon="clock" title="Nenhuma turma vinculada no 67" subtitle="Lá ele! Você ainda não possui turmas da resenha vinculadas neste ano letivo." />
         ) : loading ? (
           <Loading />
         ) : horarios.length === 0 ? (
-          <EmptyState icon="clock" title="Nenhum horário cadastrado" subtitle="Não há aulas registradas para este período." />
+          <EmptyState icon="clock" title="Nenhum horário cadastrado no 67" subtitle="Lá ele! Não há aulas da resenha registradas com Floyd ou Kirk para este período." />
         ) : (
           <div className="grid grid--3">
             {WEEK.map((day) => {
@@ -110,7 +110,7 @@ export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meu
                     <span className="badge badge--neutral">{items.length}</span>
                   </header>
                   <div className="card__body" style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {items.length === 0 && <span className="text-muted" style={{ fontSize: 12.5 }}>Sem aulas</span>}
+                    {items.length === 0 && <span className="text-muted" style={{ fontSize: 12.5 }}>Sem aulas, só resenha eitxha!</span>}
                     {items.map((item) => (
                       <div
                         key={item.id}

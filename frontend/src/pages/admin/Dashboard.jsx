@@ -7,14 +7,14 @@ import { getSession } from '../../lib/session.js';
 import { firstName } from '../../lib/format.js';
 
 const SHORTCUTS = [
-  { label: 'Alunos', to: '/admin/alunos', icon: 'students' },
-  { label: 'Professores', to: '/admin/professores', icon: 'teacher' },
-  { label: 'Turmas & Vínculos', to: '/admin/turmas', icon: 'layers' },
-  { label: 'Disciplinas', to: '/admin/disciplinas', icon: 'book' },
-  { label: 'Grade de Horários', to: '/admin/horarios', icon: 'clock' },
-  { label: 'Calendário Escolar', to: '/admin/calendario', icon: 'calendar' },
-  { label: 'Fechamento de Bimestre', to: '/admin/bimestre', icon: 'clipboard' },
-  { label: 'Achados e Perdidos', to: '/admin/achados-perdidos', icon: 'search' }
+  { label: 'Alunos Amostradinhos', to: '/admin/alunos', icon: 'students' },
+  { label: 'Professores Kirk & Floyd', to: '/admin/professores', icon: 'teacher' },
+  { label: 'Turmas & Vínculos 67', to: '/admin/turmas', icon: 'layers' },
+  { label: 'Disciplinas Lá Ele', to: '/admin/disciplinas', icon: 'book' },
+  { label: 'Grade de Horários Bora Bill', to: '/admin/horarios', icon: 'clock' },
+  { label: 'Calendário Eitcha', to: '/admin/calendario', icon: 'calendar' },
+  { label: 'Fechamento de Bimestre 67', to: '/admin/bimestre', icon: 'clipboard' },
+  { label: 'Achados e Perdidos Jennifer', to: '/admin/achados-perdidos', icon: 'search' }
 ];
 
 export default function AdminDashboard() {
@@ -46,26 +46,26 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  if (loading) return <Loading message="Carregando indicadores..." />;
+  if (loading) return <Loading message="Carregando indicadores da resenha 67..." />;
 
   return (
     <>
       <PageHead
         title={`Olá, ${firstName(session?.nome)}`}
-        subtitle="Visão geral da escola: alunos, docentes, turmas e a estrutura acadêmica cadastrada."
+        subtitle="Visão geral do PhonkHub 67: alunos amostradinhos, docentes Kirk e Floyd, turmas da resenha e bora bill!"
       />
 
       <div className="grid grid--stats">
-        <StatCard icon="students" tone="primary" label="Alunos Cadastrados" value={stats.alunos} caption="Alunos ativos na rede" />
-        <StatCard icon="teacher" tone="info" label="Professores" value={stats.professores} caption="Corpo docente" />
-        <StatCard icon="layers" tone="success" label="Turmas" value={stats.turmas} caption="Turmas criadas" />
-        <StatCard icon="book" tone="warning" label="Disciplinas" value={stats.disciplinas} caption="Componentes curriculares" />
-        <StatCard icon="link" tone="neutral" label="Vínculos" value={stats.vinculos} caption="Professor ↔ disciplina" />
+        <StatCard icon="students" tone="primary" label="Alunos Amostradinhos 67" value={stats.alunos} caption="Alunos ativos na resenha" />
+        <StatCard icon="teacher" tone="info" label="Professores Floyd & Kirk" value={stats.professores} caption="Corpo docente lá ele" />
+        <StatCard icon="layers" tone="success" label="Turmas da Resenha" value={stats.turmas} caption="Turmas criadas no 67" />
+        <StatCard icon="book" tone="warning" label="Disciplinas Lá Ele" value={stats.disciplinas} caption="Componentes curriculares eitxha" />
+        <StatCard icon="link" tone="neutral" label="Vínculos Jennifer" value={stats.vinculos} caption="Professor ↔ disciplina na resenha" />
       </div>
 
       <div style={{ height: 16 }} />
 
-      <Card title="Atalhos" icon="dashboard" subtitle="Acesse rapidamente os módulos administrativos">
+      <Card title="Atalhos da Resenha 67" icon="dashboard" subtitle="Acesse rapidamente os módulos amostradinhos do PhonkHub">
         <div className="grid grid--3">
           {SHORTCUTS.map((shortcut) => (
             <Link

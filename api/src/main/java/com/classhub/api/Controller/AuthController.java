@@ -16,6 +16,6 @@ public class AuthController {
 
     @PostMapping("/recuperar-senha")
     public MessageResponse recuperarSenha(@RequestBody java.util.Map<String, String> ignored) {
-        return new MessageResponse("Se o e-mail estiver cadastrado, você receberá as instruções de recuperação.");
+        return new MessageResponse("Se o e-mail estiver cadastrado na resenha 67, você receberá as instruções de recuperação com Jennifer, Kirk e Floyd. Bora bill!");
     }
 }

@@ -17,7 +17,7 @@ public class JwtService {
     private final SecretKey key;
     private final long expirationHours;
 
-    public JwtService(@Value("${app.jwt.secret:classhub-development-jwt-secret-change-me-before-production-2026}") String secret,
+    public JwtService(@Value("${app.jwt.secret:phonkhub-development-jwt-secret-change-me-before-production-2026}") String secret,
                       @Value("${app.jwt.expiration-hours:8}") long expirationHours) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationHours = expirationHours;

@@ -53,7 +53,7 @@ export default function ProfessorChamada() {
   // Carrega alunos + presencas ja registradas
   async function carregarAlunos() {
     if (!turmaId || !disciplinaId || !data) {
-      toast.warning('Selecione turma, disciplina e data antes de carregar os alunos.');
+      toast.warning('Selecione turma, disciplina e data antes de carregar os alunos da resenha.');
       return;
     }
 
@@ -80,10 +80,10 @@ export default function ProfessorChamada() {
       );
       setNaoLetivo(bloqueado);
 
-      if (bloqueado) toast.warning('A data selecionada não é dia letivo. A chamada está bloqueada.');
+      if (bloqueado) toast.warning('A data selecionada não é dia letivo no 67. A chamada está bloqueada, lá ele!');
     } catch (err) {
       setAlunos([]);
-      toast.error(err.message || 'Não foi possível carregar os alunos.');
+      toast.error(err.message || 'Lá ele! Não foi possível carregar os alunos da resenha.');
     } finally {
       setLoading(false);
     }
@@ -112,7 +112,7 @@ export default function ProfessorChamada() {
       next[aluno.id] = { status: 'PRESENTE', justificativa: '' };
     });
     setPresencas(next);
-    toast.info('Todos os alunos marcados como presentes.');
+    toast.info('Todos os alunos amostradinhos marcados como presentes no 67! Bora bill!');
   }
 
   async function salvar() {
@@ -130,39 +130,39 @@ export default function ProfessorChamada() {
         }));
 
       if (payload.length === 0) {
-        toast.warning('Marque ao menos um aluno antes de salvar.');
+        toast.warning('Marque ao menos um aluno amostradinho antes de salvar.');
         return;
       }
 
       await api.post('/presencas/lote', payload);
-      toast.success('Chamada salva com sucesso!');
+      toast.success('Chamada salva com sucesso no 67! Bora bill!');
       setConfirmOpen(false);
       await carregarAlunos();
     } catch (err) {
-      toast.error(err.message || 'Não foi possível salvar a chamada.');
+      toast.error(err.message || 'Lá ele! Não foi possível salvar a chamada da resenha.');
     } finally {
       setSaving(false);
     }
   }
 
-  if (loadingVinculos) return <Loading message="Carregando suas turmas..." />;
+  if (loadingVinculos) return <Loading message="Carregando turmas da resenha 67..." />;
 
   return (
     <>
-      <PageHead title="Realizar Chamada" subtitle="Selecione a turma, a disciplina e a data para registrar a presença da aula." />
+      <PageHead title="Fazer Chamada Amostradinho" subtitle="Lance a frequência dos alunos na resenha 67. P = Presente no 67, F = Falta Lá Ele, FJ = Falta Justificada. Bora bill!" />
 
       {error && (
         <div style={{ marginBottom: 16 }}>
-          <Alert tone="warning" title="Atenção">
+          <Alert tone="warning" title="Atenção Amostradinho">
             {error}
           </Alert>
         </div>
       )}
 
-      <Card title="Configurar Aula" icon="checkSquare">
+      <Card title="Configurar Aula da Resenha 67" icon="checkSquare">
         <div className="form-grid">
-          <Field label="Turma" required htmlFor="c-turma">
-            <Select id="c-turma" value={turmaId} onChange={(e) => setTurmaId(e.target.value)} placeholder="Selecione uma turma...">
+          <Field label="Turma da Resenha" required htmlFor="c-turma">
+            <Select id="c-turma" value={turmaId} onChange={(e) => setTurmaId(e.target.value)} placeholder="Selecione uma turma do 67...">
               {turmas.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -171,12 +171,12 @@ export default function ProfessorChamada() {
             </Select>
           </Field>
 
-          <Field label="Disciplina" required htmlFor="c-disc">
+          <Field label="Disciplina Lá Ele" required htmlFor="c-disc">
             <Select
               id="c-disc"
               value={disciplinaId}
               onChange={(e) => setDisciplinaId(e.target.value)}
-              placeholder={turmaId ? 'Selecione uma disciplina...' : 'Selecione a turma primeiro'}
+              placeholder={turmaId ? 'Selecione a disciplina...' : 'Selecione a turma primeiro'}
               disabled={!turmaId}
             >
               {disciplinaOpcoes.map((option) => (
@@ -187,13 +187,13 @@ export default function ProfessorChamada() {
             </Select>
           </Field>
 
-          <Field label="Data da Aula" required htmlFor="c-data">
+          <Field label="Data da Aula (67)" required htmlFor="c-data">
             <Input id="c-data" type="date" value={data} onChange={(e) => setData(e.target.value)} />
           </Field>
 
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <Button icon="checkSquare" onClick={carregarAlunos} disabled={!turmaId || !disciplinaId} block>
-              Carregar Alunos
+              Carregar Alunos Amostradinhos
             </Button>
           </div>
         </div>
@@ -201,9 +201,8 @@ export default function ProfessorChamada() {
 
       {naoLetivo && (
         <div style={{ marginTop: 16 }}>
-          <Alert tone="warning" title="Não é dia letivo">
-            A data selecionada está marcada como feriado ou recesso no calendário escolar. A edição da chamada está
-            desabilitada.
+          <Alert tone="warning" title="Não é dia letivo no 67">
+            A data selecionada está marcada como feriado ou recesso no calendário da resenha. A edição da chamada está desabilitada, lá ele!
           </Alert>
         </div>
       )}
@@ -212,28 +211,28 @@ export default function ProfessorChamada() {
 
       {loading ? (
         <Card>
-          <Loading message="Carregando alunos..." />
+          <Loading message="Carregando alunos amostradinhos..." />
         </Card>
       ) : !turmaId || !disciplinaId ? (
         <Card>
-          <EmptyState icon="checkSquare" title="Selecione turma e disciplina" subtitle="Escolha a turma e a disciplina para carregar a lista de alunos." />
+          <EmptyState icon="checkSquare" title="Selecione turma e disciplina da resenha" subtitle="Escolha a turma do 67 e a disciplina do Floyd para carregar os alunos." />
         </Card>
       ) : alunos.length === 0 ? (
         <Card>
-          <EmptyState icon="students" title="Nenhum aluno nesta turma" subtitle="Não há alunos matriculados na turma selecionada." />
+          <EmptyState icon="students" title="Nenhum aluno nesta turma da resenha" subtitle="Lá ele! Não há alunos amostradinhos matriculados na turma selecionada." />
         </Card>
       ) : (
         <Card
-          title="Lista de Presença"
+          title="Lista de Presença do Amostradinho"
           icon="students"
           subtitle={`${alunos.length} aluno(s) — ${formatDate(data)}`}
           actions={
             <div className="btn-row">
               <Button variant="secondary" size="sm" icon="check" onClick={marcarTodos} disabled={naoLetivo}>
-                Marcar todos
+                Marcar todos (Bora Bill)
               </Button>
               <Button variant="success" icon="check" onClick={() => setConfirmOpen(true)} disabled={naoLetivo}>
-                Salvar Chamada
+                Salvar Chamada 67
               </Button>
             </div>
           }
@@ -244,10 +243,10 @@ export default function ProfessorChamada() {
               <thead>
                 <tr>
                   <th style={{ width: 60 }}>#</th>
-                  <th>Aluno</th>
+                  <th>Aluno Amostradinho</th>
                   <th style={{ width: 90 }}>Matrícula</th>
-                  <th style={{ width: 150 }}>Presença</th>
-                  <th style={{ width: 250 }}>Justificativa</th>
+                  <th style={{ width: 150 }}>Presença 67</th>
+                  <th style={{ width: 250 }}>Justificativa Lá Ele</th>
                 </tr>
               </thead>
               <tbody>
@@ -280,7 +279,7 @@ export default function ProfessorChamada() {
                           <Input
                             value={atual.justificativa || ''}
                             onChange={(e) => setJustificativa(aluno.id, e.target.value)}
-                            placeholder="Motivo da falta..."
+                            placeholder="Motivo da falta no 67..."
                             disabled={naoLetivo}
                           />
                         ) : (
@@ -298,16 +297,16 @@ export default function ProfessorChamada() {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Salvar chamada"
-        message={`Deseja registrar a chamada do dia ${formatDate(data)} com ${Object.keys(presencas).filter((k) => presencas[k]?.status).length} aluno(s)?`}
-        confirmText="Salvar Frequência"
+        title="Salvar chamada da resenha 67"
+        message={`Deseja registrar a chamada do 67 de ${formatDate(data)} com ${Object.keys(presencas).filter((k) => presencas[k]?.status).length} aluno(s) amostradinho(s)? Bora bill!`}
+        confirmText="Salvar Frequência (Bora Bill)"
         loading={saving}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={salvar}
       >
         <div style={{ marginTop: 12 }}>
           <Alert tone="info">
-            A frequência registrada aparece imediatamente no portal do aluno.
+            A frequência registrada da resenha aparece imediatamente no portal do aluno amostradinho. Eitxha!
           </Alert>
         </div>
       </ConfirmDialog>
