@@ -16,7 +16,7 @@ import { api } from '../../lib/api.js';
 import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 import { BIMESTRES, calcularMediaPesos, formatGrade, PESOS_PADRAO, TIPOS_NOTA } from '../../lib/format.js';
 
-const TIPO_LABEL = { PROVA: 'Prova', TRABALHO: 'Trabalho', ATIVIDADE: 'Atividade' };
+const TIPO_LABEL = { PROVA: 'Prova da Resenha', TRABALHO: 'Trabalho do Amostradinho', ATIVIDADE: 'Atividade 67' };
 
 /** Limita a entrada a 0..10 (RN-01 do front estatico). */
 function clampNota(value) {
@@ -53,7 +53,7 @@ export default function ProfessorNotas() {
 
   async function carregar() {
     if (!turmaId || !disciplinaId) {
-      toast.warning('Selecione turma e disciplina antes de carregar.');
+      toast.warning('Selecione turma e disciplina da resenha antes de carregar.');
       return;
     }
     setLoading(true);
@@ -90,7 +90,7 @@ export default function ProfessorNotas() {
       setNotas(porAluno);
     } catch (error) {
       setAlunos([]);
-      toast.error(error.message || 'Não foi possível carregar as notas.');
+      toast.error(error.message || 'Lá ele! Não foi possível carregar as notas.');
     } finally {
       setLoading(false);
     }
@@ -125,34 +125,34 @@ export default function ProfessorNotas() {
       });
 
       if (requests.length === 0) {
-        toast.warning('Nenhuma nota informada para salvar.');
+        toast.warning('Nenhuma nota informada para salvar no 67.');
         return;
       }
 
       await Promise.all(requests);
-      toast.success('Todas as notas foram salvas com sucesso!');
+      toast.success('Todas as notas da resenha foram salvas com sucesso no 67! Bora bill!');
       setConfirmOpen(false);
       await carregar();
     } catch (error) {
-      toast.error(error.message || 'Algumas notas não puderam ser salvas. Verifique os valores.');
+      toast.error(error.message || 'Lá ele! Algumas notas não puderam ser salvas no 67.');
     } finally {
       setSaving(false);
     }
   }
 
-  if (loadingVinculos) return <Loading message="Carregando suas turmas..." />;
+  if (loadingVinculos) return <Loading message="Carregando turmas da resenha 67..." />;
 
   return (
     <>
       <PageHead
-        title="Lançamento de Notas"
-        subtitle="Informe as avaliações da turma. A média é calculada automaticamente com os pesos padrão (Prova 5, Trabalho 3, Atividade 2)."
+        title="Lançar Notas 67"
+        subtitle="Informe as avaliações da turma na resenha. A média do Floyd é calculada com pesos padrão (Prova 5, Trabalho 3, Atividade 2). Bora bill!"
       />
 
-      <Card title="Configurar Avaliação" icon="edit">
+      <Card title="Configurar Avaliação da Resenha 67" icon="edit">
         <div className="form-grid">
-          <Field label="Turma" required htmlFor="n-turma">
-            <Select id="n-turma" value={turmaId} onChange={(e) => setTurmaId(e.target.value)} placeholder="Selecione uma turma...">
+          <Field label="Turma da Resenha" required htmlFor="n-turma">
+            <Select id="n-turma" value={turmaId} onChange={(e) => setTurmaId(e.target.value)} placeholder="Selecione uma turma do 67...">
               {turmas.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -161,7 +161,7 @@ export default function ProfessorNotas() {
             </Select>
           </Field>
 
-          <Field label="Disciplina" required htmlFor="n-disc">
+          <Field label="Disciplina Lá Ele" required htmlFor="n-disc">
             <Select
               id="n-disc"
               value={disciplinaId}
@@ -177,11 +177,11 @@ export default function ProfessorNotas() {
             </Select>
           </Field>
 
-          <Field label="Bimestre" required htmlFor="n-bim">
+          <Field label="Bimestre 67" required htmlFor="n-bim">
             <Select id="n-bim" value={bimestre} onChange={(e) => setBimestre(e.target.value)}>
               {BIMESTRES.map((b) => (
                 <option key={b} value={b}>
-                  {b}º Bimestre
+                  {b}º Bimestre 67
                 </option>
               ))}
             </Select>
@@ -189,7 +189,7 @@ export default function ProfessorNotas() {
 
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <Button icon="book" onClick={carregar} disabled={!turmaId || !disciplinaId} block>
-              Carregar Alunos e Notas
+              Carregar Alunos e Notas 67
             </Button>
           </div>
         </div>
@@ -199,24 +199,24 @@ export default function ProfessorNotas() {
 
       {loading ? (
         <Card>
-          <Loading message="Carregando notas..." />
+          <Loading message="Carregando notas da resenha..." />
         </Card>
       ) : !turmaId || !disciplinaId ? (
         <Card>
-          <EmptyState icon="edit" title="Selecione turma e disciplina" subtitle="Escolha a turma e a disciplina para carregar a grade de notas." />
+          <EmptyState icon="edit" title="Selecione turma e disciplina da resenha" subtitle="Escolha a turma e a disciplina para carregar a grade de notas do Floyd." />
         </Card>
       ) : alunos.length === 0 ? (
         <Card>
-          <EmptyState icon="students" title="Nenhum aluno nesta turma" subtitle="Não há alunos matriculados na turma selecionada." />
+          <EmptyState icon="students" title="Nenhum aluno nesta turma da resenha" subtitle="Lá ele! Não há alunos amostradinhos matriculados na turma selecionada." />
         </Card>
       ) : (
         <Card
-          title="Grade de Notas"
+          title="Grade de Notas da Resenha"
           icon="edit"
-          subtitle={`${alunos.length} aluno(s) — ${bimestre}º Bimestre`}
+          subtitle={`${alunos.length} aluno(s) amostradinho(s) — ${bimestre}º Bimestre 67`}
           actions={
             <Button variant="success" icon="check" onClick={() => setConfirmOpen(true)}>
-              Salvar Todas as Notas
+              Salvar Todas as Notas (Bora Bill)
             </Button>
           }
           flush
@@ -226,13 +226,13 @@ export default function ProfessorNotas() {
               <thead>
                 <tr>
                   <th style={{ width: 60 }}>#</th>
-                  <th>Aluno</th>
+                  <th>Aluno Amostradinho</th>
                   {TIPOS_NOTA.map((tipo) => (
                     <th key={tipo} style={{ width: 130 }}>
                       {TIPO_LABEL[tipo]} <span className="text-muted">(peso {PESOS_PADRAO[tipo]})</span>
                     </th>
                   ))}
-                  <th style={{ width: 120 }}>Média</th>
+                  <th style={{ width: 120 }}>Média 67</th>
                 </tr>
               </thead>
               <tbody>
@@ -275,16 +275,15 @@ export default function ProfessorNotas() {
 
       <div style={{ height: 16 }} />
 
-      <Alert tone="info" title="Como a média é calculada">
-        Média = (Σ nota × peso) ÷ (Σ pesos das notas informadas). Notas aceitas de 0 a 10. Aprovação exige média ≥ 6,00 e
-        frequência ≥ 75%.
+      <Alert tone="info" title="Como a média da resenha é calculada">
+        Média do Floyd = (Σ nota × peso) ÷ (Σ pesos). Notas aceitas de 0 a 10. Bora bill tirar 10 na resenha 67, lá ele!
       </Alert>
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Salvar notas"
-        message="Todas as notas informadas serão gravadas. Deseja prosseguir?"
-        confirmText="Salvar notas"
+        title="Salvar notas da resenha 67"
+        message="Todas as notas informadas serão gravadas no PhonkHub 67. Deseja prosseguir, amostradinho?"
+        confirmText="Salvar notas (Bora Bill!)"
         loading={saving}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={salvar}

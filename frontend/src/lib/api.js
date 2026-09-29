@@ -1,5 +1,6 @@
 /**
- * Camada de comunicacao com a API REST do ClassHub (Spring Boot).
+ * Camada de comunicacao com a API REST do PhonkHub (Spring Boot).
+ * Resenha 67, Bora Bill, Lá Ele, Amostradinho, Jennifer, Kirk, Floyd, etc.
  *
  * Substitui o antigo `assets/js/api.js` mantendo exatamente a mesma
  * semantica de endpoints, autenticacao e tratamento de erro, para que
@@ -8,7 +9,7 @@
 
 const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
 
-const TOKEN_KEY = 'classhub.token';
+const TOKEN_KEY = 'phonkhub.token';
 
 /** Permite sobrescrever o destino do redirect em 401 (ex.: testes). */
 let unauthorizedHandler = null;

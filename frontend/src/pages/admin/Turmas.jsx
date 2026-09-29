@@ -114,15 +114,15 @@ export default function AdminTurmas() {
       const payload = { nome: turmaForm.nome, serieId: Number(turmaForm.serieId), anoLetivo: Number(turmaForm.anoLetivo) };
       if (editingTurma) {
         await api.put(`/turmas/${editingTurma.id}`, payload);
-        toast.success('Turma atualizada!');
+        toast.success('Turma atualizada no 67!');
       } else {
         await api.post('/turmas', payload);
-        toast.success('Turma criada!');
+        toast.success('Turma criada na resenha! Eitcha!');
       }
       setTurmaModal(false);
       await load();
     } catch (error) {
-      setFormError(error.message || 'Não foi possível salvar a turma.');
+      setFormError(error.message || 'Lá ele! Não foi possível salvar a turma.');
     } finally {
       setSaving(false);
     }
@@ -139,12 +139,12 @@ export default function AdminTurmas() {
         disciplinaId: Number(vinculoForm.disciplinaId),
         anoLetivo: Number(vinculoForm.anoLetivo)
       });
-      toast.success('Vínculo criado com sucesso!');
+      toast.success('Vínculo criado com sucesso no 67! Bora bill!');
       setVinculoModal(false);
       setVinculoForm(EMPTY_VINCULO);
       await load();
     } catch (error) {
-      setFormError(error.message || 'Não foi possível criar o vínculo.');
+      setFormError(error.message || 'Lá ele! Não foi possível criar o vínculo.');
     } finally {
       setSaving(false);
     }
@@ -154,11 +154,11 @@ export default function AdminTurmas() {
     if (!removingVinculo) return;
     try {
       await api.delete(`/vinculos/${removingVinculo.id}`);
-      toast.success('Vínculo removido.');
+      toast.success('Vínculo removido da resenha.');
       setRemovingVinculo(null);
       await load();
     } catch (error) {
-      toast.error(error.message || 'Não foi possível remover o vínculo.');
+      toast.error(error.message || 'Lá ele! Não foi possível remover o vínculo.');
     }
   }
 
@@ -166,43 +166,43 @@ export default function AdminTurmas() {
     if (!removingTurma) return;
     try {
       await api.delete(`/turmas/${removingTurma.id}`);
-      toast.success('Turma excluída com sucesso.');
+      toast.success('Turma excluída com sucesso do 67.');
       setRemovingTurma(null);
       await load();
     } catch (error) {
-      toast.error(error.message || 'Não foi possível excluir a turma.');
+      toast.error(error.message || 'Lá ele! Não foi possível excluir a turma.');
     }
   }
 
   return (
     <>
       <PageHead
-        title="Turmas & Vínculos"
-        subtitle="Crie as turmas por série e ano letivo, e associe professores às disciplinas de cada turma."
+        title="Turmas & Vínculos 67"
+        subtitle="Crie as turmas da resenha por série e ano letivo, e associe professores Kirk e Floyd às disciplinas de cada turma. Bora bill!"
       />
 
       <div className="stack">
         <Card
-          title="Turmas Cadastradas"
+          title="Turmas Cadastradas na Resenha"
           icon="layers"
-          subtitle={`${filteredTurmas.length} turma(s)`}
+          subtitle={`${filteredTurmas.length} turma(s) da resenha`}
           actions={
             <Button icon="plus" onClick={openCreateTurma}>
-              Nova Turma
+              Nova Turma da Resenha
             </Button>
           }
           flush
-          footer={<Pagination page={turmaPageSafe} pageSize={PAGE_SIZE} total={filteredTurmas.length} onPageChange={setTurmaPage} itemLabel="turmas" />}
+          footer={<Pagination page={turmaPageSafe} pageSize={PAGE_SIZE} total={filteredTurmas.length} onPageChange={setTurmaPage} itemLabel="turmas da resenha" />}
         >
           <div style={{ padding: '14px 18px' }}>
-            <SearchBox value={turmaTerm} onChange={(v) => { setTurmaTerm(v); setTurmaPage(1); }} placeholder="Buscar por nome da turma..." />
+            <SearchBox value={turmaTerm} onChange={(v) => { setTurmaTerm(v); setTurmaPage(1); }} placeholder="Buscar por nome da turma no 67..." />
           </div>
           <DataTable
             loading={loading}
             rows={paginate(filteredTurmas, turmaPageSafe, PAGE_SIZE)}
             emptyIcon="layers"
-            emptyTitle="Nenhuma turma cadastrada"
-            emptySubtitle="Crie a primeira turma para começar a montar a grade."
+            emptyTitle="Nenhuma turma cadastrada na resenha 67"
+            emptySubtitle="Lá ele! Crie a primeira turma com Jennifer, Floyd ou Kirk para começar."
             columns={[
               { key: 'nome', label: 'Turma', render: (v) => <span className="cell-strong">{v}</span> },
               { key: 'serie', label: 'Série', render: (v) => v?.nome || '-' },
@@ -223,7 +223,7 @@ export default function AdminTurmas() {
         </Card>
 
         <Card
-          title="Vínculos Professor ↔ Disciplina"
+          title="Vínculos Professor ↔ Disciplina 67"
           icon="link"
           subtitle={`${filteredVinculos.length} vínculo(s) no ano letivo`}
           actions={
@@ -234,21 +234,21 @@ export default function AdminTurmas() {
                 setVinculoModal(true);
               }}
             >
-              Novo Vínculo
+              Novo Vínculo Bora Bill
             </Button>
           }
           flush
-          footer={<Pagination page={vinculoPageSafe} pageSize={PAGE_SIZE} total={filteredVinculos.length} onPageChange={setVinculoPage} itemLabel="vínculos" />}
+          footer={<Pagination page={vinculoPageSafe} pageSize={PAGE_SIZE} total={filteredVinculos.length} onPageChange={setVinculoPage} itemLabel="vínculos do 67" />}
         >
           <div style={{ padding: '14px 18px' }}>
-            <SearchBox value={vinculoTerm} onChange={(v) => { setVinculoTerm(v); setVinculoPage(1); }} placeholder="Buscar por professor, turma ou disciplina..." />
+            <SearchBox value={vinculoTerm} onChange={(v) => { setVinculoTerm(v); setVinculoPage(1); }} placeholder="Buscar por professor Kirk, turma 67 ou disciplina..." />
           </div>
           <DataTable
             loading={loading}
             rows={paginate(filteredVinculos, vinculoPageSafe, PAGE_SIZE)}
             emptyIcon="link"
-            emptyTitle="Nenhum vínculo cadastrado"
-            emptySubtitle="Associe um professor a uma disciplina de uma turma."
+            emptyTitle="Nenhum vínculo cadastrado na resenha"
+            emptySubtitle="Lá ele! Associe um professor Kirk/Floyd a uma disciplina de uma turma da resenha."
             columns={[
               { key: 'professor', label: 'Professor', render: (v) => v?.nome || '-' },
               { key: 'turma', label: 'Turma', render: (v) => v?.nome || '-' },
@@ -271,15 +271,15 @@ export default function AdminTurmas() {
 
       {turmaModal && (
         <Modal
-          title={editingTurma ? 'Editar Turma' : 'Nova Turma'}
+          title={editingTurma ? 'Editar Turma 67' : 'Nova Turma da Resenha'}
           onClose={() => !saving && setTurmaModal(false)}
           footer={
             <>
               <Button variant="secondary" onClick={() => setTurmaModal(false)} disabled={saving}>
-                Cancelar
+                Cancelar (Lá Ele)
               </Button>
               <Button form="turma-form" type="submit" loading={saving}>
-                Salvar
+                Salvar (Bora Bill)
               </Button>
             </>
           }
@@ -291,10 +291,10 @@ export default function AdminTurmas() {
               </div>
             )}
             <Field label="Nome da Turma" required htmlFor="t-nome" className="span-all">
-              <Input id="t-nome" value={turmaForm.nome} onChange={(e) => setTurmaForm({ ...turmaForm, nome: e.target.value })} placeholder="Ex.: 9º A" required />
+              <Input id="t-nome" value={turmaForm.nome} onChange={(e) => setTurmaForm({ ...turmaForm, nome: e.target.value })} placeholder="Ex.: 67º Ano A - Amostradinho" required />
             </Field>
-            <Field label="Série" required htmlFor="t-serie">
-              <Select id="t-serie" value={turmaForm.serieId} onChange={(e) => setTurmaForm({ ...turmaForm, serieId: e.target.value })} placeholder="Selecione..." required>
+            <Field label="Série da Resenha" required htmlFor="t-serie">
+              <Select id="t-serie" value={turmaForm.serieId} onChange={(e) => setTurmaForm({ ...turmaForm, serieId: e.target.value })} placeholder="Selecione a série..." required>
                 {serieOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -311,15 +311,15 @@ export default function AdminTurmas() {
 
       {vinculoModal && (
         <Modal
-          title="Novo Vínculo"
+          title="Novo Vínculo da Resenha 67"
           onClose={() => !saving && setVinculoModal(false)}
           footer={
             <>
               <Button variant="secondary" onClick={() => setVinculoModal(false)} disabled={saving}>
-                Cancelar
+                Cancelar (Lá Ele)
               </Button>
               <Button form="vinculo-form" type="submit" loading={saving}>
-                Vincular
+                Vincular (Bora Bill)
               </Button>
             </>
           }
@@ -330,8 +330,8 @@ export default function AdminTurmas() {
                 <Alert tone="danger">{formError}</Alert>
               </div>
             )}
-            <Field label="Professor" required htmlFor="v-prof">
-              <Select id="v-prof" value={vinculoForm.professorId} onChange={(e) => setVinculoForm({ ...vinculoForm, professorId: e.target.value })} placeholder="Selecione..." required>
+            <Field label="Professor Kirk / Floyd" required htmlFor="v-prof">
+              <Select id="v-prof" value={vinculoForm.professorId} onChange={(e) => setVinculoForm({ ...vinculoForm, professorId: e.target.value })} placeholder="Selecione o professor..." required>
                 {professorOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -339,8 +339,8 @@ export default function AdminTurmas() {
                 ))}
               </Select>
             </Field>
-            <Field label="Turma" required htmlFor="v-turma">
-              <Select id="v-turma" value={vinculoForm.turmaId} onChange={(e) => setVinculoForm({ ...vinculoForm, turmaId: e.target.value })} placeholder="Selecione..." required>
+            <Field label="Turma da Resenha" required htmlFor="v-turma">
+              <Select id="v-turma" value={vinculoForm.turmaId} onChange={(e) => setVinculoForm({ ...vinculoForm, turmaId: e.target.value })} placeholder="Selecione a turma..." required>
                 {turmaOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -348,8 +348,8 @@ export default function AdminTurmas() {
                 ))}
               </Select>
             </Field>
-            <Field label="Disciplina" required htmlFor="v-disc">
-              <Select id="v-disc" value={vinculoForm.disciplinaId} onChange={(e) => setVinculoForm({ ...vinculoForm, disciplinaId: e.target.value })} placeholder="Selecione..." required>
+            <Field label="Disciplina Lá Ele" required htmlFor="v-disc">
+              <Select id="v-disc" value={vinculoForm.disciplinaId} onChange={(e) => setVinculoForm({ ...vinculoForm, disciplinaId: e.target.value })} placeholder="Selecione a disciplina..." required>
                 {disciplinaOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
@@ -366,9 +366,9 @@ export default function AdminTurmas() {
 
       <ConfirmDialog
         open={Boolean(removingVinculo)}
-        title="Remover vínculo"
-        message={`Remover o vínculo entre ${removingVinculo?.professor?.nome || '?'} e ${removingVinculo?.disciplina?.nome || '?'} na turma ${removingVinculo?.turma?.nome || '?'}?`}
-        confirmText="Remover"
+        title="Remover vínculo da resenha"
+        message={`Remover o vínculo entre ${removingVinculo?.professor?.nome || '?'} e ${removingVinculo?.disciplina?.nome || '?'} na turma ${removingVinculo?.turma?.nome || '?'}? Lá ele!`}
+        confirmText="Remover (Bora Bill)"
         tone="danger"
         onCancel={() => setRemovingVinculo(null)}
         onConfirm={removeVinculo}
@@ -376,9 +376,9 @@ export default function AdminTurmas() {
 
       <ConfirmDialog
         open={Boolean(removingTurma)}
-        title="Excluir turma"
-        message={`Tem certeza que deseja excluir a turma "${removingTurma?.nome}"? Os vínculos associados a ela também serão removidos.`}
-        confirmText="Excluir"
+        title="Excluir turma da resenha"
+        message={`Tem certeza que deseja excluir a turma "${removingTurma?.nome}" no 67? Os vínculos do Floyd associados a ela também serão removidos.`}
+        confirmText="Excluir (Lá Ele)"
         tone="danger"
         onCancel={() => setRemovingTurma(null)}
         onConfirm={removeTurma}

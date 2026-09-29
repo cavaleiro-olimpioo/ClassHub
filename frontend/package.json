@@ -1,9 +1,9 @@
 {
-  "name": "classhub-frontend",
+  "name": "phonkhub-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "ClassHub - Sistema de gerenciamento escolar (ETEC)",
+  "description": "PhonkHub - Sistema de gerenciamento escolar da resenha 67 (Bora Bill, Lá Ele, Amostradinho, Jennifer, Kirk, Floyd)",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

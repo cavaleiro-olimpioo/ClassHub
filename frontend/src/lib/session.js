@@ -15,11 +15,11 @@
 import { api, setToken, getToken } from './api.js';
 
 const KEYS = {
-  token: 'classhub.token',
-  perfil: 'classhub.perfil',
-  nome: 'classhub.nome',
-  email: 'classhub.email',
-  vinculoId: 'classhub.vinculoId'
+  token: 'phonkhub.token',
+  perfil: 'phonkhub.perfil',
+  nome: 'phonkhub.nome',
+  email: 'phonkhub.email',
+  vinculoId: 'phonkhub.vinculoId'
 };
 
 /** Decodifica a carga util (payload) de um JWT sem validar a assinatura. */

@@ -15,10 +15,10 @@ export default function AdminAchadosPerdidos() {
     async (row) => {
       try {
         await api.put(`/achados-perdidos/${row.id}/devolver`);
-        toast.success('Item marcado como devolvido!');
+        toast.success('Item marcado como devolvido no 67! Bora bill!');
         setRefreshKey((k) => k + 1);
       } catch (error) {
-        toast.error(error.message || 'Não foi possível devolver o item.');
+        toast.error(error.message || 'Lá ele! Não foi possível devolver o item.');
       }
     },
     [toast]
@@ -26,12 +26,12 @@ export default function AdminAchadosPerdidos() {
 
   return (
     <CrudPage
-      title="Achados e Perdidos"
-      subtitle="Registre objetos perdidos e encontrados, e marque a devolução quando o item for entregue."
+      title="Achados e Perdidos Jennifer"
+      subtitle="Registre objetos da resenha perdidos e encontrados no 67, e marque a devolução pro Bora Bill e Floyd."
       icon="search"
       endpoint="/achados-perdidos"
-      createLabel="Novo Item"
-      cardTitle="Registros Oficiais de Achados e Perdidos"
+      createLabel="Novo Item do Amostradinho"
+      cardTitle="Registros Oficiais de Achados e Perdidos do 67"
       searchKeys={['descricao', 'localEncontrado']}
       deletable
       refreshKey={refreshKey}
@@ -49,14 +49,14 @@ export default function AdminAchadosPerdidos() {
       rowActions={(row) =>
         row.status !== 'DEVOLVIDO' ? (
           <Button variant="soft" size="sm" icon="check" onClick={() => handleDevolver(row)} title="Marcar como devolvido">
-            Devolver
+            Devolver (Bora Bill)
           </Button>
         ) : null
       }
       columns={[
         {
           key: 'descricao',
-          label: 'Descrição',
+          label: 'Descrição da Resenha',
           render: (v) => <span className="cell-strong">{v}</span>
         },
         { key: 'categoria', label: 'Categoria', render: (v) => <Badge tone="info">{v || '-'}</Badge>, width: 140 },
@@ -65,10 +65,10 @@ export default function AdminAchadosPerdidos() {
         { key: 'status', label: 'Status', render: (v) => <StatusBadge status={v} />, width: 150 }
       ]}
       formFields={[
-        { name: 'descricao', label: 'Descrição do item', required: true, placeholder: 'Ex.: estojo preto com estojo de lápis', full: true },
-        { name: 'categoria', label: 'Categoria', type: 'select', required: true, placeholder: 'Selecione...', options: CATEGORIA_OPTIONS },
+        { name: 'descricao', label: 'Descrição do item', required: true, placeholder: 'Ex.: casaco 67 com foto do Floyd e Jennifer', full: true },
+        { name: 'categoria', label: 'Categoria', type: 'select', required: true, placeholder: 'Selecione a categoria...', options: CATEGORIA_OPTIONS },
         { name: 'data', label: 'Data', type: 'date', required: true, value: todayISO() },
-        { name: 'localEncontrado', label: 'Local Encontrado', required: true, placeholder: 'Ex.: Biblioteca', full: true }
+        { name: 'localEncontrado', label: 'Local Encontrado', required: true, placeholder: 'Ex.: Quadra da Resenha, Biblioteca Lá Ele', full: true }
       ]}
       toForm={(row) => ({
         descricao: row.descricao || '',

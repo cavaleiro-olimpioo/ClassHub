@@ -20,11 +20,11 @@ import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 import { normalizeText } from '../../lib/format.js';
 
 const TIPOS = [
-  { value: 'ATRASO', label: 'Atraso' },
-  { value: 'FALTA', label: 'Falta' },
-  { value: 'COMPORTAMENTO', label: 'Comportamento' },
-  { value: 'NOTA', label: 'Desempenho acadêmico' },
-  { value: 'OUTRO', label: 'Outro' }
+  { value: 'ATRASO', label: 'Atraso na Resenha' },
+  { value: 'FALTA', label: 'Falta Lá Ele' },
+  { value: 'COMPORTAMENTO', label: 'Comportamento Amostradinho' },
+  { value: 'NOTA', label: 'Desempenho 67' },
+  { value: 'OUTRO', label: 'Outro (Eitxha/Eitcha)' }
 ];
 
 const EMPTY = { turmaId: '', alunoId: '', tipo: '', descricao: '' };
@@ -55,7 +55,7 @@ export default function ProfessorOcorrencias() {
       setOcorrencias(Array.isArray(data) ? data : []);
     } catch (error) {
       setOcorrencias([]);
-      toast.error(error.message || 'Não foi possível carregar as ocorrências.');
+      toast.error(error.message || 'Lá ele! Não foi possível carregar as ocorrências da resenha.');
     } finally {
       setLoading(false);
     }
@@ -120,7 +120,7 @@ export default function ProfessorOcorrencias() {
     event.preventDefault();
     setFormError(null);
     if (!form.alunoId || !form.tipo || !form.descricao.trim()) {
-      setFormError('Preencha aluno, tipo e descrição.');
+      setFormError('Preencha o aluno amostradinho, o tipo e a descrição da resenha.');
       return;
     }
     setSaving(true);
@@ -130,12 +130,12 @@ export default function ProfessorOcorrencias() {
         tipo: form.tipo,
         descricao: form.descricao.trim()
       });
-      toast.success('Ocorrência registrada com sucesso!');
+      toast.success('Ocorrência da resenha registrada com sucesso no 67! Bora bill!');
       setModalOpen(false);
       setForm(EMPTY);
       await load();
     } catch (error) {
-      setFormError(error.message || 'Não foi possível registrar a ocorrência.');
+      setFormError(error.message || 'Lá ele! Não foi possível registrar a ocorrência.');
     } finally {
       setSaving(false);
     }
@@ -143,16 +143,16 @@ export default function ProfessorOcorrencias() {
 
   return (
     <>
-      <PageHead title="Ocorrências" subtitle="Registre e acompanhe as ocorrências acadêmicas e comportamentais das suas turmas." />
+      <PageHead title="Ocorrências Lá Ele" subtitle="Registre ocorrências de conduta da resenha ou desempenho acadêmico no 67 com Jennifer, Kirk e Floyd." />
 
       <Card
-        title="Histórico de Ocorrências"
+        title="Histórico de Ocorrências da Resenha"
         icon="alert"
-        subtitle={`${filtered.length} registro(s)`}
+        subtitle={`${filtered.length} registro(s) no 67`}
         actions={
           <>
             <div style={{ minWidth: 180 }}>
-              <Select value={turmaFiltro} onChange={(e) => { setTurmaFiltro(e.target.value); setPage(1); }} placeholder="Todas as turmas" aria-label="Turma">
+              <Select value={turmaFiltro} onChange={(e) => { setTurmaFiltro(e.target.value); setPage(1); }} placeholder="Todas as turmas da resenha" aria-label="Turma">
                 {turmas.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -161,7 +161,7 @@ export default function ProfessorOcorrencias() {
               </Select>
             </div>
             <Button icon="plus" onClick={() => { setFormError(null); setModalOpen(true); }}>
-              Nova Ocorrência
+              Nova Ocorrência Amostradinha
             </Button>
           </>
         }
@@ -169,18 +169,18 @@ export default function ProfessorOcorrencias() {
         footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} itemLabel="ocorrências" />}
       >
         <div style={{ padding: '14px 18px' }}>
-          <SearchBox value={term} onChange={(v) => { setTerm(v); setPage(1); }} placeholder="Buscar por aluno ou descrição..." />
+          <SearchBox value={term} onChange={(v) => { setTerm(v); setPage(1); }} placeholder="Buscar por aluno, Floyd ou descrição..." />
         </div>
         <DataTable
           loading={loading}
           rows={paginate(filtered, safePage, PAGE_SIZE)}
           emptyIcon="alert"
-          emptyTitle="Nenhuma ocorrência registrada"
-          emptySubtitle="As ocorrências que você registrar aparecerão aqui."
+          emptyTitle="Nenhuma ocorrência registrada no 67"
+          emptySubtitle="As ocorrências da resenha que você registrar aparecerão aqui."
           columns={[
-            { key: 'aluno', label: 'Aluno', render: (v) => <span className="cell-strong">{v?.nome || '-'}</span> },
+            { key: 'aluno', label: 'Aluno Amostradinho', render: (v) => <span className="cell-strong">{v?.nome || '-'}</span> },
             { key: 'tipo', label: 'Tipo', render: (v) => <StatusBadge status={v} />, width: 150 },
-            { key: 'descricao', label: 'Descrição' },
+            { key: 'descricao', label: 'Descrição da Resenha' },
             { key: 'status', label: 'Status', render: (v) => <StatusBadge status={v} />, width: 130 }
           ]}
         />
@@ -188,15 +188,15 @@ export default function ProfessorOcorrencias() {
 
       {modalOpen && (
         <Modal
-          title="Nova Ocorrência"
+          title="Nova Ocorrência da Resenha 67"
           onClose={() => !saving && setModalOpen(false)}
           footer={
             <>
               <Button variant="secondary" onClick={() => setModalOpen(false)} disabled={saving}>
-                Cancelar
+                Cancelar (Lá Ele)
               </Button>
               <Button form="ocor-form" type="submit" loading={saving}>
-                Registrar
+                Registrar (Bora Bill)
               </Button>
             </>
           }
@@ -207,8 +207,8 @@ export default function ProfessorOcorrencias() {
                 <Alert tone="danger">{formError}</Alert>
               </div>
             )}
-            <Field label="Turma" required htmlFor="o-turma" help="Necessária para selecionar o aluno.">
-              <Select id="o-turma" value={form.turmaId} onChange={(e) => setForm({ ...form, turmaId: e.target.value, alunoId: '' })} placeholder="Selecione a turma...">
+            <Field label="Turma da Resenha" required htmlFor="o-turma" help="Necessária para selecionar o aluno amostradinho.">
+              <Select id="o-turma" value={form.turmaId} onChange={(e) => setForm({ ...form, turmaId: e.target.value, alunoId: '' })} placeholder="Selecione a turma da resenha...">
                 {turmas.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -216,12 +216,12 @@ export default function ProfessorOcorrencias() {
                 ))}
               </Select>
             </Field>
-            <Field label="Aluno" required htmlFor="o-aluno">
+            <Field label="Aluno Amostradinho" required htmlFor="o-aluno">
               <Select
                 id="o-aluno"
                 value={form.alunoId}
                 onChange={(e) => setForm({ ...form, alunoId: e.target.value })}
-                placeholder={form.turmaId ? 'Selecione o aluno...' : 'Selecione a turma primeiro'}
+                placeholder={form.turmaId ? 'Selecione o aluno amostradinho...' : 'Selecione a turma primeiro'}
                 disabled={!form.turmaId}
               >
                 {alunos.map((aluno) => (
@@ -231,8 +231,8 @@ export default function ProfessorOcorrencias() {
                 ))}
               </Select>
             </Field>
-            <Field label="Tipo" required htmlFor="o-tipo" className="span-all">
-              <Select id="o-tipo" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })} placeholder="Selecione o tipo...">
+            <Field label="Tipo Lá Ele" required htmlFor="o-tipo" className="span-all">
+              <Select id="o-tipo" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })} placeholder="Selecione o tipo da ocorrência...">
                 {TIPOS.map((tipo) => (
                   <option key={tipo.value} value={tipo.value}>
                     {tipo.label}
@@ -240,12 +240,12 @@ export default function ProfessorOcorrencias() {
                 ))}
               </Select>
             </Field>
-            <Field label="Descrição" required htmlFor="o-desc" className="span-all">
+            <Field label="Descrição da Resenha" required htmlFor="o-desc" className="span-all">
               <Textarea
                 id="o-desc"
                 value={form.descricao}
                 onChange={(e) => setForm({ ...form, descricao: e.target.value })}
-                placeholder="Descreva o que aconteceu..."
+                placeholder="Descreva o que aconteceu na resenha 67 (ex.: o aluno amostradinho esqueceu o material do Floyd, lá ele)..."
               />
             </Field>
           </form>

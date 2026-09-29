@@ -1,20 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="ClassHub - Sistema de gerenciamento escolar" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>ClassHub - Gestão Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PhonkHub - Sistema de gerenciamento escolar da resenha 67 (Bora Bill, Lá Ele, Amostradinho, Jennifer, Kirk, Floyd)" />
+    <title>PhonkHub - Gestão Escolar da Resenha 67</title>
+    <!-- Script inline para aplicar o tema antes do primeiro render (evita flash) -->
     <script>
-      try {
-        const savedTheme = localStorage.getItem('classhub-theme');
+      (function () {
+        const savedTheme = localStorage.getItem('phonkhub-theme') || localStorage.getItem('classhub-theme');
         const theme = savedTheme === 'dark' || savedTheme === 'light'
           ? savedTheme
-          : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        document.documentElement.dataset.theme = theme;
-        document.documentElement.style.colorScheme = theme;
-      } catch {}
+          : window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
     </script>
   </head>
   <body>

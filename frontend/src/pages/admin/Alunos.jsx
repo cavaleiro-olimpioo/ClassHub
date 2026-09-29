@@ -18,31 +18,31 @@ export default function AdminAlunos() {
     if (!turmaId) return;
     try {
       await api.put(`/alunos/${row.id}/turma`, { turmaId: Number(turmaId) });
-      toast.success(`Turma de ${row.nome} atualizada com sucesso!`);
+      toast.success(`Turma de ${row.nome} atualizada com sucesso no 67! Bora bill!`);
       setRefreshKey((k) => k + 1);
     } catch (error) {
-      toast.error(error.message || 'Não foi possível alterar a turma.');
+      toast.error(error.message || 'Lá ele! Não foi possível alterar a turma na resenha.');
     }
   }
 
   return (
     <CrudPage
-      title="Gerenciar Alunos"
-      subtitle="Cadastre, edite e organize os alunos por turma. Use o seletor de turma na tabela para remanejar rapidamente."
+      title="Gerenciar Alunos Amostradinhos 67"
+      subtitle="Cadastre, edite e organize os alunos na resenha com Jennifer, Bora Bill e Floyd. Lá ele!"
       icon="students"
       endpoint="/alunos"
-      createLabel="Novo Aluno"
-      cardTitle="Lista de Alunos"
+      createLabel="Novo Aluno Amostradinho"
+      cardTitle="Lista de Alunos da Resenha 67"
       searchKeys={['nome', 'email', 'matricula']}
       deletable
       refreshKey={refreshKey}
-      filters={[{ key: 'turmaId', label: 'Turma', options: turmaOptions }]}
+      filters={[{ key: 'turmaId', label: 'Turma da Resenha', options: turmaOptions }]}
       columns={[
         { key: 'nome', label: 'Nome', render: (v) => <span className="cell-strong">{v}</span> },
         { key: 'matricula', label: 'Matrícula', className: 'mono' },
         { key: 'email', label: 'E-mail', className: 'cell-muted' },
         { key: 'dataNascimento', label: 'Nascimento', render: (v) => formatDate(v) },
-        { key: 'turma', label: 'Turma', render: (_v, row) => row.turma?.nome || row.turmaNome || <span className="text-muted">Sem turma</span> },
+        { key: 'turma', label: 'Turma', render: (_v, row) => row.turma?.nome || row.turmaNome || <span className="text-muted">Sem turma na resenha</span> },
         {
           key: '__turmaMove',
           label: 'Mover para',
@@ -65,16 +65,16 @@ export default function AdminAlunos() {
         }
       ]}
       formFields={[
-        { name: 'nome', label: 'Nome completo', required: true, placeholder: 'Nome do aluno' },
-        { name: 'email', label: 'E-mail', type: 'email', required: true, placeholder: 'aluno@escola.com' },
-        { name: 'matricula', label: 'Matrícula', required: true, placeholder: '2026001' },
+        { name: 'nome', label: 'Nome completo', required: true, placeholder: 'Jennifer Floyd da Silva 67' },
+        { name: 'email', label: 'E-mail', type: 'email', required: true, placeholder: 'jennifer.floyd@phonkhub.local' },
+        { name: 'matricula', label: 'Matrícula', required: true, placeholder: '67001' },
         { name: 'dataNascimento', label: 'Data de Nascimento', type: 'date', required: true },
         {
           name: 'turmaId',
           label: 'Turma',
           type: 'select',
           required: true,
-          placeholder: 'Selecione a turma...',
+          placeholder: 'Selecione a turma da resenha...',
           options: turmaOptions
         }
       ]}
@@ -94,7 +94,7 @@ export default function AdminAlunos() {
       })}
       extraActions={
         <Button variant="secondary" size="sm" icon="refresh" onClick={reloadTurmas}>
-          Atualizar turmas
+          Atualizar turmas (Bora Bill)
         </Button>
       }
     />

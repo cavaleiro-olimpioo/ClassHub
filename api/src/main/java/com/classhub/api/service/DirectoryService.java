@@ -173,12 +173,12 @@ public class DirectoryService {
 
     public void deleteVinculo(Long id) { vinculos.delete(requireVinculo(id)); }
 
-    public ApiAluno requireAluno(Long id) { return alunos.findById(id).orElseThrow(() -> new NotFoundException("Aluno não encontrado.")); }
-    public ApiProfessor requireProfessor(Long id) { return professores.findById(id).orElseThrow(() -> new NotFoundException("Professor não encontrado.")); }
-    public ApiTurma requireTurma(Long id) { return turmas.findById(id).orElseThrow(() -> new NotFoundException("Turma não encontrada.")); }
-    public ApiDisciplina requireDisciplina(Long id) { return disciplinas.findById(id).orElseThrow(() -> new NotFoundException("Disciplina não encontrada.")); }
-    private ApiSerie requireSerie(Long id) { return series.findById(id).orElseThrow(() -> new NotFoundException("Série não encontrada.")); }
-    private ApiVinculo requireVinculo(Long id) { return vinculos.findById(id).orElseThrow(() -> new NotFoundException("Vínculo não encontrado.")); }
+    public ApiAluno requireAluno(Long id) { return alunos.findById(id).orElseThrow(() -> new NotFoundException("Aluno não encontrado no 67. Lá ele!")); }
+    public ApiProfessor requireProfessor(Long id) { return professores.findById(id).orElseThrow(() -> new NotFoundException("Professor não encontrado no 67. Lá ele!")); }
+    public ApiTurma requireTurma(Long id) { return turmas.findById(id).orElseThrow(() -> new NotFoundException("Turma não encontrada na resenha 67. Bora bill!")); }
+    public ApiDisciplina requireDisciplina(Long id) { return disciplinas.findById(id).orElseThrow(() -> new NotFoundException("Disciplina não encontrada no 67. Lá ele!")); }
+    private ApiSerie requireSerie(Long id) { return series.findById(id).orElseThrow(() -> new NotFoundException("Série não encontrada no 67. Eitxha!")); }
+    private ApiVinculo requireVinculo(Long id) { return vinculos.findById(id).orElseThrow(() -> new NotFoundException("Vínculo não encontrado na resenha 67. Eitcha!")); }
 
     private void applyAluno(ApiAluno entity, AlunoRequest request) {
         entity.setNome(request.nome().trim());

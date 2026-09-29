@@ -42,7 +42,7 @@ public class SecurityConfig {
             .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, ex) -> {
                 response.setStatus(401);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                objectMapper.writeValue(response.getOutputStream(), java.util.Map.of("mensagem", "Não autorizado."));
+                objectMapper.writeValue(response.getOutputStream(), java.util.Map.of("mensagem", "Não autorizado no PhonkHub 67. Lá ele!"));
             }))
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

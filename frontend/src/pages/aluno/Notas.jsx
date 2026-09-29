@@ -15,7 +15,7 @@ import { api } from '../../lib/api.js';
 import useAluno from '../../lib/useAluno.js';
 import { BIMESTRES, calcularMediaPesos, formatGrade, situacaoAluno } from '../../lib/format.js';
 
-const TIPO_LABEL = { PROVA: 'Prova', TRABALHO: 'Trabalho', ATIVIDADE: 'Atividade' };
+const TIPO_LABEL = { PROVA: 'Prova da Resenha', TRABALHO: 'Trabalho do Amostradinho', ATIVIDADE: 'Atividade 67' };
 const PAGE_SIZE = 12;
 
 export default function AlunoNotas() {
@@ -74,19 +74,19 @@ export default function AlunoNotas() {
     return validas.reduce((soma, d) => soma + d.media, 0) / validas.length;
   }, [porDisciplina]);
 
-  if (loadingAluno) return <Loading message="Carregando suas notas..." />;
+  if (loadingAluno) return <Loading message="Carregando suas notas da resenha 67..." />;
 
   return (
     <>
       <PageHead
-        title="Minhas Notas"
-        subtitle="Consulte as avaliações lançadas pelos professores e a média de cada disciplina."
+        title="Minhas Notas da Resenha 67"
+        subtitle="Consulte as avaliações lançadas pelo Floyd e Kirk e a média de cada disciplina da resenha. Bora bill!"
         actions={
           <div style={{ minWidth: 180 }}>
             <Select value={bimestre} onChange={(e) => { setBimestre(Number(e.target.value)); setPage(1); }} aria-label="Bimestre">
               {BIMESTRES.map((b) => (
                 <option key={b} value={b}>
-                  {b}º Bimestre
+                  {b}º Bimestre 67
                 </option>
               ))}
             </Select>
@@ -101,29 +101,29 @@ export default function AlunoNotas() {
       )}
 
       <div className="grid grid--stats">
-        <StatCard icon="edit" tone="primary" label="Disciplinas" value={porDisciplina.length} caption={`Com notas no ${bimestre}º bimestre`} />
-        <StatCard icon="clipboard" tone="info" label="Avaliações" value={doBimestre.length} caption="Notas lançadas" />
+        <StatCard icon="edit" tone="primary" label="Disciplinas da Resenha" value={porDisciplina.length} caption={`Com notas no ${bimestre}º bimestre`} />
+        <StatCard icon="clipboard" tone="info" label="Avaliações 67" value={doBimestre.length} caption="Notas lançadas pelo Floyd" />
         <StatCard
           icon="trending"
           tone={mediaGeral !== null && mediaGeral >= 6 ? 'success' : 'danger'}
-          label="Média Geral"
+          label="Média Geral do Amostradinho"
           value={formatGrade(mediaGeral)}
-          caption="Média das disciplinas com notas"
+          caption="Média das disciplinas da resenha"
         />
       </div>
 
       <div style={{ height: 16 }} />
 
-      <Card title="Média por Disciplina" icon="book" subtitle={`${bimestre}º Bimestre`} flush>
+      <Card title="Média por Disciplina Lá Ele" icon="book" subtitle={`${bimestre}º Bimestre da Resenha 67`} flush>
         <DataTable
           loading={loading}
           rows={porDisciplina}
           emptyIcon="edit"
-          emptyTitle="Nenhuma nota lançada"
-          emptySubtitle="Ainda não há notas registradas para este bimestre."
+          emptyTitle="Nenhuma nota lançada na resenha"
+          emptySubtitle="Ainda não há notas do Floyd ou Kirk registradas para este bimestre."
           columns={[
             { key: 'disciplinaNome', label: 'Disciplina', render: (v) => <span className="cell-strong">{v}</span> },
-            { key: 'media', label: 'Média', width: 120, render: (v) => (v === null ? '-' : <strong>{formatGrade(v)}</strong>) },
+            { key: 'media', label: 'Média 67', width: 120, render: (v) => (v === null ? '-' : <strong>{formatGrade(v)}</strong>) },
             {
               key: 'situacao',
               label: 'Situação',
@@ -137,21 +137,21 @@ export default function AlunoNotas() {
       <div style={{ height: 16 }} />
 
       <Card
-        title="Notas Lançadas"
+        title="Notas Lançadas no 67"
         icon="edit"
-        subtitle={`${doBimestre.length} avaliação(ões)`}
+        subtitle={`${doBimestre.length} avaliação(ões) da resenha`}
         flush
-        footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={doBimestre.length} onPageChange={setPage} itemLabel="avaliações" />}
+        footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={doBimestre.length} onPageChange={setPage} itemLabel="avaliações da resenha" />}
       >
         <DataTable
           loading={loading}
           rows={paginate(doBimestre, safePage, PAGE_SIZE)}
           emptyIcon="edit"
-          emptyTitle="Nenhuma nota lançada"
-          emptySubtitle="As avaliações dos professores aparecerão aqui."
+          emptyTitle="Nenhuma nota lançada no 67"
+          emptySubtitle="As avaliações do professor Floyd e Bora Bill aparecerão aqui."
           columns={[
             { key: 'disciplinaNome', label: 'Disciplina', render: (v, row) => v || `Disciplina ${row.disciplinaId}` },
-            { key: 'bimestre', label: 'Bimestre', width: 110, render: (v) => `${v}º` },
+            { key: 'bimestre', label: 'Bimestre', width: 110, render: (v) => `${v}º 67` },
             { key: 'tipo', label: 'Tipo', width: 130, render: (v) => TIPO_LABEL[String(v).toUpperCase()] || v },
             { key: 'valor', label: 'Nota', width: 100, className: 'num', render: (v) => <strong>{formatGrade(v)}</strong> },
             { key: 'peso', label: 'Peso', width: 90, className: 'num' }

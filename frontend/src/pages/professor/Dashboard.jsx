@@ -8,11 +8,11 @@ import { firstName, todayISO, WEEKDAYS } from '../../lib/format.js';
 import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 
 const SHORTCUTS = [
-  { label: 'Fazer Chamada', to: '/professor/chamada', icon: 'checkSquare' },
-  { label: 'Lançar Notas', to: '/professor/notas', icon: 'edit' },
-  { label: 'Ocorrências', to: '/professor/ocorrencias', icon: 'alert' },
-  { label: 'Consulta de Alunos', to: '/professor/alunos', icon: 'students' },
-  { label: 'Meus Horários', to: '/professor/horarios', icon: 'clock' }
+  { label: 'Fazer Chamada Amostradinho', to: '/professor/chamada', icon: 'checkSquare' },
+  { label: 'Lançar Notas 67', to: '/professor/notas', icon: 'edit' },
+  { label: 'Ocorrências Lá Ele', to: '/professor/ocorrencias', icon: 'alert' },
+  { label: 'Consulta Alunos Jennifer', to: '/professor/alunos', icon: 'students' },
+  { label: 'Meus Horários Bora Bill', to: '/professor/horarios', icon: 'clock' }
 ];
 
 export default function ProfessorDashboard() {
@@ -45,7 +45,7 @@ export default function ProfessorDashboard() {
     };
   }, [professorId]);
 
-  if (loading) return <Loading message="Carregando seu painel..." />;
+  if (loading) return <Loading message="Carregando painel do professor Floyd 67..." />;
 
   const hoje = new Date().getDay();
 
@@ -53,23 +53,23 @@ export default function ProfessorDashboard() {
     <>
       <PageHead
         title={`Olá, ${firstName(session?.nome)}`}
-        subtitle={`Você tem ${vinculos.length} vínculo(s) ativo(s) e ${aulasHoje.length} aula(s) programada(s) para hoje.`}
+        subtitle={`Você tem ${vinculos.length} vínculo(s) na resenha 67 e ${aulasHoje.length} aula(s) programada(s) com Kirk e Floyd para hoje. Bora bill!`}
       />
 
       <div className="grid grid--stats">
-        <StatCard icon="layers" tone="primary" label="Turmas Vinculadas" value={new Set(vinculos.map((v) => v.turma?.id ?? v.turmaId)).size} caption="Turmas no ano letivo" />
-        <StatCard icon="book" tone="info" label="Disciplinas" value={new Set(vinculos.map((v) => v.disciplina?.id ?? v.disciplinaId)).size} caption="Componentes que você leciona" />
-        <StatCard icon="clock" tone="success" label="Aulas na Semana" value={horarios.length} caption="Horários registrados" />
-        <StatCard icon="calendar" tone="warning" label="Aulas Hoje" value={aulasHoje.length} caption={WEEKDAYS[hoje]} />
+        <StatCard icon="layers" tone="primary" label="Turmas da Resenha 67" value={new Set(vinculos.map((v) => v.turma?.id ?? v.turmaId)).size} caption="Turmas no ano letivo" />
+        <StatCard icon="book" tone="info" label="Disciplinas Lá Ele" value={new Set(vinculos.map((v) => v.disciplina?.id ?? v.disciplinaId)).size} caption="Componentes da resenha" />
+        <StatCard icon="clock" tone="success" label="Aulas na Semana 67" value={horarios.length} caption="Horários registrados" />
+        <StatCard icon="calendar" tone="warning" label="Aulas Hoje Amostradinho" value={aulasHoje.length} caption={WEEKDAYS[hoje]} />
       </div>
 
       <div style={{ height: 16 }} />
 
       <div className="grid grid--2">
-        <Card title="Aulas de Hoje" icon="clock" subtitle={WEEKDAYS[hoje]}>
+        <Card title="Aulas de Hoje com Kirk & Floyd" icon="clock" subtitle={WEEKDAYS[hoje]}>
           {aulasHoje.length === 0 ? (
             <p className="text-muted" style={{ fontSize: 13 }}>
-              Nenhuma aula programada para hoje.
+              Nenhuma aula programada para hoje, só resenha eitxha!
             </p>
           ) : (
             <div className="stack" style={{ gap: 8 }}>
@@ -88,7 +88,7 @@ export default function ProfessorDashboard() {
           )}
         </Card>
 
-        <Card title="Atalhos" icon="dashboard" subtitle="Acesse rapidamente suas ferramentas">
+        <Card title="Atalhos do Bora Bill 67" icon="dashboard" subtitle="Acesse rapidamente suas ferramentas de resenha">
           <div className="stack" style={{ gap: 8 }}>
             {SHORTCUTS.map((shortcut) => (
               <Link
@@ -112,7 +112,7 @@ export default function ProfessorDashboard() {
 
       <div style={{ height: 16 }} />
       <p className="text-muted" style={{ fontSize: 12 }}>
-        Data de referência: {todayISO()}
+        Data de referência da resenha 67: {todayISO()}
       </p>
     </>
   );

@@ -52,13 +52,13 @@ export default function ProfessorAlunos() {
 
   return (
     <>
-      <PageHead title="Consulta de Alunos" subtitle="Consulte os dados dos alunos das turmas em que você leciona." />
+      <PageHead title="Consulta Alunos Jennifer" subtitle="Consulte os alunos amostradinhos das turmas da resenha 67 em que Kirk e Floyd lecionam. Bora bill!" />
 
-      <Card title="Alunos" icon="students" subtitle={`${filtered.length} aluno(s)`} flush footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} itemLabel="alunos" />}>
+      <Card title="Alunos Amostradinhos 67" icon="students" subtitle={`${filtered.length} aluno(s) na resenha`} flush footer={<Pagination page={safePage} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} itemLabel="alunos da resenha" />}>
         <div style={{ padding: '14px 18px', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <SearchBox value={term} onChange={(v) => { setTerm(v); setPage(1); }} placeholder="Buscar por nome, e-mail ou matrícula..." />
+          <SearchBox value={term} onChange={(v) => { setTerm(v); setPage(1); }} placeholder="Buscar por Jennifer, Floyd, Bora Bill..." />
           <div style={{ minWidth: 200 }}>
-            <Select value={turmaId} onChange={(e) => { setTurmaId(e.target.value); setPage(1); }} placeholder="Todas as turmas" aria-label="Turma">
+            <Select value={turmaId} onChange={(e) => { setTurmaId(e.target.value); setPage(1); }} placeholder="Todas as turmas da resenha" aria-label="Turma">
               {turmas.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -71,12 +71,12 @@ export default function ProfessorAlunos() {
           loading={loading}
           rows={paginate(filtered, safePage, PAGE_SIZE)}
           emptyIcon="students"
-          emptyTitle="Nenhum aluno encontrado"
-          emptySubtitle="Ajuste os filtros para localizar os alunos."
+          emptyTitle="Nenhum aluno encontrado no 67"
+          emptySubtitle="Lá ele! Ajuste os filtros para localizar os alunos da resenha."
           columns={[
-            { key: 'nome', label: 'Nome', render: (v) => <span className="cell-strong">{v}</span> },
+            { key: 'nome', label: 'Nome do Aluno', render: (v) => <span className="cell-strong">{v}</span> },
             { key: 'matricula', label: 'Matrícula', className: 'mono' },
-            { key: 'email', label: 'E-mail', className: 'cell-muted' },
+            { key: 'email', label: 'E-mail da Resenha', className: 'cell-muted' },
             { key: 'dataNascimento', label: 'Nascimento', render: (v) => formatDate(v) },
             { key: 'turma', label: 'Turma', render: (v, row) => v?.nome || row.turmaNome || '-' }
           ]}

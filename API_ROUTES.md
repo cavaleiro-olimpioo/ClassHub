@@ -1,6 +1,7 @@
-# API Routes Used by Frontend
+# API Routes Used by Frontend - PhonkHub 67
 
-This document lists all API endpoints the frontend consumes, with HTTP methods, query parameters, request payloads and expected response fields inferred from the frontend code.
+This document lists all API endpoints the frontend consumes in PhonkHub, with HTTP methods, query parameters, request payloads and expected response fields.
+Meme stack: 67, resenha, la ele, bora bill, eitxha, eitcha, amostradinho, Jennifer, Kirk, Floyd, etc.
 
 Base URL: `http://localhost:8080/api` (defined in `frontend/assets/js/api.js`)
 

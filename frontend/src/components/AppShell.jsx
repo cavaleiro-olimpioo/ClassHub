@@ -45,7 +45,7 @@ export default function AppShell() {
         type="button"
         className={`sidebar-overlay ${menuOpen ? 'is-open' : ''}`}
         onClick={() => setMenuOpen(false)}
-        aria-label="Fechar menu"
+        aria-label="Fechar menu (Bora Bill)"
         tabIndex={menuOpen ? 0 : -1}
       />
 
@@ -54,10 +54,10 @@ export default function AppShell() {
           <span className="sidebar-brand__mark">
             <Icon name="school" size={19} strokeWidth={2} />
           </span>
-          <span>ClassHub</span>
+          <span>PhonkHub</span>
         </div>
 
-        <div className="sidebar-section">{SECTION_LABEL[session.perfil] || 'MENU'}</div>
+        <div className="sidebar-section">{SECTION_LABEL[session.perfil] || 'MENU DA RESENHA 67'}</div>
 
         <nav className="sidebar-nav" aria-label="Navegação principal">
           <ul>
@@ -93,7 +93,7 @@ export default function AppShell() {
             onClick={handleLogout}
           >
             <Icon name="logout" size={15} />
-            Sair
+            Sair (Lá Ele)
           </button>
         </div>
       </aside>
@@ -104,14 +104,14 @@ export default function AppShell() {
             type="button"
             className="topbar__toggle"
             onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Alternar menu"
+            aria-label="Alternar menu (Bora Bill)"
             aria-expanded={menuOpen}
           >
             <Icon name={menuOpen ? 'x' : 'menu'} size={18} />
           </button>
 
           <nav className="breadcrumb" aria-label="Trilha de navegação">
-            <span>Portal do {session.perfil === 'ALUNO' ? 'Aluno' : session.perfil === 'PROFESSOR' ? 'Professor' : 'Admin'}</span>
+            <span>Portal do {session.perfil === 'ALUNO' ? 'Aluno Amostradinho' : session.perfil === 'PROFESSOR' ? 'Professor Floyd & Kirk' : 'Admin da Resenha 67'}</span>
             <span className="breadcrumb__sep">›</span>
             <span className="breadcrumb__current">{title}</span>
           </nav>

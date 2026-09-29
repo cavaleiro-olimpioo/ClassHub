@@ -54,8 +54,8 @@ function NotFound() {
           <path d="M12 8v5M12 16h.01" />
         </svg>
       </span>
-      <div className="empty__title">Página não encontrada</div>
-      <p className="empty__sub">O endereço acessado não existe ou foi movido.</p>
+      <div className="empty__title">Página não encontrada na resenha 67</div>
+      <p className="empty__sub">Lá ele! O endereço acessado não existe no PhonkHub ou foi movido pelo Bora Bill, Jennifer, Kirk e Floyd.</p>
     </div>
   );
 }
@@ -71,7 +71,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
-        <Suspense fallback={<Loading message="Carregando módulo..." />}>
+        <Suspense fallback={<Loading message="Carregando módulo do PhonkHub 67 (Bora Bill, Floyd)..." />}>
           <Routes>
             {/* Publicas */}
             <Route path="/login" element={<Login />} />

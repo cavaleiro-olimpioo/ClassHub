@@ -1,6 +1,6 @@
-# Frontend - ClassHub
+# Frontend - PhonkHub (Resenha 67)
 
-SPA do Sistema de Gerenciamento Escolar (Ensino Fundamental, 1º ao 9º ano), construída com **React 18 + Vite** e **CSS puro** com design tokens. Substitui a versão anterior em HTML/JS vanilla.
+SPA do Sistema de Gerenciamento Escolar da Resenha 67 (Bora Bill, Lá Ele, Amostradinho, Jennifer, Kirk, Floyd, etc.), construída com **React 18 + Vite** e **CSS puro** com design tokens. Substitui a versão anterior em HTML/JS vanilla.
 
 ---
 
@@ -29,8 +29,8 @@ A aplicação sobe em `http://localhost:5173`. O servidor de desenvolvimento do 
 ## 🐳 Docker
 
 ```bash
-docker build -t classhub-frontend .
-docker run -p 8080:80 classhub-frontend
+docker build -t phonkhub-frontend .
+docker run -p 8080:80 phonkhub-frontend
 ```
 
 Imagem multi-stage: build com `node:20-alpine` e serving com `nginx:alpine`.
@@ -78,10 +78,10 @@ src/
 
 O endpoint `POST /auth/login` devolve apenas `{ token, perfil, nome }` — **sem** `vinculoId`. Como `ApiAluno` e `ApiProfessor` estendem `ApiUser` com `TABLE_PER_CLASS`, o claim `sub` do JWT **é** o id do aluno/professor. Por isso `src/lib/session.js` decodifica o token no cliente para recuperar esse vínculo, necessário para `/vinculos`, `/notas/aluno/{id}` e `/presencas`. Nenhuma alteração no backend é necessária.
 
-## 🔑 Usuários de demonstração
+## 🔑 Usuários de demonstração da Resenha 67
 
 | Perfil      | E-mail                       | Senha             |
 | ----------- | ---------------------------- | ----------------- |
-| Professor   | `professor@classhub.local`   | `professor123`    |
-| Aluno       | `aluno@classhub.local`       | `aluno123`        |
-| Funcionário | `funcionario@classhub.local` | `funcionario123`  |
+| Professor Kirk Floyd | `professor@classhub.local`   | `professor123`    |
+| Aluno Jennifer Amostradinha | `aluno@classhub.local`       | `aluno123`        |
+| Funcionário Bora Bill | `funcionario@classhub.local` | `funcionario123`  |

@@ -33,42 +33,44 @@ public class DemoDataInitializer {
                                     ApiAchadoPerdidoRepository achadosPerdidos,
                                     PasswordEncoder passwordEncoder) {
         return args -> {
-            // 1. Professores
-            ApiProfessor professor = professors.findByEmailIgnoreCase("professor@classhub.local").orElseGet(() -> {
-                ApiProfessor created = new ApiProfessor();
-                created.setNome("Professor Demo");
-                created.setEmail("professor@classhub.local");
-                created.setTelefone("(11) 90000-0001");
-                created.setDataNascimento(LocalDate.of(1985, 1, 15));
-                created.setSenhaHash(passwordEncoder.encode("professor123"));
-                return professors.save(created);
-            });
+            // 1. Professores: Kirk e Floyd na Resenha 67
+            ApiProfessor professor = professors.findByEmailIgnoreCase("professor@classhub.local")
+                    .or(() -> professors.findByEmailIgnoreCase("professor@phonkhub.local"))
+                    .orElseGet(() -> {
+                        ApiProfessor created = new ApiProfessor();
+                        created.setNome("Professor Kirk Floyd - Resenha 67");
+                        created.setEmail("professor@classhub.local");
+                        created.setTelefone("(67) 96767-6767");
+                        created.setDataNascimento(LocalDate.of(1985, 1, 15));
+                        created.setSenhaHash(passwordEncoder.encode("professor123"));
+                        return professors.save(created);
+                    });
 
-            // 2. Séries
+            // 2. Séries da Resenha 67
             ApiSerie serie9 = series.findAll().stream()
-                    .filter(s -> "9º Ano".equalsIgnoreCase(s.getNome()))
+                    .filter(s -> s.getNome() != null && (s.getNome().contains("67") || s.getNome().contains("9º")))
                     .findFirst()
                     .orElseGet(() -> {
                         ApiSerie s = new ApiSerie();
-                        s.setNome("9º Ano");
-                        s.setNivel("Ensino Fundamental II");
+                        s.setNome("67º Ano Amostradinho");
+                        s.setNivel("Ensino Fundamental II - Lá Ele");
                         return series.save(s);
                     });
 
-            if (series.findAll().stream().noneMatch(s -> "8º Ano".equalsIgnoreCase(s.getNome()))) {
+            if (series.findAll().stream().noneMatch(s -> s.getNome() != null && (s.getNome().contains("Bora Bill") || s.getNome().contains("8º")))) {
                 ApiSerie s8 = new ApiSerie();
-                s8.setNome("8º Ano");
-                s8.setNivel("Ensino Fundamental II");
+                s8.setNome("8º Ano Bora Bill");
+                s8.setNivel("Ensino Fundamental II - Eitxha");
                 series.save(s8);
             }
 
-            // 3. Turmas
+            // 3. Turmas da Resenha
             ApiTurma turma9A = turmas.findAll().stream()
-                    .filter(t -> "9º Ano A".equalsIgnoreCase(t.getNome()))
+                    .filter(t -> t.getNome() != null && (t.getNome().contains("67") || t.getNome().contains("9º Ano A")))
                     .findFirst()
                     .orElseGet(() -> {
                         ApiTurma t = new ApiTurma();
-                        t.setNome("9º Ano A");
+                        t.setNome("67º Ano A - Resenha Amostradinha");
                         t.setSerie(serie9);
                         t.setAnoLetivo(LocalDate.now().getYear());
                         t.setTurno("MATUTINO");
@@ -76,109 +78,117 @@ public class DemoDataInitializer {
                         return turmas.save(t);
                     });
 
-            if (turmas.findAll().stream().noneMatch(t -> "9º Ano B".equalsIgnoreCase(t.getNome()))) {
+            if (turmas.findAll().stream().noneMatch(t -> t.getNome() != null && (t.getNome().contains("Lá Ele") || t.getNome().contains("9º Ano B")))) {
                 ApiTurma t9B = new ApiTurma();
-                t9B.setNome("9º Ano B");
+                t9B.setNome("67º Ano B - Lá Ele Floyd");
                 t9B.setSerie(serie9);
                 t9B.setAnoLetivo(LocalDate.now().getYear());
                 t9B.setTurno("VESPERTINO");
                 turmas.save(t9B);
             }
 
-            // 4. Aluno Demo & Colegas de Turma
-            ApiAluno alunoDemo = alunos.findByEmailIgnoreCase("aluno@classhub.local").orElseGet(() -> {
-                ApiAluno created = new ApiAluno();
-                created.setNome("Aluno Demo");
-                created.setEmail("aluno@classhub.local");
-                created.setTelefone("(11) 90000-0002");
-                created.setDataNascimento(LocalDate.of(2012, 1, 1));
-                created.setSenhaHash(passwordEncoder.encode("aluno123"));
-                created.setMatricula("2026001");
-                created.setTurma(turma9A);
-                return alunos.save(created);
-            });
+            // 4. Aluno Demo & Colegas de Turma (Jennifer, Bora Bill, Floyd)
+            ApiAluno alunoDemo = alunos.findByEmailIgnoreCase("aluno@classhub.local")
+                    .or(() -> alunos.findByEmailIgnoreCase("aluno@phonkhub.local"))
+                    .orElseGet(() -> {
+                        ApiAluno created = new ApiAluno();
+                        created.setNome("Jennifer Amostradinha 67");
+                        created.setEmail("aluno@classhub.local");
+                        created.setTelefone("(67) 96767-0067");
+                        created.setDataNascimento(LocalDate.of(2012, 1, 1));
+                        created.setSenhaHash(passwordEncoder.encode("aluno123"));
+                        created.setMatricula("67001");
+                        created.setTurma(turma9A);
+                        return alunos.save(created);
+                    });
 
             if (alunoDemo.getTurma() == null) {
                 alunoDemo.setTurma(turma9A);
                 alunos.save(alunoDemo);
             }
 
-            alunos.findByEmailIgnoreCase("beatriz@classhub.local").orElseGet(() -> {
-                ApiAluno created = new ApiAluno();
-                created.setNome("Beatriz Santos");
-                created.setEmail("beatriz@classhub.local");
-                created.setTelefone("(11) 90000-0004");
-                created.setDataNascimento(LocalDate.of(2012, 3, 14));
-                created.setSenhaHash(passwordEncoder.encode("aluno123"));
-                created.setMatricula("2026002");
-                created.setTurma(turma9A);
-                return alunos.save(created);
-            });
+            alunos.findByEmailIgnoreCase("beatriz@classhub.local")
+                    .or(() -> alunos.findByEmailIgnoreCase("borabill@phonkhub.local"))
+                    .orElseGet(() -> {
+                        ApiAluno created = new ApiAluno();
+                        created.setNome("Bora Bill da Resenha 67");
+                        created.setEmail("beatriz@classhub.local");
+                        created.setTelefone("(67) 96767-0068");
+                        created.setDataNascimento(LocalDate.of(2012, 3, 14));
+                        created.setSenhaHash(passwordEncoder.encode("aluno123"));
+                        created.setMatricula("67002");
+                        created.setTurma(turma9A);
+                        return alunos.save(created);
+                    });
 
-            alunos.findByEmailIgnoreCase("carlos@classhub.local").orElseGet(() -> {
-                ApiAluno created = new ApiAluno();
-                created.setNome("Carlos Silva");
-                created.setEmail("carlos@classhub.local");
-                created.setTelefone("(11) 90000-0005");
-                created.setDataNascimento(LocalDate.of(2012, 7, 22));
-                created.setSenhaHash(passwordEncoder.encode("aluno123"));
-                created.setMatricula("2026003");
-                created.setTurma(turma9A);
-                return alunos.save(created);
-            });
+            alunos.findByEmailIgnoreCase("carlos@classhub.local")
+                    .or(() -> alunos.findByEmailIgnoreCase("floyd@phonkhub.local"))
+                    .orElseGet(() -> {
+                        ApiAluno created = new ApiAluno();
+                        created.setNome("Kirk Floyd Júnior - Eitcha");
+                        created.setEmail("carlos@classhub.local");
+                        created.setTelefone("(67) 96767-0069");
+                        created.setDataNascimento(LocalDate.of(2012, 7, 22));
+                        created.setSenhaHash(passwordEncoder.encode("aluno123"));
+                        created.setMatricula("67003");
+                        created.setTurma(turma9A);
+                        return alunos.save(created);
+                    });
 
-            // 5. Funcionário
-            ApiFuncionario funcionario = funcionarios.findByEmailIgnoreCase("funcionario@classhub.local").orElseGet(() -> {
-                ApiFuncionario created = new ApiFuncionario();
-                created.setNome("Funcionário Demo");
-                created.setEmail("funcionario@classhub.local");
-                created.setTelefone("(11) 90000-0003");
-                created.setDataNascimento(LocalDate.of(1990, 5, 20));
-                created.setSenhaHash(passwordEncoder.encode("funcionario123"));
-                created.setCargo("Administrativo");
-                created.setSetor("Secretaria");
-                return funcionarios.save(created);
-            });
+            // 5. Funcionário da Resenha
+            ApiFuncionario funcionario = funcionarios.findByEmailIgnoreCase("funcionario@classhub.local")
+                    .or(() -> funcionarios.findByEmailIgnoreCase("funcionario@phonkhub.local"))
+                    .orElseGet(() -> {
+                        ApiFuncionario created = new ApiFuncionario();
+                        created.setNome("Funcionário Floyd - Bora Bill Lá Ele");
+                        created.setEmail("funcionario@classhub.local");
+                        created.setTelefone("(67) 96767-0070");
+                        created.setDataNascimento(LocalDate.of(1990, 5, 20));
+                        created.setSenhaHash(passwordEncoder.encode("funcionario123"));
+                        created.setCargo("Administrativo Lá Ele 67");
+                        created.setSetor("Secretaria da Resenha Eitxha");
+                        return funcionarios.save(created);
+                    });
 
-            // 6. Disciplinas
+            // 6. Disciplinas da Resenha 67
             ApiDisciplina mat = disciplinas.findAll().stream()
-                    .filter(d -> "Matemática".equalsIgnoreCase(d.getNome()))
+                    .filter(d -> d.getNome() != null && (d.getNome().contains("Matemática") || d.getNome().contains("67")))
                     .findFirst()
                     .orElseGet(() -> {
                         ApiDisciplina d = new ApiDisciplina();
-                        d.setNome("Matemática");
-                        d.setCargaHoraria(80);
+                        d.setNome("Matemática 67 - Bora Bill");
+                        d.setCargaHoraria(67);
                         return disciplinas.save(d);
                     });
 
             ApiDisciplina port = disciplinas.findAll().stream()
-                    .filter(d -> "Língua Portuguesa".equalsIgnoreCase(d.getNome()))
+                    .filter(d -> d.getNome() != null && (d.getNome().contains("Portuguesa") || d.getNome().contains("Lá Ele")))
                     .findFirst()
                     .orElseGet(() -> {
                         ApiDisciplina d = new ApiDisciplina();
-                        d.setNome("Língua Portuguesa");
+                        d.setNome("Língua Portuguesa Lá Ele");
                         d.setCargaHoraria(80);
                         return disciplinas.save(d);
                     });
 
             ApiDisciplina cien = disciplinas.findAll().stream()
-                    .filter(d -> "Ciências da Natureza".equalsIgnoreCase(d.getNome()))
+                    .filter(d -> d.getNome() != null && (d.getNome().contains("Ciências") || d.getNome().contains("Amostradinho")))
                     .findFirst()
                     .orElseGet(() -> {
                         ApiDisciplina d = new ApiDisciplina();
-                        d.setNome("Ciências da Natureza");
-                        d.setCargaHoraria(60);
+                        d.setNome("Ciências do Amostradinho");
+                        d.setCargaHoraria(67);
                         return disciplinas.save(d);
                     });
 
-            if (disciplinas.findAll().stream().noneMatch(d -> "História".equalsIgnoreCase(d.getNome()))) {
+            if (disciplinas.findAll().stream().noneMatch(d -> d.getNome() != null && (d.getNome().contains("História") || d.getNome().contains("Floyd")))) {
                 ApiDisciplina d = new ApiDisciplina();
-                d.setNome("História");
-                d.setCargaHoraria(60);
+                d.setNome("História da Resenha Floyd & Kirk");
+                d.setCargaHoraria(67);
                 disciplinas.save(d);
             }
 
-            // 7. Vínculos do Professor Demo
+            // 7. Vínculos do Professor Kirk Floyd
             if (vinculos.findAll().stream().noneMatch(v -> v.getProfessor().getId().equals(professor.getId()) &&
                     v.getTurma().getId().equals(turma9A.getId()) &&
                     v.getDisciplina().getId().equals(mat.getId()))) {
@@ -244,31 +254,31 @@ public class DemoDataInitializer {
                 horarios.save(h4);
             }
 
-            // 9. Calendário Escolar
+            // 9. Calendário Escolar da Resenha 67
             if (calendario.count() == 0) {
                 int currentYear = LocalDate.now().getYear();
                 ApiCalendario e1 = new ApiCalendario();
                 e1.setAnoLetivo(currentYear);
                 e1.setData(LocalDate.of(currentYear, 2, 10));
                 e1.setTipo("LETIVO");
-                e1.setTitulo("Início do 1º Bimestre Letivo");
-                e1.setDescricao("Acolhimento aos alunos e apresentação do corpo docente.");
+                e1.setTitulo("Início da Resenha 67 - Bora Bill!");
+                e1.setDescricao("Acolhimento aos alunos amostradinhos com Jennifer, Kirk e Floyd. Eitxha!");
                 calendario.save(e1);
 
                 ApiCalendario e2 = new ApiCalendario();
                 e2.setAnoLetivo(currentYear);
                 e2.setData(LocalDate.of(currentYear, 4, 15));
-                e2.setTipo("AVALIACAO");
-                e2.setTitulo("Semana de Avaliações Bimestrais");
-                e2.setDescricao("Aplicação das provas oficiais do 1º bimestre.");
+                e2.setTipo("EVENTO");
+                e2.setTitulo("Semana de Avaliações 67 - Lá Ele!");
+                e2.setDescricao("Aplicação das provas da resenha com o Floyd. Eitcha amostradinho!");
                 calendario.save(e2);
 
                 ApiCalendario e3 = new ApiCalendario();
                 e3.setAnoLetivo(currentYear);
                 e3.setData(LocalDate.of(currentYear, 4, 25));
-                e3.setTipo("REUNIAO");
-                e3.setTitulo("Reunião de Pais e Mestres");
-                e3.setDescricao("Entrega de boletins e alinhamento pedagógico.");
+                e3.setTipo("EVENTO");
+                e3.setTitulo("Reunião de Pais e Mestres do Amostradinho");
+                e3.setDescricao("Entrega de boletins 67 e alinhamento pedagógico da resenha com Bora Bill.");
                 calendario.save(e3);
             }
 
@@ -279,9 +289,9 @@ public class DemoDataInitializer {
                 n1.setDisciplina(mat);
                 n1.setTurma(turma9A);
                 n1.setBimestre(1);
-                n1.setTipo("P1");
-                n1.setPeso(1.0);
-                n1.setValor(8.5);
+                n1.setTipo("PROVA");
+                n1.setPeso(5.0);
+                n1.setValor(9.67);
                 notas.save(n1);
 
                 ApiNota n2 = new ApiNota();
@@ -290,8 +300,8 @@ public class DemoDataInitializer {
                 n2.setTurma(turma9A);
                 n2.setBimestre(1);
                 n2.setTipo("TRABALHO");
-                n2.setPeso(1.0);
-                n2.setValor(9.0);
+                n2.setPeso(3.0);
+                n2.setValor(10.0);
                 notas.save(n2);
             }
 
@@ -300,8 +310,8 @@ public class DemoDataInitializer {
                 ApiOcorrencia oc = new ApiOcorrencia();
                 oc.setAluno(alunoDemo);
                 oc.setProfessor(professor);
-                oc.setTipo("INFORMATIVA");
-                oc.setDescricao("Aluno esqueceu o material didático de ciências.");
+                oc.setTipo("COMPORTAMENTO");
+                oc.setDescricao("Eitxha! O aluno amostradinho Jennifer esqueceu o Floyd na resenha do 67, lá ele! Bora bill resolver isso.");
                 oc.setStatus("ABERTA");
                 oc.setData(LocalDate.now());
                 ocorrencias.save(oc);
@@ -310,10 +320,10 @@ public class DemoDataInitializer {
             // 12. Achados e Perdidos Exemplo
             if (achadosPerdidos.count() == 0) {
                 ApiAchadoPerdido ap = new ApiAchadoPerdido();
-                ap.setDescricao("Casaco de moletom azul escuro com capuz");
-                ap.setLocalEncontrado("Quadra Poliesportiva");
-                ap.setCategoria("Vestuário");
-                ap.setStatus("DISPONIVEL");
+                ap.setDescricao("Casaco 67 do Bora Bill com chaveiro do Floyd e Jennifer - eitxha amostradinho!");
+                ap.setLocalEncontrado("Quadra da Resenha 67 - Lá Ele");
+                ap.setCategoria("UNIFORME");
+                ap.setStatus("NAO_REIVINDICADO");
                 ap.setData(LocalDate.now());
                 ap.setFuncionarioRegistrou(funcionario);
                 achadosPerdidos.save(ap);

@@ -64,7 +64,7 @@ public class CommunityService {
     }
 
     private ApiOcorrencia requireOcorrencia(Long id) {
-        return ocorrencias.findById(id).orElseThrow(() -> new NotFoundException("Ocorrência não encontrada."));
+        return ocorrencias.findById(id).orElseThrow(() -> new NotFoundException("Ocorrência não encontrada na resenha 67. Lá ele!"));
     }
 
     @Transactional(readOnly = true)
@@ -101,27 +101,27 @@ public class CommunityService {
     }
 
     public CalendarioResponse updateCalendario(Long id, CalendarioRequest request) {
-        ApiCalendario entity = calendario.findById(id).orElseThrow(() -> new NotFoundException("Evento do calendário não encontrado."));
+        ApiCalendario entity = calendario.findById(id).orElseThrow(() -> new NotFoundException("Evento do calendário não encontrado no 67. Lá ele!"));
         applyCalendario(entity, request); return calendario(entity);
     }
 
     public void deleteCalendario(Long id) {
-        ApiCalendario entity = calendario.findById(id).orElseThrow(() -> new NotFoundException("Evento do calendário não encontrado."));
+        ApiCalendario entity = calendario.findById(id).orElseThrow(() -> new NotFoundException("Evento do calendário não encontrado no 67. Lá ele!"));
         calendario.delete(entity);
     }
 
     private void applyAchado(ApiAchadoPerdido entity, AchadoPerdidoRequest request) {
         String categoria = request.categoria().trim().toUpperCase();
-        if (!CATEGORIAS.contains(categoria)) throw new BadRequestException("Categoria de achado e perdido inválida.");
+        if (!CATEGORIAS.contains(categoria)) throw new BadRequestException("Categoria de achado e perdido inválida no 67. Lá ele!");
         entity.setDescricao(request.descricao().trim()); entity.setCategoria(categoria); entity.setData(request.data()); entity.setLocalEncontrado(request.localEncontrado().trim());
     }
     private void applyCalendario(ApiCalendario entity, CalendarioRequest request) {
         String tipo = request.tipo().trim().toUpperCase();
-        if (!TIPOS_CALENDARIO.contains(tipo)) throw new BadRequestException("Tipo de calendário inválido.");
+        if (!TIPOS_CALENDARIO.contains(tipo)) throw new BadRequestException("Tipo de calendário inválido no 67. Lá ele!");
         entity.setData(request.data()); entity.setAnoLetivo(request.anoLetivo()); entity.setTipo(tipo);
         entity.setTitulo(request.titulo().trim()); entity.setDescricao(request.descricao() == null || request.descricao().isBlank() ? null : request.descricao().trim());
     }
-    private ApiAchadoPerdido requireAchado(Long id) { return achados.findById(id).orElseThrow(() -> new NotFoundException("Item não encontrado.")); }
+    private ApiAchadoPerdido requireAchado(Long id) { return achados.findById(id).orElseThrow(() -> new NotFoundException("Item não encontrado no 67. Lá ele!")); }
     private OcorrenciaResponse ocorrencia(ApiOcorrencia o) { return new OcorrenciaResponse(o.getId(), o.getAluno().getId(), directory.alunoSummary(o.getAluno()), o.getTipo(), o.getDescricao(), o.getStatus(), o.getData()); }
     private AchadoPerdidoResponse achado(ApiAchadoPerdido item) { return new AchadoPerdidoResponse(item.getId(), item.getDescricao(), item.getCategoria(), item.getLocalEncontrado(), item.getData(), item.getStatus()); }
     private CalendarioResponse calendario(ApiCalendario item) { return new CalendarioResponse(item.getId(), item.getData(), item.getAnoLetivo(), item.getTipo(), item.getTitulo(), item.getDescricao()); }

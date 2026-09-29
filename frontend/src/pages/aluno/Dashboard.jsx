@@ -10,12 +10,12 @@ import useAluno from '../../lib/useAluno.js';
 const HOJE = new Date();
 
 const ATALHOS = [
-  { label: 'Minhas Notas', to: '/aluno/notas', icon: 'edit' },
-  { label: 'Minhas Faltas', to: '/aluno/faltas', icon: 'xCircle' },
-  { label: 'Meu Boletim', to: '/aluno/boletim', icon: 'file' },
-  { label: 'Meus Horários', to: '/aluno/horarios', icon: 'clock' },
-  { label: 'Calendário Escolar', to: '/aluno/calendario', icon: 'calendar' },
-  { label: 'Achados e Perdidos', to: '/aluno/achados-perdidos', icon: 'search' }
+  { label: 'Minhas Notas da Resenha', to: '/aluno/notas', icon: 'edit' },
+  { label: 'Minhas Faltas Lá Ele', to: '/aluno/faltas', icon: 'xCircle' },
+  { label: 'Meu Boletim Eitxha', to: '/aluno/boletim', icon: 'file' },
+  { label: 'Meus Horários Floyd', to: '/aluno/horarios', icon: 'clock' },
+  { label: 'Calendário Bora Bill', to: '/aluno/calendario', icon: 'calendar' },
+  { label: 'Achados e Perdidos Jennifer', to: '/aluno/achados-perdidos', icon: 'search' }
 ];
 
 /** Descobre o maior bimestre com notas lançadas (padrão: 1). */
@@ -49,7 +49,7 @@ export default function AlunoDashboard() {
     };
   }, [alunoId]);
 
-  if (loadingAluno || loading) return <Loading message="Carregando seu painel..." />;
+  if (loadingAluno || loading) return <Loading message="Carregando painel do aluno amostradinho 67..." />;
 
   const bimestreAtual = ultimoBimestre(notas);
   const notasDoBimestre = notas.filter((n) => Number(n.bimestre) === bimestreAtual);
@@ -59,8 +59,8 @@ export default function AlunoDashboard() {
   const frequencia = presencas.length ? Math.round((presentes.length / presencas.length) * 100) : null;
 
   const subtitulo = aluno?.turma?.nome
-    ? `Turma ${aluno.turma.nome} · Matrícula ${aluno.matricula || '—'} · ${bimestreAtual}º Bimestre`
-    : 'Acompanhe suas notas, faltas e comunicados da escola.';
+    ? `Turma ${aluno.turma.nome} · Matrícula ${aluno.matricula || '—'} · ${bimestreAtual}º Bimestre da Resenha 67`
+    : 'Acompanhe suas notas da resenha 67, faltas lá ele e comunicados do Bora Bill.';
 
   return (
     <>
@@ -68,32 +68,31 @@ export default function AlunoDashboard() {
 
       {presencas.length > 0 && frequencia < 75 && (
         <div style={{ marginBottom: 16 }}>
-          <Alert tone="warning" title="Atenção: frequência abaixo do mínimo">
-            Sua frequência está em {frequencia}%. O mínimo exigido é de 75%. Procure a secretaria para regularizar suas
-            faltas.
+          <Alert tone="warning" title="Atenção amostradinho: frequência abaixo do mínimo no 67!">
+            Sua frequência está em {frequencia}%. O mínimo exigido é de 75%. Lá ele, procure a secretaria da resenha para regularizar suas faltas com o Floyd.
           </Alert>
         </div>
       )}
 
       <div className="grid grid--stats">
-        <StatCard icon="trending" tone="primary" label="Notas Lançadas" value={notasDoBimestre.length} caption={`No ${bimestreAtual}º bimestre`} />
-        <StatCard icon="xCircle" tone="danger" label="Faltas" value={faltas.length + justificadas.length} caption={`${justificadas.length} justificadas`} />
+        <StatCard icon="trending" tone="primary" label="Notas Lançadas 67" value={notasDoBimestre.length} caption={`No ${bimestreAtual}º bimestre da resenha`} />
+        <StatCard icon="xCircle" tone="danger" label="Faltas Lá Ele" value={faltas.length + justificadas.length} caption={`${justificadas.length} justificadas`} />
         <StatCard
           icon="checkSquare"
           tone={frequencia !== null && frequencia >= 75 ? 'success' : 'warning'}
-          label="Frequência"
+          label="Frequência Amostradinho"
           value={frequencia === null ? '—' : `${frequencia}%`}
-          caption="Mínimo exigido: 75%"
+          caption="Mínimo exigido no 67: 75%"
         />
-        <StatCard icon="calendar" tone="info" label="Mês Atual" value={MONTHS[HOJE.getMonth()].slice(0, 3)} caption={`Ano ${HOJE.getFullYear()}`} />
+        <StatCard icon="calendar" tone="info" label="Mês da Resenha" value={MONTHS[HOJE.getMonth()].slice(0, 3)} caption={`Ano ${HOJE.getFullYear()}`} />
       </div>
 
       <div style={{ height: 16 }} />
 
       <div className="grid grid--2">
-        <Card title="Minhas Notas Recentes" icon="edit" subtitle={notasDoBimestre.length ? `${bimestreAtual}º Bimestre` : 'Sem notas'} flush>
+        <Card title="Minhas Notas Recentes da Resenha" icon="edit" subtitle={notasDoBimestre.length ? `${bimestreAtual}º Bimestre 67` : 'Sem notas'} flush>
           {notasDoBimestre.length === 0 ? (
-            <p className="text-muted" style={{ padding: 18, fontSize: 13 }}>Nenhuma nota lançada neste bimestre.</p>
+            <p className="text-muted" style={{ padding: 18, fontSize: 13 }}>Nenhuma nota da resenha lançada neste bimestre.</p>
           ) : (
             <div className="table-wrap">
               <table className="table table--compact">
@@ -120,7 +119,7 @@ export default function AlunoDashboard() {
           )}
         </Card>
 
-        <Card title="Atalhos" icon="dashboard" subtitle="Acesse rapidamente seus serviços">
+        <Card title="Atalhos do Bora Bill" icon="dashboard" subtitle="Acesse rapidamente seus serviços da resenha 67">
           <div className="stack" style={{ gap: 8 }}>
             {ATALHOS.map((atalho) => (
               <Link key={atalho.to} to={atalho.to} className="card" style={{ padding: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -142,13 +141,13 @@ export default function AlunoDashboard() {
       <div className="notice-panel">
         <h3 className="notice-panel__title">
           <Icon name="info" size={17} />
-          Lembrete
+          Lembrete da Resenha 67 - Jennifer, Kirk e Floyd avisam:
         </h3>
         <ul>
-          <li>Confira suas notas e faltas regularmente.</li>
-          <li>O boletim só fica disponível após o fechamento do bimestre pela secretaria.</li>
-          <li>Em caso de falta injustificada, procure a secretaria.</li>
-          <li>Objetos perdidos devem ser registrados no Mural de Achados e Perdidos.</li>
+          <li>Confira suas notas do 67 e faltas lá ele regularmente.</li>
+          <li>O boletim só fica disponível após o fechamento do bimestre pela secretaria da resenha. Eitcha!</li>
+          <li>Em caso de falta injustificada, lá ele, procure a secretaria com o Bora Bill.</li>
+          <li>Objetos amostradinhos perdidos devem ser registrados no Mural de Achados e Perdidos da Jennifer.</li>
         </ul>
       </div>
     </>
