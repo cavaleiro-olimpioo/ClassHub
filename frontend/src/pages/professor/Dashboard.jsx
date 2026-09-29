@@ -7,6 +7,7 @@ import { getSession } from '../../lib/session.js';
 import { firstName, todayISO, WEEKDAYS } from '../../lib/format.js';
 import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 
+/** Atalhos de navegação exibidos no painel do professor. */
 const SHORTCUTS = [
   { label: 'Fazer Chamada', to: '/professor/chamada', icon: 'checkSquare' },
   { label: 'Lançar Notas', to: '/professor/notas', icon: 'edit' },
@@ -15,6 +16,13 @@ const SHORTCUTS = [
   { label: 'Meus Horários', to: '/professor/horarios', icon: 'clock' }
 ];
 
+/**
+ * Painel principal do professor: exibe indicadores das turmas e
+ * disciplinas vinculadas, as aulas programadas para o dia atual e atalhos
+ * de navegação para as ferramentas do professor.
+ *
+ * @returns {JSX.Element} o painel do professor, ou um indicador de carregamento
+ */
 export default function ProfessorDashboard() {
   const session = getSession();
   const { professorId, vinculos, loading } = useProfessorVinculos();

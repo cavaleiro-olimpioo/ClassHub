@@ -6,6 +6,7 @@ import { api } from '../../lib/api.js';
 import { getSession } from '../../lib/session.js';
 import { firstName } from '../../lib/format.js';
 
+/** Atalhos de navegação exibidos no painel administrativo. */
 const SHORTCUTS = [
   { label: 'Alunos', to: '/admin/alunos', icon: 'students' },
   { label: 'Professores', to: '/admin/professores', icon: 'teacher' },
@@ -17,6 +18,13 @@ const SHORTCUTS = [
   { label: 'Achados e Perdidos', to: '/admin/achados-perdidos', icon: 'search' }
 ];
 
+/**
+ * Painel principal do administrador: exibe indicadores gerais da escola
+ * (contagem de alunos, professores, turmas, disciplinas e vínculos) e
+ * atalhos de navegação para os módulos administrativos.
+ *
+ * @returns {JSX.Element} o painel administrativo, ou um indicador de carregamento
+ */
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -15,9 +15,18 @@ import { api } from '../../lib/api.js';
 import useAluno from '../../lib/useAluno.js';
 import { BIMESTRES, calcularMediaPesos, formatGrade, situacaoAluno } from '../../lib/format.js';
 
+/** Rótulos exibidos para cada tipo de avaliação. */
 const TIPO_LABEL = { PROVA: 'Prova', TRABALHO: 'Trabalho', ATIVIDADE: 'Atividade' };
+/** Quantidade de avaliações exibidas por página na tabela. */
 const PAGE_SIZE = 12;
 
+/**
+ * Página "Minhas Notas" do aluno: exibe a média por disciplina (calculada
+ * a partir dos pesos de cada avaliação) e a lista detalhada de notas
+ * lançadas em um bimestre.
+ *
+ * @returns {JSX.Element} a página de notas do aluno, ou um indicador de carregamento
+ */
 export default function AlunoNotas() {
   const { alunoId, loading: loadingAluno, error } = useAluno();
 

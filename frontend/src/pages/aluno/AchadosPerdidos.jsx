@@ -3,12 +3,15 @@ import CrudPage from '../../components/CrudPage.jsx';
 import { StatusBadge } from '../../components/ui.jsx';
 import { CATEGORIAS_ACHADOS, todayISO } from '../../lib/format.js';
 
+/** Opções de categoria de item, derivadas de {@link CATEGORIAS_ACHADOS}. */
 const CATEGORIA_OPTIONS = CATEGORIAS_ACHADOS.map((categoria) => ({ value: categoria, label: categoria }));
 
 /**
  * Mural de Achados e Perdidos do aluno.
  * Diferente do admin, o aluno apenas consulta e registra objetos
  * encontrados — a devolução é feita pela secretaria.
+ *
+ * @returns {JSX.Element} a página de consulta e registro de achados e perdidos do aluno
  */
 export default function AlunoAchadosPerdidos() {
   const statusFiltros = useMemo(

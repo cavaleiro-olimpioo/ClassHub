@@ -7,8 +7,10 @@ import { getSession } from '../../lib/session.js';
 import { BIMESTRES, firstName, formatGrade, MONTHS } from '../../lib/format.js';
 import useAluno from '../../lib/useAluno.js';
 
+/** Data de referência usada para destacar o mês atual no painel. */
 const HOJE = new Date();
 
+/** Atalhos de navegação exibidos no painel do aluno. */
 const ATALHOS = [
   { label: 'Minhas Notas', to: '/aluno/notas', icon: 'edit' },
   { label: 'Minhas Faltas', to: '/aluno/faltas', icon: 'xCircle' },
@@ -18,13 +20,25 @@ const ATALHOS = [
   { label: 'Achados e Perdidos', to: '/aluno/achados-perdidos', icon: 'search' }
 ];
 
-/** Descobre o maior bimestre com notas lançadas (padrão: 1). */
+/**
+ * Descobre o maior bimestre com notas lançadas (padrão: 1).
+ *
+ * @param {Array<{bimestre: number|string}>} notas lista de notas do aluno
+ * @returns {number} o número do bimestre mais recente com notas lançadas
+ */
 function ultimoBimestre(notas) {
   if (!notas || notas.length === 0) return 1;
   const max = notas.reduce((acc, n) => Math.max(acc, Number(n.bimestre) || 1), 1);
   return BIMESTRES.includes(max) ? max : 1;
 }
 
+/**
+ * Painel principal do aluno: exibe indicadores de notas do bimestre atual,
+ * faltas/frequência, um resumo das notas recentes e atalhos de navegação
+ * para os demais serviços do aluno.
+ *
+ * @returns {JSX.Element} o painel do aluno, ou um indicador de carregamento
+ */
 export default function AlunoDashboard() {
   const session = getSession();
   const { alunoId, aluno, loading: loadingAluno } = useAluno();

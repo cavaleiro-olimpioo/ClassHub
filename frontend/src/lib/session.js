@@ -22,7 +22,13 @@ const KEYS = {
   vinculoId: 'classhub.vinculoId'
 };
 
-/** Decodifica a carga util (payload) de um JWT sem validar a assinatura. */
+/**
+ * Decodifica a carga útil (payload) de um token JWT, sem validar a
+ * assinatura (a validação de fato é feita pelo backend).
+ *
+ * @param {string} token token JWT completo (cabeçalho.payload.assinatura)
+ * @returns {object|null} o payload decodificado, ou `null` se o token for inválido
+ */
 export function decodeJwtPayload(token) {
   try {
     const parts = String(token).split('.');
@@ -41,20 +47,37 @@ export function decodeJwtPayload(token) {
   }
 }
 
-/** Le claims do token: { sub, perfil, email, iat, exp } */
+/**
+ * Lê as claims (dados) do token JWT armazenado na sessão atual.
+ *
+ * @returns {{sub: string, perfil: string, email: string, iat: number, exp: number}|null} as claims do token, ou `null` se não houver sessão
+ */
 export function readClaims() {
   const token = getToken();
   if (!token) return null;
   return decodeJwtPayload(token);
 }
 
-/** Indica se o token expirou (com pequena folga de segurança). */
+/**
+ * Indica se o token informado (ou o da sessão atual) já expirou,
+ * considerando uma pequena folga de segurança de 5 segundos.
+ *
+ * @param {string} [token] token a ser verificado (padrão: token da sessão atual)
+ * @returns {boolean} `true` se o token estiver expirado (ou próximo de expirar)
+ */
 export function isTokenExpired(token = getToken()) {
   const claims = decodeJwtPayload(token);
   if (!claims || !claims.exp) return false;
   return claims.exp * 1000 <= Date.now() + 5000;
 }
 
+/**
+ * Monta o objeto de sessão do usuário atual, combinando os dados
+ * armazenados em `sessionStorage` com as claims do token JWT (que têm
+ * prioridade, por serem a fonte da verdade).
+ *
+ * @returns {{token: string, perfil: string, vinculoId: string|null, email: string|null, nome: string}|null} a sessão atual, ou `null` se não houver usuário autenticado
+ */
 export function getSession() {
   const token = getToken();
   if (!token) return null;
@@ -90,6 +113,14 @@ export function getSession() {
   return { token, perfil, vinculoId, email, nome: nome || (email ? email.split('@')[0] : 'Usuario') };
 }
 
+/**
+ * Persiste os dados de sessão do usuário (token, perfil, nome, e-mail) no
+ * `sessionStorage`, extraindo dados complementares das claims do token
+ * (como o identificador do vínculo, extraído de `sub`).
+ *
+ * @param {{token: string, perfil?: string, nome?: string, email?: string}} params dados de sessão a serem salvos
+ * @returns {{perfil: string, nome: string, email: string, vinculoId: string|null}} os dados efetivamente salvos
+ */
 export function setSession({ token, perfil, nome, email }) {
   setToken(token);
   const claims = decodeJwtPayload(token) || {};
@@ -113,6 +144,10 @@ export function setSession({ token, perfil, nome, email }) {
   return data;
 }
 
+/**
+ * Remove o token e todos os dados de sessão armazenados, efetivamente
+ * deslogando o usuário do navegador.
+ */
 export function clearSession() {
   setToken(null);
   try {
@@ -122,6 +157,15 @@ export function clearSession() {
   }
 }
 
+/**
+ * Autentica o usuário na API com e-mail e senha e, em caso de sucesso,
+ * persiste a sessão resultante.
+ *
+ * @param {string} email e-mail do usuário
+ * @param {string} senha senha do usuário
+ * @returns {Promise<object>} os dados de sessão salvos (ver {@link setSession})
+ * @throws {Error} se a resposta da API não contiver um token válido
+ */
 export async function login(email, senha) {
   const response = await api.post('/auth/login', { email, senha });
   if (!response || !response.token) {
@@ -130,6 +174,12 @@ export async function login(email, senha) {
   return setSession({ ...response, email });
 }
 
+/**
+ * Determina a rota do painel inicial (dashboard) de acordo com o perfil do usuário.
+ *
+ * @param {string} perfil perfil do usuário (ex.: "ADMIN", "PROFESSOR", "ALUNO")
+ * @returns {string} o caminho da rota correspondente, ou "/login" se o perfil for desconhecido
+ */
 export function dashboardPathFor(perfil) {
   switch (perfil) {
     case 'ADMIN':

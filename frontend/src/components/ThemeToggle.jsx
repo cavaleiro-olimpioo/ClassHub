@@ -4,6 +4,9 @@ import Icon from './Icon.jsx';
 /**
  * Botão para alternar entre modo claro e escuro.
  * Salva e sincroniza a preferência no localStorage via ThemeContext.
+ *
+ * @param {{showLabel?: boolean, className?: string, style?: object}} props `showLabel` exibe o texto do tema ao lado do ícone; `className`/`style` permitem customização visual
+ * @returns {JSX.Element} o botão de alternância de tema
  */
 export default function ThemeToggle({ showLabel = false, className = '', style = {} }) {
   const { toggleTheme, isDark } = useTheme();

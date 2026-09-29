@@ -12,6 +12,11 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Serviço com a lógica de negócio de notas e boletins: lançamento de notas,
+ * fechamento de bimestre e cálculo/geração de boletins (incluindo a
+ * exportação em PDF).
+ */
 @Service
 @Transactional
 public class GradeService {
@@ -20,17 +25,41 @@ public class GradeService {
     private final ApiFechamentoBoletimRepository fechamentos;
     private final DirectoryService directory;
 
+    /**
+     * Cria o serviço de notas e boletins.
+     *
+     * @param notas repositório de notas
+     * @param presencas repositório de presenças, usado no cálculo de frequência do boletim
+     * @param fechamentos repositório de fechamentos de bimestre
+     * @param directory serviço de diretório, usado para buscar alunos, turmas e disciplinas
+     */
     public GradeService(ApiNotaRepository notas, ApiPresencaRepository presencas, ApiFechamentoBoletimRepository fechamentos,
                         DirectoryService directory) {
         this.notas = notas; this.presencas = presencas; this.fechamentos = fechamentos; this.directory = directory;
     }
 
+    /**
+     * Lista todas as notas de um aluno, ordenadas por bimestre e depois por
+     * nome da disciplina.
+     *
+     * @param alunoId identificador do aluno
+     * @return lista de notas do aluno convertidas em DTO de resposta
+     * @throws NotFoundException se o aluno não existir
+     */
     @Transactional(readOnly = true)
     public List<NotaResponse> notasAluno(Long alunoId) {
         directory.requireAluno(alunoId);
         return notas.findByAlunoId(alunoId).stream().sorted(Comparator.comparing(ApiNota::getBimestre).thenComparing(n -> n.getDisciplina().getNome())).map(this::nota).toList();
     }
 
+    /**
+     * Lista notas com filtros opcionais por turma, disciplina e bimestre.
+     *
+     * @param turmaId identificador da turma (opcional)
+     * @param disciplinaId identificador da disciplina (opcional)
+     * @param bimestre número do bimestre (opcional)
+     * @return lista de notas que atendem aos filtros informados
+     */
     @Transactional(readOnly = true)
     public List<NotaResponse> listNotas(Long turmaId, Long disciplinaId, Integer bimestre) {
         List<ApiNota> result = turmaId != null && disciplinaId != null && bimestre != null
@@ -42,20 +71,51 @@ public class GradeService {
             .map(this::nota).toList();
     }
 
+    /**
+     * Lança uma nova nota para um aluno.
+     *
+     * @param request dados da nota a ser lançada
+     * @return a nota recém-criada
+     * @throws NotFoundException se o aluno, a turma ou a disciplina não existirem
+     */
     public NotaResponse createNota(NotaRequest request) {
         ApiNota entity = new ApiNota(); apply(entity, request); return nota(notas.save(entity));
     }
 
+    /**
+     * Atualiza uma nota já lançada.
+     *
+     * @param id identificador da nota
+     * @param request novos dados da nota
+     * @return a nota atualizada
+     * @throws NotFoundException se a nota não existir
+     */
     public NotaResponse updateNota(Long id, NotaRequest request) {
         ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada."));
         apply(entity, request); return nota(entity);
     }
 
+    /**
+     * Exclui uma nota lançada.
+     *
+     * @param id identificador da nota a ser excluída
+     * @throws NotFoundException se a nota não existir
+     */
     public void deleteNota(Long id) {
         ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada."));
         notas.delete(entity);
     }
 
+    /**
+     * Fecha o bimestre informado para uma turma específica (ou para todas
+     * as turmas, se {@code turmaId} não for informado), registrando o
+     * fechamento caso ainda não exista. Boletins só podem ser consultados
+     * após o fechamento do bimestre correspondente.
+     *
+     * @param request ano letivo, bimestre e, opcionalmente, a turma a ser fechada
+     * @return mensagem de confirmação do fechamento
+     * @throws NotFoundException se a turma informada não existir
+     */
     public MessageResponse fecharBimestre(GerarBoletimRequest request) {
         ApiTurma turma = request.turmaId() == null ? null : directory.requireTurma(request.turmaId());
         boolean exists = turma == null
@@ -69,6 +129,19 @@ public class GradeService {
         return new MessageResponse("Boletins gerados para o " + request.bimestre() + "º bimestre.");
     }
 
+    /**
+     * Calcula e monta o boletim de um aluno para um bimestre específico:
+     * agrupa as notas por disciplina, calcula a média ponderada pelo peso
+     * de cada avaliação, calcula o percentual de frequência a partir dos
+     * registros de presença e define a situação final ("APROVADO" se
+     * média &gt;= 6.0 e frequência &gt;= 75%, senão "EM_RECUPERACAO").
+     *
+     * @param alunoId identificador do aluno
+     * @param bimestre número do bimestre
+     * @return boletim com um item por disciplina cursada
+     * @throws NotFoundException se o aluno não existir
+     * @throws BusinessRuleException se o bimestre ainda não tiver sido fechado
+     */
     @Transactional(readOnly = true)
     public BoletimResponse boletim(Long alunoId, int bimestre) {
         ApiAluno aluno = directory.requireAluno(alunoId);
@@ -94,6 +167,16 @@ public class GradeService {
         return new BoletimResponse(items);
     }
 
+    /**
+     * Gera o boletim de um aluno (ver {@link #boletim}) e o converte em um
+     * arquivo PDF simples, pronto para download.
+     *
+     * @param alunoId identificador do aluno
+     * @param bimestre número do bimestre
+     * @return os bytes do arquivo PDF gerado
+     * @throws NotFoundException se o aluno não existir
+     * @throws BusinessRuleException se o bimestre ainda não tiver sido fechado
+     */
     @Transactional(readOnly = true)
     public byte[] boletimPdf(Long alunoId, int bimestre) {
         BoletimResponse boletim = boletim(alunoId, bimestre);
@@ -102,14 +185,35 @@ public class GradeService {
         return minimalPdf(lines).getBytes(StandardCharsets.ISO_8859_1);
     }
 
+    /**
+     * Aplica os dados de um {@link NotaRequest} sobre a entidade,
+     * resolvendo aluno, disciplina e turma associados.
+     *
+     * @param entity entidade a ser preenchida
+     * @param request dados de entrada
+     */
     private void apply(ApiNota entity, NotaRequest request) {
         entity.setAluno(directory.requireAluno(request.alunoId())); entity.setDisciplina(directory.requireDisciplina(request.disciplinaId()));
         entity.setTurma(directory.requireTurma(request.turmaId())); entity.setBimestre(request.bimestre());
         entity.setTipo(request.tipo().trim().toUpperCase()); entity.setValor(request.valor()); entity.setPeso(request.peso());
     }
+    /** Converte uma entidade {@link ApiNota} para o DTO {@link NotaResponse}. */
     private NotaResponse nota(ApiNota n) { return new NotaResponse(n.getId(), n.getAluno().getId(), n.getDisciplina().getId(), n.getDisciplina().getNome(), n.getBimestre(), n.getTipo(), n.getPeso(), n.getValor()); }
+    /**
+     * Arredonda um valor para duas casas decimais.
+     *
+     * @param value valor a ser arredondado
+     * @return valor arredondado com duas casas decimais
+     */
     private double round(double value) { return Math.round(value * 100d) / 100d; }
 
+    /**
+     * Monta manualmente (sem bibliotecas externas) um arquivo PDF mínimo
+     * de uma única página, contendo o texto informado.
+     *
+     * @param text texto (com quebras de linha "\n") a ser exibido no PDF
+     * @return conteúdo textual do arquivo PDF gerado
+     */
     private String minimalPdf(String text) {
         String escaped = text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)");
         String content = "BT /F1 12 Tf 50 750 Td " + escaped.replace("\n", ") Tj 0 -18 Td (") + " Tj ET";

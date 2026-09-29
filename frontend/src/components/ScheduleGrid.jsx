@@ -10,10 +10,13 @@ const WEEK = [1, 2, 3, 4, 5];
  * Grade de horarios somente-leitura, compartilhada pelas telas
  * "Meus Horarios" (professor) e "Meus Horarios" (aluno).
  *
- * @param mode      'professor' -> GET /horarios/professor/{id}
- *                 'turma'     -> GET /horarios/turma/{id}
- * @param entityId  id do professor ou da turma
- * @param turmas    lista de turmas para o filtro (apenas mode='professor')
+ * @param {object} props propriedades do componente
+ * @param {'professor'|'turma'} props.mode define o endpoint consultado: 'professor' -> GET /horarios/professor/{id}; 'turma' -> GET /horarios/turma/{id}
+ * @param {string|number} props.entityId id do professor ou da turma, conforme o `mode`
+ * @param {Array<{value: *, label: string}>} [props.turmas] lista de turmas para o filtro (usada apenas quando `mode === 'professor'`)
+ * @param {string} [props.title] título exibido no cabeçalho da página
+ * @param {string} [props.subtitle] subtítulo exibido no cabeçalho da página
+ * @returns {JSX.Element} a grade semanal de horários
  */
 export default function ScheduleGrid({ mode, entityId, turmas = [], title = 'Meus Horários', subtitle }) {
   const [selectedTurma, setSelectedTurma] = useState('');

@@ -3,12 +3,14 @@
  * Substitui o `Auth.getMenuItems()` do antigo `assets/js/auth.js`.
  */
 
+/** Título da seção exibido no topo do menu lateral, por perfil de usuário. */
 export const SECTION_LABEL = {
   ADMIN: 'PAINEL ADMINISTRATIVO',
   PROFESSOR: 'PORTAL DO PROFESSOR',
   ALUNO: 'PORTAL DO ALUNO'
 };
 
+/** Itens do menu lateral de navegação, agrupados por perfil de usuário. */
 export const MENUS = {
   ADMIN: [
     { label: 'Dashboard', path: '/admin', icon: 'dashboard', end: true },
@@ -42,11 +44,24 @@ export const MENUS = {
   ]
 };
 
+/**
+ * Retorna a lista de itens de menu correspondente ao perfil informado.
+ *
+ * @param {string} perfil perfil do usuário logado (ex.: "ADMIN", "PROFESSOR", "ALUNO")
+ * @returns {Array<object>} lista de itens de menu do perfil, ou lista vazia se o perfil for desconhecido
+ */
 export function menuFor(perfil) {
   return MENUS[perfil] || [];
 }
 
-/** Titulo exibido no cabecalho, a partir do item de menu ativo. */
+/**
+ * Determina o título a ser exibido no cabeçalho da página, com base no
+ * item de menu correspondente à rota atual.
+ *
+ * @param {string} perfil perfil do usuário logado
+ * @param {string} pathname caminho (pathname) atual da URL
+ * @returns {string} o rótulo do item de menu correspondente, ou "ClassHub" como padrão
+ */
 export function titleForPath(perfil, pathname) {
   const items = menuFor(perfil);
   const exact = items.find((item) => item.path === pathname);

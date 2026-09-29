@@ -1,5 +1,11 @@
 import CrudPage from '../../components/CrudPage.jsx';
 
+/**
+ * Página administrativa de gerenciamento de disciplinas (listagem, criação,
+ * edição e exclusão), construída sobre o {@link CrudPage} genérico.
+ *
+ * @returns {JSX.Element} a página CRUD de disciplinas
+ */
 export default function AdminDisciplinas() {
   return (
     <CrudPage

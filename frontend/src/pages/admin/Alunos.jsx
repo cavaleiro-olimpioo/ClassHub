@@ -6,6 +6,13 @@ import { api } from '../../lib/api.js';
 import useReference, { toOptions } from '../../lib/useReference.js';
 import { formatDate } from '../../lib/format.js';
 
+/**
+ * Página administrativa de gerenciamento de alunos (listagem, criação,
+ * edição e exclusão), construída sobre o {@link CrudPage} genérico, com
+ * um seletor extra na tabela para remanejar rapidamente um aluno de turma.
+ *
+ * @returns {JSX.Element} a página CRUD de alunos
+ */
 export default function AdminAlunos() {
   const toast = useToast();
   const { data: turmas, reload: reloadTurmas } = useReference('/turmas');
@@ -13,7 +20,13 @@ export default function AdminAlunos() {
 
   const turmaOptions = useMemo(() => toOptions(turmas), [turmas]);
 
-  /** PUT /alunos/{id}/turma — endpoint dedicado para remanejamento. */
+  /**
+   * Remaneja um aluno para outra turma via `PUT /alunos/{id}/turma`
+   * (endpoint dedicado para remanejamento) e recarrega a listagem.
+   *
+   * @param {object} row registro do aluno a ser remanejado
+   * @param {string|number} turmaId identificador da nova turma
+   */
   async function handleMoveTurma(row, turmaId) {
     if (!turmaId) return;
     try {

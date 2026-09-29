@@ -13,8 +13,15 @@ import {
 import { api } from '../../lib/api.js';
 import useAluno from '../../lib/useAluno.js';
 
+/** Quantidade de ocorrências exibidas por página na tabela. */
 const PAGE_SIZE = 10;
 
+/**
+ * Página "Minhas Ocorrências" do aluno: lista as ocorrências disciplinares
+ * registradas para o aluno logado, com indicadores de total, em aberto e encerradas.
+ *
+ * @returns {JSX.Element} a página de ocorrências do aluno, ou um indicador de carregamento
+ */
 export default function AlunoOcorrencias() {
   const { alunoId, loading: loadingAluno, error } = useAluno();
 

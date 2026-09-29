@@ -2,8 +2,15 @@ import CrudPage from '../../components/CrudPage.jsx';
 import { StatusBadge } from '../../components/ui.jsx';
 import { formatDate, todayISO, TIPOS_CALENDARIO } from '../../lib/format.js';
 
+/** Opções de tipo de evento do calendário escolar, derivadas de {@link TIPOS_CALENDARIO}. */
 const TIPO_OPTIONS = TIPOS_CALENDARIO.map((tipo) => ({ value: tipo, label: tipo }));
 
+/**
+ * Página administrativa de gerenciamento do calendário escolar (dias
+ * letivos, feriados, recessos e eventos), construída sobre o {@link CrudPage} genérico.
+ *
+ * @returns {JSX.Element} a página CRUD do calendário escolar
+ */
 export default function AdminCalendario() {
   return (
     <CrudPage

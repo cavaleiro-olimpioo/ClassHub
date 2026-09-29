@@ -6,6 +6,13 @@ import { api } from '../../lib/api.js';
 import useReference, { toOptions } from '../../lib/useReference.js';
 import { BIMESTRES } from '../../lib/format.js';
 
+/**
+ * Página administrativa de fechamento de bimestre: consolida as notas de
+ * um bimestre/ano letivo (opcionalmente restrito a uma turma) e gera os
+ * boletins correspondentes via `POST /boletins/gerar`.
+ *
+ * @returns {JSX.Element} a página de fechamento de bimestre
+ */
 export default function AdminBimestre() {
   const toast = useToast();
   const { data: turmas } = useReference('/turmas');
@@ -20,6 +27,10 @@ export default function AdminBimestre() {
 
   const turmaOptions = toOptions(turmas, 'id', (t) => `${t.nome} (${t.anoLetivo})`);
 
+  /**
+   * Confirma o fechamento do bimestre selecionado, chamando a API para
+   * gerar os boletins e exibindo o resultado do processamento.
+   */
   async function handleConfirm() {
     setProcessing(true);
     try {

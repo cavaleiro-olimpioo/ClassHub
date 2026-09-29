@@ -15,9 +15,15 @@ import { api } from '../../lib/api.js';
 import useAluno from '../../lib/useAluno.js';
 import { formatDate } from '../../lib/format.js';
 
+/** Quantidade de registros de frequência exibidos por página na tabela. */
 const PAGE_SIZE = 10;
 
-/** Frequencia = presencas / (presencas + faltas), em %. */
+/**
+ * Calcula o percentual de frequência (presenças / total de registros).
+ *
+ * @param {Array<{status: string}>} presencas lista de registros de presença/falta do aluno
+ * @returns {number|null} o percentual de frequência (0-100) arredondado, ou `null` se não houver registros
+ */
 function calcularFrequencia(presencas) {
   if (presencas.length === 0) return null;
   const presentes = presencas.filter((p) => p.status === 'PRESENTE').length;
@@ -25,6 +31,13 @@ function calcularFrequencia(presencas) {
   return Math.round((presentes / total) * 100);
 }
 
+/**
+ * Página "Minhas Faltas" do aluno: exibe indicadores de frequência (faltas,
+ * justificativas, presenças e percentual) e a lista detalhada de registros,
+ * com filtros rápidos por tipo.
+ *
+ * @returns {JSX.Element} a página de frequência do aluno, ou um indicador de carregamento
+ */
 export default function AlunoFaltas() {
   const { alunoId, loading: loadingAluno, error } = useAluno();
 
