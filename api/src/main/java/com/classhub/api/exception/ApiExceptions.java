@@ -15,6 +15,9 @@ public final class ApiExceptions {
     public static class UnauthorizedException extends RuntimeException {
         public UnauthorizedException(String message) { super(message); }
     }
+    public static class ForbiddenException extends RuntimeException {
+        public ForbiddenException(String message) { super(message); }
+    }
     public static class BusinessRuleException extends RuntimeException {
         public BusinessRuleException(String message) { super(message); }
     }

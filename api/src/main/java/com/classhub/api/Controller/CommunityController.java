@@ -1,9 +1,11 @@
 package com.classhub.api.Controller;
 
 import com.classhub.api.dto.ApiDtos.*;
+import com.classhub.api.exception.ApiExceptions.ForbiddenException;
 import com.classhub.api.service.CommunityService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -17,7 +19,14 @@ public class CommunityController {
     public List<OcorrenciaResponse> ocorrencias(@RequestParam(required = false) Long alunoId, @RequestParam(required = false) Long turmaId) {
         return service.listOcorrencias(alunoId, turmaId);
     }
-    @PostMapping("/ocorrencias") @ResponseStatus(HttpStatus.CREATED) public OcorrenciaResponse criarOcorrencia(@Valid @RequestBody OcorrenciaRequest request) { return service.createOcorrencia(request); }
+    @PostMapping("/ocorrencias") @ResponseStatus(HttpStatus.CREATED)
+    public OcorrenciaResponse criarOcorrencia(@Valid @RequestBody OcorrenciaRequest request, Authentication authentication) {
+        Long professorId = Long.valueOf(authentication.getName());
+        if (authentication.getAuthorities().stream().noneMatch(authority -> authority.getAuthority().equals("ROLE_PROFESSOR"))) {
+            throw new ForbiddenException("Apenas professores podem registrar ocorrências.");
+        }
+        return service.createOcorrencia(request, professorId);
+    }
     @PutMapping("/ocorrencias/{id}") public OcorrenciaResponse editarOcorrencia(@PathVariable Long id, @Valid @RequestBody OcorrenciaRequest request) { return service.updateOcorrencia(id, request); }
     @PutMapping("/ocorrencias/{id}/encerrar") public OcorrenciaResponse encerrarOcorrencia(@PathVariable Long id) { return service.encerrarOcorrencia(id); }
     @DeleteMapping("/ocorrencias/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirOcorrencia(@PathVariable Long id) { service.deleteOcorrencia(id); }

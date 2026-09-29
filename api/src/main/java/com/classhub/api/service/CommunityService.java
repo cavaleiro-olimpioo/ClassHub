@@ -35,9 +35,10 @@ public class CommunityService {
         return result.stream().sorted(Comparator.comparing(ApiOcorrencia::getId).reversed()).map(this::ocorrencia).toList();
     }
 
-    public OcorrenciaResponse createOcorrencia(OcorrenciaRequest request) {
+    public OcorrenciaResponse createOcorrencia(OcorrenciaRequest request, Long professorId) {
         ApiOcorrencia entity = new ApiOcorrencia();
         entity.setAluno(directory.requireAluno(request.alunoId()));
+        entity.setProfessor(directory.requireProfessor(professorId));
         entity.setTipo(request.tipo().trim().toUpperCase());
         entity.setDescricao(request.descricao().trim());
         entity.setData(java.time.LocalDate.now());
