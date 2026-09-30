@@ -29,7 +29,8 @@ const STATUS_OPCOES = [
  * data, carregar a lista de alunos com as presenças já registradas,
  * marcar presença/falta/falta justificada para cada aluno e salvar a
  * chamada em lote. Bloqueia a edição quando a data não é dia letivo
- * (feriado ou recesso, conforme o calendário escolar).
+ * (feriado ou recesso), desde que a consulta ao calendário escolar tenha
+ * sucesso — se ela falhar, a chamada não é bloqueada.
  *
  * @returns {JSX.Element} a página de chamada, ou um indicador de carregamento
  */
@@ -63,7 +64,9 @@ export default function ProfessorChamada() {
   /**
    * Carrega alunos + presenças já registradas para a turma/disciplina/data
    * selecionadas, e verifica no calendário escolar se a data é um dia
-   * letivo (bloqueando a edição em caso de feriado/recesso).
+   * letivo (bloqueando a edição em caso de feriado/recesso). Essa consulta
+   * ao calendário é feita com `.catch(() => [])`: se ela falhar, a lista de
+   * eventos fica vazia e a edição/salvamento da chamada NÃO é bloqueada.
    */
   async function carregarAlunos() {
     if (!turmaId || !disciplinaId || !data) {

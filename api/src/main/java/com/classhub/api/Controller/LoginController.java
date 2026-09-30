@@ -9,9 +9,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controlador legado de login, mantido apenas como referência histórica.
- * Não faz parte do fluxo de autenticação atual da aplicação (ver
- * {@link com.classhub.api.Controller.AuthController} e
+ * Controlador legado de login (rota {@code POST /login}), mantido apenas
+ * como referência histórica. A rota continua exposta, mas não consta na
+ * lista de endpoints públicos do
+ * {@code com.classhub.api.Config.SecurityConfig}, de modo que o acesso a
+ * ela exige autenticação (JWT) como qualquer outra rota protegida. Por
+ * isso, na prática, não pode ser usada para autenticar um usuário ainda
+ * não autenticado e não faz parte do fluxo de autenticação atual da
+ * aplicação (ver {@link com.classhub.api.Controller.AuthController} e
  * {@code com.classhub.api.service.AuthService}).
  */
 @RestController
