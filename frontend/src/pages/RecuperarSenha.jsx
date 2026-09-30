@@ -6,12 +6,25 @@ import { Button, Field, Input } from '../components/ui.jsx';
 import { useToast } from '../components/ToastProvider.jsx';
 import { api } from '../lib/api.js';
 
+/**
+ * Página de recuperação de senha: permite ao usuário solicitar o envio de
+ * instruções de redefinição de senha para o e-mail cadastrado. Por razões
+ * de segurança, a API sempre responde com a mesma mensagem de sucesso,
+ * independentemente de o e-mail existir ou não.
+ *
+ * @returns {JSX.Element} a tela de recuperação de senha
+ */
 export default function RecuperarSenha() {
   const toast = useToast();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
 
+  /**
+   * Envia a solicitação de recuperação de senha para o e-mail informado.
+   *
+   * @param {import('react').FormEvent} event evento de submit do formulário
+   */
   async function handleSubmit(event) {
     event.preventDefault();
     if (!email.trim()) {

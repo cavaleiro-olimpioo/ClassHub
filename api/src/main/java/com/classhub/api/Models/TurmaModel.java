@@ -13,29 +13,34 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Legacy persistence model retained only for historical reference.
- * This package is intentionally not part of the active JPA domain model.
- * It should not be used in current business logic or persistence configuration.
+ * Modelo de persistência legado, mantido apenas como referência histórica.
+ * Este pacote não faz parte, intencionalmente, do modelo de domínio JPA
+ * ativo da aplicação (ver {@code com.classhub.api.domain}).
+ * Não deve ser usado em lógica de negócio ou configuração de persistência atuais.
  */
 @Deprecated(since = "2026-09-23", forRemoval = true)
 @Entity
 @Table (name = "tb_turma")
 public class TurmaModel {
+    /** Identificador único da turma. */
     @Id 
     @Column 
     @GeneratedValue (strategy = GenerationType.AUTO)
     private int id_turma;
 
+    /** Série à qual a turma pertence. */
     @Column
     @Getter 
     @Setter
     private int serie;
 
+    /** Letra/identificação da turma. */
     @Column 
     @Getter 
     @Setter 
     private char nome;
 
+    /** Turno da turma. */
     @Column 
     @Getter 
     @Setter 
@@ -47,10 +52,12 @@ public class TurmaModel {
     @Getter @Setter
     private ProfessorModel professorResponsavel;
 
+    /** Matrículas de alunos nesta turma. */
     @OneToMany(mappedBy = "turma")
     @Getter @Setter
     private java.util.List<MatriculaModel> matriculas = new java.util.ArrayList<>();
 
+    /** Disciplinas lecionadas nesta turma. */
     @OneToMany(mappedBy = "turma")
     @Getter @Setter
     private java.util.List<TurmaDisciplinaModel> disciplinas = new java.util.ArrayList<>();

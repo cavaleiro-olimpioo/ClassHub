@@ -10,13 +10,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Legacy persistence base model retained only for historical reference.
- * This package is intentionally not part of the active JPA domain model.
- * It should not be used in current business logic or persistence configuration.
+ * Modelo de persistência base legado, mantido apenas como referência histórica.
+ * Este pacote não faz parte, intencionalmente, do modelo de domínio JPA
+ * ativo da aplicação (ver {@code com.classhub.api.domain}).
+ * Não deve ser usado em lógica de negócio ou configuração de persistência atuais.
  */
 @Deprecated(since = "2026-09-23", forRemoval = true)
 @MappedSuperclass 
 public class UserModel {
+    /** Identificador único do usuário. */
     @Id 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column
@@ -24,21 +26,25 @@ public class UserModel {
     @Setter
     private int id_usuario;
 
+    /** Nome completo do usuário. */
     @Column
     @Getter
     @Setter 
     private String nome;
 
+    /** E-mail do usuário. */
     @Column
     @Getter 
     @Setter
     private String email;
 
+    /** Senha (ou hash de senha) do usuário. */
     @Column
     @Getter
     @Setter
     private String password;
 
+    /** Telefone de contato do usuário. */
     @Column
     @Getter 
     @Setter 

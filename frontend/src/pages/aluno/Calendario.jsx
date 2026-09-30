@@ -14,12 +14,18 @@ import {
 import { api } from '../../lib/api.js';
 import { formatDate, MONTHS } from '../../lib/format.js';
 
+/** Quantidade de registros do calendário exibidos por página na tabela. */
 const PAGE_SIZE = 10;
+/** Data de referência usada para pré-selecionar ano e mês atuais. */
 const HOJE = new Date();
+/** Ano letivo atual, usado como valor inicial do filtro de ano. */
 const ANO_ATUAL = HOJE.getFullYear();
+/** Mês atual (1-12), usado como valor inicial do filtro de mês. */
 const MES_ATUAL = HOJE.getMonth() + 1;
+/** Data de hoje no formato ISO (`AAAA-MM-DD`), usada para identificar eventos futuros. */
 const HOJE_ISO = HOJE.toISOString().slice(0, 10);
 
+/** Legenda de tipos de evento do calendário escolar, com cor e rótulo associados. */
 const LEGENDA = [
   { tipo: 'LETIVO', cor: '#0d7fd4', label: 'Dia Letivo' },
   { tipo: 'FERIADO', cor: '#d93a3a', label: 'Feriado' },
@@ -27,8 +33,21 @@ const LEGENDA = [
   { tipo: 'EVENTO', cor: '#2f4bd8', label: 'Evento' }
 ];
 
+/**
+ * Conta quantos eventos de uma lista pertencem a um determinado tipo.
+ *
+ * @param {Array<{tipo: string}>} eventos lista de eventos do calendário
+ * @param {string} tipo tipo de evento a ser contado (ex.: "LETIVO", "FERIADO")
+ * @returns {number} a quantidade de eventos do tipo informado
+ */
 const contar = (eventos, tipo) => eventos.filter((e) => String(e.tipo).toUpperCase() === tipo).length;
 
+/**
+ * Página "Calendário Escolar" do aluno: busca os eventos do calendário para
+ * o ano/mês selecionados e delega a renderização visual a {@link CalendarBody}.
+ *
+ * @returns {JSX.Element} a página do calendário escolar do aluno
+ */
 export default function AlunoCalendario() {
   const [anoLetivo, setAnoLetivo] = useState(ANO_ATUAL);
   const [mes, setMes] = useState(MES_ATUAL);
@@ -98,6 +117,27 @@ export default function AlunoCalendario() {
   );
 }
 
+/**
+ * Renderiza a interface visual do calendário escolar do aluno: indicadores
+ * do mês, filtros de ano/mês, legenda, tabela de registros e um resumo com
+ * os próximos eventos.
+ *
+ * @param {object} props propriedades do componente
+ * @param {number} props.anoLetivo ano letivo selecionado
+ * @param {Function} props.setAnoLetivo função para alterar o ano letivo selecionado
+ * @param {Array<number>} props.anos anos letivos disponíveis para seleção
+ * @param {number} props.mes mês selecionado (1-12)
+ * @param {Function} props.setMes função para alterar o mês selecionado
+ * @param {Array<object>} props.eventos eventos do calendário no período selecionado
+ * @param {boolean} props.loading se `true`, exibe o indicador de carregamento na tabela
+ * @param {number} props.letivos quantidade de dias letivos no mês selecionado
+ * @param {number} props.diasNoMes quantidade total de dias no mês selecionado
+ * @param {object} [props.proximo] próximo evento não letivo a partir de hoje
+ * @param {Array<object>} props.futuros eventos futuros (a partir de hoje) no período selecionado
+ * @param {number} props.safePage página atual da tabela, já validada
+ * @param {Function} props.setPage função para alterar a página atual
+ * @returns {JSX.Element} a interface completa do calendário escolar
+ */
 function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loading, letivos, diasNoMes, proximo, futuros, safePage, setPage }) {
   return (
     <>

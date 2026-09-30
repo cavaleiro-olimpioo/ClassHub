@@ -12,14 +12,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Legacy persistence model retained only for historical reference.
- * This package is intentionally not part of the active JPA domain model.
- * It should not be used in current business logic or persistence configuration.
+ * Modelo de persistência legado, mantido apenas como referência histórica.
+ * Este pacote não faz parte, intencionalmente, do modelo de domínio JPA
+ * ativo da aplicação (ver {@code com.classhub.api.domain}).
+ * Não deve ser usado em lógica de negócio ou configuração de persistência atuais.
  */
 @Deprecated(since = "2026-09-23", forRemoval = true)
 @Entity
 @Table (name = "tb_documento")
 public class DocumentoModel {
+    /** Identificador único do documento. */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter @Setter
@@ -31,16 +33,19 @@ public class DocumentoModel {
     @Getter @Setter
     private AlunoModel aluno;
 
+    /** URL/caminho do arquivo do documento. */
     @Column 
     @Getter 
     @Setter 
     private String arquivo_url;
 
+    /** Data em que o documento foi enviado. */
     @Column 
     @Getter 
     @Setter 
     private String data_upload;
 
+    /** Tipo do documento (ex.: RG, CPF). */
     @Column 
     @Getter 
     @Setter 

@@ -17,12 +17,23 @@ import { api } from '../../lib/api.js';
 import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 import { formatDate, todayISO } from '../../lib/format.js';
 
+/** Opções de status de presença exibidas para cada aluno na chamada. */
 const STATUS_OPCOES = [
   { value: 'PRESENTE', label: 'P' },
   { value: 'FALTA', label: 'F' },
   { value: 'FALTA_JUSTIFICADA', label: 'FJ' }
 ];
 
+/**
+ * Página de chamada do professor: permite selecionar turma, disciplina e
+ * data, carregar a lista de alunos com as presenças já registradas,
+ * marcar presença/falta/falta justificada para cada aluno e salvar a
+ * chamada em lote. Bloqueia a edição quando a data não é dia letivo
+ * (feriado ou recesso), desde que a consulta ao calendário escolar tenha
+ * sucesso — se ela falhar, a chamada não é bloqueada.
+ *
+ * @returns {JSX.Element} a página de chamada, ou um indicador de carregamento
+ */
 export default function ProfessorChamada() {
   const toast = useToast();
   const [searchParams] = useSearchParams();
@@ -50,7 +61,13 @@ export default function ProfessorChamada() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turmaId]);
 
-  // Carrega alunos + presencas ja registradas
+  /**
+   * Carrega alunos + presenças já registradas para a turma/disciplina/data
+   * selecionadas, e verifica no calendário escolar se a data é um dia
+   * letivo (bloqueando a edição em caso de feriado/recesso). Essa consulta
+   * ao calendário é feita com `.catch(() => [])`: se ela falhar, a lista de
+   * eventos fica vazia e a edição/salvamento da chamada NÃO é bloqueada.
+   */
   async function carregarAlunos() {
     if (!turmaId || !disciplinaId || !data) {
       toast.warning('Selecione turma, disciplina e data antes de carregar os alunos.');
@@ -89,6 +106,13 @@ export default function ProfessorChamada() {
     }
   }
 
+  /**
+   * Define o status de presença de um aluno, limpando a justificativa
+   * quando o novo status não for "falta justificada".
+   *
+   * @param {string|number} alunoId identificador do aluno
+   * @param {string} status novo status de presença
+   */
   function setStatus(alunoId, status) {
     setPresencas((current) => ({
       ...current,
@@ -99,6 +123,12 @@ export default function ProfessorChamada() {
     }));
   }
 
+  /**
+   * Atualiza o texto de justificativa de falta de um aluno.
+   *
+   * @param {string|number} alunoId identificador do aluno
+   * @param {string} justificativa texto da justificativa
+   */
   function setJustificativa(alunoId, justificativa) {
     setPresencas((current) => ({
       ...current,
@@ -106,6 +136,7 @@ export default function ProfessorChamada() {
     }));
   }
 
+  /** Marca todos os alunos carregados como presentes. */
   function marcarTodos() {
     const next = { ...presencas };
     alunos.forEach((aluno) => {
@@ -115,6 +146,7 @@ export default function ProfessorChamada() {
     toast.info('Todos os alunos marcados como presentes.');
   }
 
+  /** Envia a chamada (presenças marcadas) em lote para a API e recarrega a lista. */
   async function salvar() {
     setSaving(true);
     try {

@@ -19,10 +19,20 @@ import { api } from '../../lib/api.js';
 import { toOptions } from '../../lib/useReference.js';
 import { normalizeText } from '../../lib/format.js';
 
+/** Valores iniciais (vazios) do formulário de nova/edição de turma. */
 const EMPTY_TURMA = { nome: '', serieId: '', anoLetivo: new Date().getFullYear() };
+/** Valores iniciais (vazios) do formulário de novo vínculo professor ↔ disciplina. */
 const EMPTY_VINCULO = { professorId: '', turmaId: '', disciplinaId: '', anoLetivo: new Date().getFullYear() };
+/** Quantidade de itens exibidos por página em cada tabela (turmas e vínculos). */
 const PAGE_SIZE = 8;
 
+/**
+ * Página administrativa de Turmas & Vínculos: permite criar, editar e
+ * excluir turmas (por série e ano letivo) e gerenciar os vínculos entre
+ * professores, turmas e disciplinas.
+ *
+ * @returns {JSX.Element} a página de gerenciamento de turmas e vínculos
+ */
 export default function AdminTurmas() {
   const toast = useToast();
 
@@ -48,6 +58,7 @@ export default function AdminTurmas() {
   const [removingVinculo, setRemovingVinculo] = useState(null);
   const [removingTurma, setRemovingTurma] = useState(null);
 
+  /** Carrega séries, turmas, professores, disciplinas e vínculos usados na página. */
   const load = useCallback(async () => {
     setLoading(true);
     const [s, t, p, d, v] = await Promise.all([
@@ -92,6 +103,7 @@ export default function AdminTurmas() {
   const turmaPageSafe = Math.min(turmaPage, Math.max(1, Math.ceil(filteredTurmas.length / PAGE_SIZE)));
   const vinculoPageSafe = Math.min(vinculoPage, Math.max(1, Math.ceil(filteredVinculos.length / PAGE_SIZE)));
 
+  /** Abre o modal de criação de uma nova turma, com o formulário vazio. */
   function openCreateTurma() {
     setEditingTurma(null);
     setTurmaForm(EMPTY_TURMA);
@@ -99,6 +111,12 @@ export default function AdminTurmas() {
     setTurmaModal(true);
   }
 
+  /**
+   * Abre o modal de edição de uma turma existente, preenchendo o formulário
+   * com os dados atuais da turma.
+   *
+   * @param {object} row registro da turma a ser editada
+   */
   function openEditTurma(row) {
     setEditingTurma(row);
     setTurmaForm({ nome: row.nome || '', serieId: row.serieId || '', anoLetivo: row.anoLetivo || new Date().getFullYear() });
@@ -106,6 +124,12 @@ export default function AdminTurmas() {
     setTurmaModal(true);
   }
 
+  /**
+   * Envia o formulário de turma (criação via POST ou atualização via PUT,
+   * conforme haja ou não uma turma em edição) e recarrega os dados.
+   *
+   * @param {import('react').FormEvent} event evento de submit do formulário
+   */
   async function saveTurma(event) {
     event.preventDefault();
     setFormError(null);
@@ -128,6 +152,12 @@ export default function AdminTurmas() {
     }
   }
 
+  /**
+   * Envia o formulário de novo vínculo professor ↔ turma ↔ disciplina para
+   * a API e recarrega os dados.
+   *
+   * @param {import('react').FormEvent} event evento de submit do formulário
+   */
   async function saveVinculo(event) {
     event.preventDefault();
     setFormError(null);
@@ -150,6 +180,7 @@ export default function AdminTurmas() {
     }
   }
 
+  /** Remove o vínculo atualmente selecionado para exclusão (`removingVinculo`) e recarrega os dados. */
   async function removeVinculo() {
     if (!removingVinculo) return;
     try {
@@ -162,6 +193,7 @@ export default function AdminTurmas() {
     }
   }
 
+  /** Exclui a turma atualmente selecionada para exclusão (`removingTurma`) e recarrega os dados. */
   async function removeTurma() {
     if (!removingTurma) return;
     try {

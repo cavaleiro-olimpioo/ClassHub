@@ -1,11 +1,18 @@
 import CrudPage from '../../components/CrudPage.jsx';
 import { StatusBadge } from '../../components/ui.jsx';
 
+/** Opções de nível de ensino disponíveis para uma série. */
 const NIVEIS = [
   { value: 'ENSINO_FUNDAMENTAL', label: 'Ensino Fundamental' },
   { value: 'ENSINO_MEDIO', label: 'Ensino Médio' }
 ];
 
+/**
+ * Página administrativa de gerenciamento de séries de ensino (listagem,
+ * criação, edição e exclusão), construída sobre o {@link CrudPage} genérico.
+ *
+ * @returns {JSX.Element} a página CRUD de séries
+ */
 export default function AdminSeries() {
   return (
     <CrudPage

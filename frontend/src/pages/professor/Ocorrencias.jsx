@@ -19,6 +19,7 @@ import { api } from '../../lib/api.js';
 import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 import { normalizeText } from '../../lib/format.js';
 
+/** Opções de tipo de ocorrência disponíveis no formulário de registro. */
 const TIPOS = [
   { value: 'ATRASO', label: 'Atraso' },
   { value: 'FALTA', label: 'Falta' },
@@ -27,9 +28,18 @@ const TIPOS = [
   { value: 'OUTRO', label: 'Outro' }
 ];
 
+/** Valores iniciais (vazios) do formulário de nova ocorrência. */
 const EMPTY = { turmaId: '', alunoId: '', tipo: '', descricao: '' };
+/** Quantidade de ocorrências exibidas por página na tabela. */
 const PAGE_SIZE = 10;
 
+/**
+ * Página de Ocorrências do professor: lista as ocorrências das turmas em
+ * que o professor leciona (com busca e filtro por turma) e permite
+ * registrar novas ocorrências para um aluno.
+ *
+ * @returns {JSX.Element} a página de ocorrências do professor
+ */
 export default function ProfessorOcorrencias() {
   const toast = useToast();
   const { turmas } = useProfessorVinculos();
@@ -47,7 +57,10 @@ export default function ProfessorOcorrencias() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState(null);
 
-  // `GET /ocorrencias` so aceita `alunoId`; o filtro por turma e feito no cliente
+  /**
+   * Busca todas as ocorrências (`GET /ocorrencias` só aceita `alunoId`; o
+   * filtro por turma é feito no cliente a partir dos alunos da turma).
+   */
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -116,6 +129,11 @@ export default function ProfessorOcorrencias() {
 
   const safePage = Math.min(page, Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)));
 
+  /**
+   * Valida e envia o formulário de nova ocorrência para a API.
+   *
+   * @param {import('react').FormEvent} event evento de submit do formulário
+   */
   async function salvar(event) {
     event.preventDefault();
     setFormError(null);

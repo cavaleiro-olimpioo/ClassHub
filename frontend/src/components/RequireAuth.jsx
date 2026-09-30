@@ -6,6 +6,9 @@ import { getSession, isTokenExpired } from '../lib/session.js';
  * - Sem sessao -> /login
  * - Token expirado -> limpa e volta ao login
  * - Perfil diferente do exigido -> dashboard do proprio perfil
+ *
+ * @param {{children: import('react').ReactNode, perfil?: string}} props filhos protegidos e o perfil exigido para acessá-los (opcional)
+ * @returns {JSX.Element} os filhos, ou um redirecionamento para login/dashboard conforme o estado da sessão
  */
 export default function RequireAuth({ children, perfil }) {
   const location = useLocation();

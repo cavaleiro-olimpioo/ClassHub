@@ -6,6 +6,7 @@ import { Button, Field, Input } from '../components/ui.jsx';
 import { useToast } from '../components/ToastProvider.jsx';
 import { dashboardPathFor, login as doLogin } from '../lib/session.js';
 
+/** Lista de recursos do sistema destacados na tela de login. */
 const HIGHLIGHTS = [
   'Notas, boletins e médias consolidated por bimestre',
   'Frequência e justificativa de faltas em tempo real',
@@ -13,6 +14,14 @@ const HIGHLIGHTS = [
   'Achados e perdidos e ocorrências do dia a dia'
 ];
 
+/**
+ * Página de login: exibe o formulário de autenticação (e-mail/senha) e, ao
+ * autenticar com sucesso, redireciona o usuário ao dashboard do seu perfil.
+ * Também exibe um aviso quando o acesso é redirecionado por sessão expirada
+ * (parâmetro `?expired=true` na URL).
+ *
+ * @returns {JSX.Element} a tela de login
+ */
 export default function Login() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -30,6 +39,12 @@ export default function Login() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Valida os campos e realiza a autenticação, redirecionando ao
+   * dashboard correspondente ao perfil do usuário autenticado.
+   *
+   * @param {import('react').FormEvent} event evento de submit do formulário
+   */
   async function handleSubmit(event) {
     event.preventDefault();
 

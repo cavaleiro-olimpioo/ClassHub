@@ -16,9 +16,15 @@ import { api } from '../../lib/api.js';
 import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 import { BIMESTRES, calcularMediaPesos, formatGrade, PESOS_PADRAO, TIPOS_NOTA } from '../../lib/format.js';
 
+/** Rótulos exibidos para cada tipo de avaliação. */
 const TIPO_LABEL = { PROVA: 'Prova', TRABALHO: 'Trabalho', ATIVIDADE: 'Atividade' };
 
-/** Limita a entrada a 0..10 (RN-01 do front estatico). */
+/**
+ * Limita a entrada a 0..10 (RN-01 do front estatico).
+ *
+ * @param {string|number} value valor digitado pelo usuário
+ * @returns {string} o valor numérico limitado ao intervalo [0, 10], como string, ou `''` se inválido/vazio
+ */
 function clampNota(value) {
   if (value === '') return '';
   let num = Number(value);
@@ -28,6 +34,14 @@ function clampNota(value) {
   return String(num);
 }
 
+/**
+ * Página de lançamento de notas do professor: permite selecionar turma,
+ * disciplina e bimestre, carregar a grade de alunos e lançar/editar as
+ * notas de cada tipo de avaliação (prova, trabalho, atividade), calculando
+ * a média ponderada automaticamente.
+ *
+ * @returns {JSX.Element} a página de lançamento de notas, ou um indicador de carregamento
+ */
 export default function ProfessorNotas() {
   const toast = useToast();
   const { turmas, disciplinasDaTurma, loading: loadingVinculos } = useProfessorVinculos();
@@ -51,6 +65,10 @@ export default function ProfessorNotas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turmaId]);
 
+  /**
+   * Carrega os alunos da turma selecionada e as notas já lançadas para a
+   * disciplina/bimestre selecionados, montando o mapa `notas[alunoId][tipo]`.
+   */
   async function carregar() {
     if (!turmaId || !disciplinaId) {
       toast.warning('Selecione turma e disciplina antes de carregar.');
@@ -96,6 +114,13 @@ export default function ProfessorNotas() {
     }
   }
 
+  /**
+   * Atualiza o valor de uma nota (limitado a 0-10) para um aluno e tipo de avaliação.
+   *
+   * @param {string|number} alunoId identificador do aluno
+   * @param {string} tipo tipo de avaliação (ex.: "PROVA", "TRABALHO", "ATIVIDADE")
+   * @param {string} valor novo valor digitado
+   */
   function setNota(alunoId, tipo, valor) {
     setNotas((current) => {
       const copia = { ...current, [alunoId]: { ...current[alunoId], [tipo]: { ...current[alunoId][tipo], valor: clampNota(valor) } } };
@@ -103,6 +128,10 @@ export default function ProfessorNotas() {
     });
   }
 
+  /**
+   * Envia todas as notas preenchidas para a API (criando ou atualizando
+   * conforme já exista um `id` de nota) e recarrega a grade.
+   */
   async function salvar() {
     setSaving(true);
     try {

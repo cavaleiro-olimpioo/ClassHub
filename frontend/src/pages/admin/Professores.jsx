@@ -1,5 +1,11 @@
 import CrudPage from '../../components/CrudPage.jsx';
 
+/**
+ * Página administrativa de gerenciamento de professores (listagem, criação,
+ * edição e exclusão), construída sobre o {@link CrudPage} genérico.
+ *
+ * @returns {JSX.Element} a página CRUD de professores
+ */
 export default function AdminProfessores() {
   return (
     <CrudPage

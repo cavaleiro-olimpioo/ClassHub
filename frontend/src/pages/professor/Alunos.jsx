@@ -12,8 +12,15 @@ import { api } from '../../lib/api.js';
 import { useProfessorVinculos } from '../../lib/useProfessorVinculos.js';
 import { formatDate, normalizeText } from '../../lib/format.js';
 
+/** Quantidade de alunos exibidos por página na tabela. */
 const PAGE_SIZE = 10;
 
+/**
+ * Página de consulta de alunos do professor: lista os alunos das turmas em
+ * que o professor logado leciona, com busca textual e filtro por turma.
+ *
+ * @returns {JSX.Element} a página de consulta de alunos
+ */
 export default function ProfessorAlunos() {
   const { turmas } = useProfessorVinculos();
 

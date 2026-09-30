@@ -46,6 +46,12 @@ const PATHS = {
   moon: <><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></>
 };
 
+/**
+ * Renderiza um ícone SVG a partir do conjunto pré-definido em {@link PATHS}.
+ *
+ * @param {{name: string, size?: number, strokeWidth?: number, className?: string}} props nome do ícone (chave de {@link PATHS}), tamanho, espessura do traço e classe CSS adicional
+ * @returns {JSX.Element|null} o elemento SVG do ícone, ou `null` se o nome não existir no conjunto
+ */
 export default function Icon({ name, size = 18, strokeWidth = 1.8, className = '', ...rest }) {
   const path = PATHS[name];
   if (!path) return null;

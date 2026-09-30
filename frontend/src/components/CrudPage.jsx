@@ -25,14 +25,29 @@ import { normalizeText } from '../lib/format.js';
  * Cobre as telas administrativas que seguem o mesmo padrao, evitando
  * duplicar centenas de linhas por endpoint.
  *
- * @param endpoint   caminho da API, ex.: '/alunos'
- * @param columns    colunas da tabela (ver DataTable)
- * @param formFields [{ name, label, type, required, options, placeholder, help, full, value }]
- * @param toForm     (row) => valores iniciais do formulario
- * @param toPayload  (values, editingRow) => corpo do POST/PUT
- * @param searchKeys campos em que a busca textual atua
- * @param filters    [{ key, label, options: [{value,label}] }]
- * @param deletable  exibe a acao de excluir
+ * @param {object} props propriedades do componente
+ * @param {string} props.title título exibido no cabeçalho da página
+ * @param {string} [props.subtitle] subtítulo exibido no cabeçalho da página
+ * @param {string} [props.icon] ícone usado no cartão e no estado vazio
+ * @param {string} props.endpoint caminho da API, ex.: '/alunos'
+ * @param {Array<object>} props.columns colunas da tabela (ver {@link DataTable})
+ * @param {Array<{name: string, label: string, type?: string, required?: boolean, options?: Array, placeholder?: string, help?: string, full?: boolean, value?: *}>} [props.formFields] definição dos campos do formulário de criação/edição
+ * @param {Function} [props.toForm] `(row) => valores iniciais do formulário` ao editar um registro
+ * @param {Function} [props.toPayload] `(values, editingRow) => corpo do POST/PUT` enviado à API
+ * @param {Array<string>} [props.searchKeys] campos em que a busca textual atua
+ * @param {Array<{key: string, label: string, options: Array<{value: *, label: string}>}>} [props.filters] filtros adicionais exibidos acima da tabela
+ * @param {boolean} [props.deletable] exibe a ação de excluir em cada linha
+ * @param {number} [props.pageSize] quantidade de itens por página
+ * @param {string} [props.createLabel] rótulo do botão/título de criação de novo registro
+ * @param {string} [props.emptyTitle] título exibido quando não há registros
+ * @param {string} [props.emptySubtitle] subtítulo exibido quando não há registros
+ * @param {import('react').ReactNode} [props.extraActions] ações extras exibidas ao lado do botão de criação
+ * @param {string} [props.cardTitle] título do cartão (padrão: `title`)
+ * @param {string} [props.cardSubtitle] subtítulo do cartão
+ * @param {object} [props.initialFilters] valores iniciais dos filtros
+ * @param {number} [props.refreshKey] ao mudar de valor, força o recarregamento da listagem
+ * @param {Function} [props.rowActions] `(row) => ReactNode` com ações extras por linha
+ * @returns {JSX.Element} a página CRUD completa (listagem, formulário modal e diálogo de exclusão)
  */
 export default function CrudPage({
   title,
@@ -74,6 +89,7 @@ export default function CrudPage({
   const [removing, setRemoving] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
 
+  /** Busca a lista de registros no endpoint configurado e atualiza o estado. */
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -120,6 +136,7 @@ export default function CrudPage({
   const safePage = Math.min(page, totalPages);
   const visible = paginate(filtered, safePage, pageSize);
 
+  /** Abre o modal de criação, iniciando o formulário com os valores padrão de cada campo. */
   function openCreate() {
     setEditing(null);
     setValues(
@@ -132,6 +149,12 @@ export default function CrudPage({
     setModalOpen(true);
   }
 
+  /**
+   * Abre o modal de edição para um registro existente, preenchendo o
+   * formulário a partir de `toForm` (quando informado).
+   *
+   * @param {object} row registro selecionado para edição
+   */
   function openEdit(row) {
     setEditing(row);
     setValues(toForm ? toForm(row) : { ...row });
@@ -139,10 +162,22 @@ export default function CrudPage({
     setModalOpen(true);
   }
 
+  /**
+   * Atualiza o valor de um campo do formulário em edição.
+   *
+   * @param {string} name nome do campo
+   * @param {*} value novo valor do campo
+   */
   function setField(name, value) {
     setValues((current) => ({ ...current, [name]: value }));
   }
 
+  /**
+   * Valida os campos obrigatórios e envia o formulário (criação via POST ou
+   * atualização via PUT, conforme haja ou não um registro em edição).
+   *
+   * @param {import('react').FormEvent} event evento de submit do formulário
+   */
   async function handleSave(event) {
     event.preventDefault();
     setFormError(null);
@@ -176,6 +211,7 @@ export default function CrudPage({
     }
   }
 
+  /** Exclui o registro atualmente selecionado para remoção (`removing`) e recarrega a listagem. */
   async function handleDelete() {
     if (!removing) return;
     setDeleteError(null);
