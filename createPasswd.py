@@ -1,6 +1,11 @@
 """
 Script provisório pra gerar hashes bcrypt de senhas de teste.
 Uso: python3 gerar_senhas.py
+
+Para cada par (identificador, senha em texto puro) definido na lista
+`senhas`, o script gera o hash bcrypt correspondente e imprime no console
+a linha "identificador | senha: <senha> -> <hash>", útil para popular
+manualmente a base de dados de demonstração com usuários de teste.
 """
 
 import bcrypt
@@ -15,6 +20,8 @@ senhas = [
 ]
 
 for identificador, senha in senhas:
+    # Gera um salt aleatório e calcula o hash bcrypt da senha em texto puro.
     hash_bytes = bcrypt.hashpw(senha.encode(), bcrypt.gensalt())
+    # Decodifica o hash (bytes) para string, pronto para ser copiado ao banco.
     hash_str = hash_bytes.decode()
     print(f"{identificador} | senha: {senha} -> {hash_str}")

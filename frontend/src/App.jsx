@@ -38,13 +38,22 @@ const AlunoOcorrencias = lazy(() => import('./pages/aluno/Ocorrencias.jsx'));
 const AlunoCalendario = lazy(() => import('./pages/aluno/Calendario.jsx'));
 const AlunoAchadosPerdidos = lazy(() => import('./pages/aluno/AchadosPerdidos.jsx'));
 
-/** Raiz: /admin, /professor ou /aluno conforme o perfil logado. */
+/**
+ * Raiz: /admin, /professor ou /aluno conforme o perfil logado.
+ *
+ * @returns {JSX.Element} redirecionamento para `/login` (sem sessão) ou para o dashboard do perfil logado
+ */
 function HomeRedirect() {
   const session = getSession();
   if (!session) return <Navigate to="/login" replace />;
   return <Navigate to={`/${session.perfil.toLowerCase()}`} replace />;
 }
 
+/**
+ * Página exibida para rotas inexistentes (404).
+ *
+ * @returns {JSX.Element} o estado visual de "página não encontrada"
+ */
 function NotFound() {
   return (
     <div className="empty" style={{ paddingTop: 80 }}>
@@ -60,6 +69,14 @@ function NotFound() {
   );
 }
 
+/**
+ * Componente raiz da aplicação: registra o tratador global de respostas
+ * `401` (não autorizado) e declara todas as rotas do sistema, agrupadas
+ * por perfil (admin, professor, aluno) e protegidas por {@link RequireAuth},
+ * usando carregamento tardio (`lazy`) para dividir o bundle por área.
+ *
+ * @returns {JSX.Element} a árvore de rotas da aplicação
+ */
 export default function App() {
   // 401 -> limpa a sessao e volta ao login (substitui o window.location do front estatico)
   setUnauthorizedHandler(() => {

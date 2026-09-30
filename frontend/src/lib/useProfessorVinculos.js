@@ -8,6 +8,8 @@ import { getSession } from './session.js';
  * O `LoginResponse` da API nao devolve `vinculoId`; o id do professor e
  * recuperado do claim `sub` do JWT (ver lib/session.js). Com ele, buscamos
  * `GET /vinculos?professorId={id}` para saber turmas e disciplinas.
+ *
+ * @returns {{professorId: string|null, vinculos: Array<object>, turmas: Array<{value: *, label: string}>, disciplinasDaTurma: Function, loading: boolean, error: string|null}} dados dos vínculos do professor logado
  */
 export function useProfessorVinculos() {
   const session = getSession();
@@ -55,7 +57,12 @@ export function useProfessorVinculos() {
     return Array.from(map, ([value, label]) => ({ value, label }));
   }, [vinculos]);
 
-  /** Disciplinas vinculadas a uma turma específica. */
+  /**
+   * Lista as disciplinas vinculadas ao professor logado em uma turma específica.
+   *
+   * @param {*} turmaId identificador da turma
+   * @returns {Array<{value: *, label: string}>} lista de opções (id + nome) das disciplinas vinculadas
+   */
   function disciplinasDaTurma(turmaId) {
     if (!turmaId) return [];
     const seen = new Map();

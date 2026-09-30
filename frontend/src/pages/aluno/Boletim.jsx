@@ -16,6 +16,14 @@ import { api } from '../../lib/api.js';
 import useAluno from '../../lib/useAluno.js';
 import { BIMESTRES, formatGrade, situacaoAluno } from '../../lib/format.js';
 
+/**
+ * Página "Meu Boletim" do aluno: exibe o boletim consolidado (médias,
+ * frequência e situação por disciplina) de um bimestre, com opção de
+ * download em PDF. Trata o caso de o bimestre ainda não ter sido fechado
+ * pela secretaria (RN-05).
+ *
+ * @returns {JSX.Element} a página do boletim, ou um indicador de carregamento
+ */
 export default function AlunoBoletim() {
   const toast = useToast();
   const { alunoId, loading: loadingAluno, error } = useAluno();
@@ -26,6 +34,11 @@ export default function AlunoBoletim() {
   const [fechado, setFechado] = useState(false);
   const [baixando, setBaixando] = useState(false);
 
+  /**
+   * Busca o boletim do aluno para o bimestre selecionado. Se o bimestre
+   * ainda não foi fechado pela secretaria (erro de regra de negócio),
+   * marca o estado `fechado` em vez de exibir um erro genérico.
+   */
   const carregar = useCallback(async () => {
     if (!alunoId) return;
     setLoading(true);
@@ -52,6 +65,7 @@ export default function AlunoBoletim() {
     carregar();
   }, [carregar]);
 
+  /** Baixa o boletim do bimestre selecionado em formato PDF. */
   async function baixarPdf() {
     if (!alunoId) return;
     setBaixando(true);

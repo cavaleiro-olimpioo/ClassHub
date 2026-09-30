@@ -23,14 +23,42 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
+/**
+ * Configuração central de segurança da API do ClassHub.
+ * <p>
+ * Define a cadeia de filtros de segurança (autenticação via JWT, sem
+ * sessão/stateless), as regras de CORS, o serializador JSON padrão e o
+ * codificador de senhas usado em toda a aplicação.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    /**
+     * Cria o {@link ObjectMapper} usado para serializar/desserializar JSON
+     * na aplicação, com suporte a tipos de data/hora do Java 8+ (ex.:
+     * {@code LocalDate}) representados como texto (ISO), em vez de timestamps numéricos.
+     *
+     * @return o {@code ObjectMapper} configurado
+     */
     @Bean
     ObjectMapper objectMapper() {
         return new ObjectMapper().registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    /**
+     * Define a cadeia de filtros de segurança HTTP da aplicação: desabilita
+     * CSRF e login por formulário/HTTP básico (a API é stateless e usa
+     * JWT), configura o tratamento de erros de autenticação (retorna JSON
+     * com status 401), define quais rotas são públicas (health check e
+     * login) e insere o filtro {@link JwtAuthenticationFilter} antes do
+     * filtro padrão de autenticação por usuário/senha.
+     *
+     * @param http builder de configuração de segurança HTTP do Spring Security
+     * @param jwtFilter filtro responsável por validar o token JWT em cada requisição
+     * @param objectMapper usado para escrever a resposta JSON de erro de autenticação
+     * @return a cadeia de filtros de segurança configurada
+     * @throws Exception se ocorrer erro ao construir a configuração
+     */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter, ObjectMapper objectMapper) throws Exception {
         http
@@ -57,6 +85,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configura as regras de CORS da API, permitindo requisições de
+     * origens específicas (configuráveis via propriedade
+     * {@code app.cors.allowed-origins}), com os métodos e cabeçalhos
+     * necessários para o frontend consumir a API.
+     *
+     * @param origins lista de origens permitidas, separadas por vírgula
+     * @return a fonte de configuração de CORS usada pelo Spring Security
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource(@Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:5432}") String origins) {
         CorsConfiguration cors = new CorsConfiguration();
@@ -69,6 +106,12 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Cria o codificador de senhas padrão da aplicação, usando o
+     * algoritmo BCrypt.
+     *
+     * @return o codificador de senhas
+     */
     @Bean
     PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 }

@@ -10,6 +10,12 @@ import '../styles/index.css';
 /**
  * Layout das telas internas: sidebar fixa, topbar com breadcrumb e
  * area de conteudo. Equivale ao shell montado por `Auth.renderAppShell()`.
+ *
+ * Não recebe props: usa a sessão atual (via {@link getSession}) para
+ * montar o menu do perfil logado e renderiza as rotas filhas através do
+ * `<Outlet />` do React Router.
+ *
+ * @returns {JSX.Element|null} o layout completo (sidebar + topbar + conteúdo), ou `null` se não houver sessão ativa
  */
 export default function AppShell() {
   const location = useLocation();
@@ -32,6 +38,7 @@ export default function AppShell() {
     return () => clearInterval(timer);
   }, []);
 
+  /** Encerra a sessão do usuário e o redireciona para a tela de login. */
   function handleLogout() {
     clearSession();
     navigate('/login', { replace: true });

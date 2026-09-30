@@ -8,6 +8,8 @@ import { getSession } from './session.js';
  * O id vem do claim `sub` do JWT (ver lib/session.js). Com ele buscamos
  * `GET /alunos/{id}`, que traz nome, matrícula e a turma — necessário para
  * as telas de notas, faltas, horários e ocorrências.
+ *
+ * @returns {{alunoId: string|null, aluno: object|null, turmaId: *, loading: boolean, error: string|null}} dados do aluno logado, estado de carregamento e eventual erro
  */
 export default function useAluno() {
   const session = getSession();

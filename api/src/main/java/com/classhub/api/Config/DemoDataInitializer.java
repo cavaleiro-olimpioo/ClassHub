@@ -12,9 +12,39 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * Configuração responsável por popular o banco de dados com dados de
+ * demonstração (usuários, turmas, disciplinas, horários, notas etc.) ao
+ * iniciar a aplicação, facilitando testes manuais e apresentações do sistema.
+ */
 @Configuration
 public class DemoDataInitializer {
 
+    /**
+     * Cria um {@link CommandLineRunner} executado na inicialização da
+     * aplicação para popular o banco com dados de demonstração, caso ainda
+     * não existam (cada etapa verifica a existência do registro antes de
+     * criá-lo, evitando duplicidade em reinicializações).
+     * <p>
+     * Só é executado se a propriedade {@code app.seed-demo-users} for
+     * {@code true} (valor padrão quando a propriedade não é definida).
+     *
+     * @param users repositório genérico de usuários
+     * @param professors repositório de professores
+     * @param alunos repositório de alunos
+     * @param funcionarios repositório de funcionários
+     * @param series repositório de séries
+     * @param turmas repositório de turmas
+     * @param disciplinas repositório de disciplinas
+     * @param vinculos repositório de vínculos professor/turma/disciplina
+     * @param horarios repositório de horários de aula
+     * @param calendario repositório de eventos do calendário escolar
+     * @param notas repositório de notas
+     * @param ocorrencias repositório de ocorrências
+     * @param achadosPerdidos repositório de itens de achados e perdidos
+     * @param passwordEncoder codificador usado para gerar os hashes de senha dos usuários de demonstração
+     * @return o runner que executa a criação dos dados de demonstração
+     */
     @Bean
     @Order(1)
     @ConditionalOnProperty(name = "app.seed-demo-users", havingValue = "true", matchIfMissing = true)

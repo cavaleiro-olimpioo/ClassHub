@@ -18,9 +18,19 @@ import { api } from '../../lib/api.js';
 import { toOptions } from '../../lib/useReference.js';
 import { WEEKDAYS, WEEKDAYS_SHORT } from '../../lib/format.js';
 
+/** Valores iniciais (vazios) do formulário de novo horário. */
 const EMPTY_FORM = { turmaId: '', diaSemana: '1', horaInicio: '', horaFim: '', disciplinaId: '', professorId: '' };
+/** Dias da semana úteis considerados na grade (1=segunda a 5=sexta). */
 const WEEK = [1, 2, 3, 4, 5];
 
+/**
+ * Página administrativa de gerenciamento da grade de horários: permite
+ * selecionar uma turma, visualizar sua grade semanal (agrupada por dia),
+ * adicionar novos horários (disciplina, professor e faixa de horário) e
+ * remover horários existentes.
+ *
+ * @returns {JSX.Element} a página de gerenciamento da grade de horários, ou um indicador de carregamento
+ */
 export default function AdminHorarios() {
   const toast = useToast();
 
@@ -39,6 +49,7 @@ export default function AdminHorarios() {
   const [formError, setFormError] = useState(null);
   const [removing, setRemoving] = useState(null);
 
+  /** Carrega as listas de apoio (turmas, disciplinas e professores) usadas nos seletores. */
   const loadSupport = useCallback(async () => {
     setLoading(true);
     const [t, d, p] = await Promise.all([
@@ -56,6 +67,7 @@ export default function AdminHorarios() {
     loadSupport();
   }, [loadSupport]);
 
+  /** Recarrega a grade de horários da turma atualmente selecionada. */
   const reloadGrid = useCallback(async () => {
     if (!selectedTurma) {
       setHorarios([]);
@@ -88,12 +100,23 @@ export default function AdminHorarios() {
     return map;
   }, [horarios]);
 
+  /**
+   * Abre o modal de criação de horário, pré-selecionando a turma atual e o
+   * dia da semana informado.
+   *
+   * @param {number} [day] dia da semana pré-selecionado (1=segunda a 5=sexta)
+   */
   function openCreate(day) {
     setForm({ ...EMPTY_FORM, turmaId: selectedTurma, diaSemana: String(day || 1) });
     setFormError(null);
     setModalOpen(true);
   }
 
+  /**
+   * Envia o formulário de novo horário para a API e recarrega a grade.
+   *
+   * @param {import('react').FormEvent} event evento de submit do formulário
+   */
   async function handleSave(event) {
     event.preventDefault();
     setFormError(null);
@@ -117,6 +140,7 @@ export default function AdminHorarios() {
     }
   }
 
+  /** Remove o horário atualmente selecionado para exclusão (`removing`) e recarrega a grade. */
   async function handleDelete() {
     if (!removing) return;
     try {

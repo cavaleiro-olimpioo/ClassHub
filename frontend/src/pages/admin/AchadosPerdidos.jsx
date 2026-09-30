@@ -5,12 +5,25 @@ import { useToast } from '../../components/ToastProvider.jsx';
 import { api } from '../../lib/api.js';
 import { CATEGORIAS_ACHADOS, formatDate, todayISO } from '../../lib/format.js';
 
+/** Opções de categoria de item, derivadas de {@link CATEGORIAS_ACHADOS}. */
 const CATEGORIA_OPTIONS = CATEGORIAS_ACHADOS.map((categoria) => ({ value: categoria, label: categoria }));
 
+/**
+ * Página administrativa de Achados e Perdidos: permite registrar,
+ * consultar, editar, excluir e marcar como devolvidos os objetos
+ * encontrados na escola.
+ *
+ * @returns {JSX.Element} a página CRUD de achados e perdidos, com ação extra de devolução
+ */
 export default function AdminAchadosPerdidos() {
   const toast = useToast();
   const [refreshKey, setRefreshKey] = useState(0);
 
+  /**
+   * Marca um item de achados e perdidos como devolvido e recarrega a listagem.
+   *
+   * @param {object} row registro do item a ser marcado como devolvido
+   */
   const handleDevolver = useCallback(
     async (row) => {
       try {
