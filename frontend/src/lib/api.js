@@ -6,7 +6,7 @@
  * o backend nao precise de nenhuma alteracao.
  */
 
-const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 const TOKEN_KEY = 'classhub.token';
 

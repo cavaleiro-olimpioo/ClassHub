@@ -1,4 +1,4 @@
-# Frontend - ClassHub
+﻿# Frontend - ClassHub
 
 SPA do Sistema de Gerenciamento Escolar (Ensino Fundamental, 1º ao 9º ano), construída com **React 18 + Vite** e **CSS puro** com design tokens. Substitui a versão anterior em HTML/JS vanilla.
 
@@ -16,7 +16,7 @@ cd frontend
 npm install
 npm run dev
 ```
-A aplicação sobe em `http://localhost:5173`. O servidor de desenvolvimento do Vite faz proxy de `/api` para `http://localhost:8080` (mesmo comportamento do Nginx em produção); ajuste com `VITE_DEV_API_TARGET`.
+A aplicação sobe em `http://localhost:5173`. Configure `VITE_API_URL` no arquivo `.env` para apontar diretamente à API durante o desenvolvimento.
 
 ### Scripts
 
@@ -37,11 +37,10 @@ Imagem multi-stage: build com `node:20-alpine` e serving com `nginx:alpine`.
 
 ## ⚙️ Configuração da URL da API Backend
 
-A URL base vem da variável de ambiente `VITE_API_BASE_URL` (padrão: `/api`). Copie `.env.example` para `.env` e ajuste se necessário:
+A URL base vem da variável de ambiente `VITE_API_URL`. Copie `.env.example` para `.env` e ajuste se necessário:
 
 ```bash
-VITE_API_BASE_URL=/api
-VITE_DEV_API_TARGET=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 ```
 
 Em produção o próprio Nginx faz o proxy de `/api` para `http://backend:8080/`, removendo o prefixo — por isso o padrão `/api` funciona sem configuração extra.
@@ -85,3 +84,4 @@ O endpoint `POST /auth/login` devolve apenas `{ token, perfil, nome }` — **sem
 | Professor   | `professor@classhub.local`   | `professor123`    |
 | Aluno       | `aluno@classhub.local`       | `aluno123`        |
 | Funcionário | `funcionario@classhub.local` | `funcionario123`  |
+

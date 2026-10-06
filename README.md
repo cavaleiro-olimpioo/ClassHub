@@ -1,4 +1,4 @@
-# ClassHub
+﻿# ClassHub
 
 **Gestão escolar em um só lugar.** O ClassHub reúne secretaria, professores e alunos em uma aplicação web para acompanhar a rotina acadêmica: turmas, horários, frequência, notas, boletins, calendário, ocorrências e achados e perdidos.
 
@@ -161,7 +161,7 @@ Use este caminho quando quiser rodar a API e a interface fora de containers. É 
    npm run dev
    ```
 
-   Acesse [http://localhost:5173](http://localhost:5173). O proxy do Vite envia `/api/...` para `http://localhost:8080/...`.
+   Acesse [http://localhost:5173](http://localhost:5173). Configure `VITE_API_URL=http://localhost:8080` no `.env` do frontend para desenvolvimento manual.
 
 4. Para criar uma versão estática local da interface:
 
@@ -268,8 +268,8 @@ npm run build
 | `APP_JWT_SECRET` | Chave de assinatura dos tokens | Definida para uso local no Compose; obrigatória fora dele |
 | `APP_CORS_ALLOWED_ORIGINS` | Origens aceitas pelo CORS | Configurada no `docker-compose.yaml` |
 | `APP_SEED_DEMO_USERS` | Cria dados e contas de demonstração na inicialização | `true` no Compose local; defina `false` fora do desenvolvimento |
-| `VITE_API_BASE_URL` | Prefixo da API usado no frontend | `/api` |
-| `VITE_DEV_API_TARGET` | Destino do proxy do Vite | `http://localhost:8080` |
+| `VITE_API_URL` | URL base da API usada pelo frontend | `/api` |
+
 
 O arquivo `frontend/.env.example` pode ser copiado para `frontend/.env` para ajustar a URL da API no desenvolvimento. Variáveis `VITE_*` são incorporadas ao bundle durante o build.
 
@@ -281,3 +281,4 @@ Os valores de banco e JWT definidos no Compose servem apenas para desenvolviment
 - Ao fechar um bimestre, a secretaria informa as datas de início e fim usadas para calcular a frequência. Fechamentos anteriores que não tenham esse intervalo precisam ser refeitos para liberar o boletim.
 - As senhas listadas acima e as senhas iniciais definidas ao cadastrar contas são somente para demonstração local. Configure um fluxo seguro de credenciais antes de disponibilizar o sistema a usuários reais.
 - `start.sh` não é necessário para desenvolvimento local: além do Compose, ele configura o Tailscale Funnel no host. Para uso local, prefira `docker compose up --build -d`.
+
