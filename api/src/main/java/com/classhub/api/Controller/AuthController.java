@@ -40,7 +40,8 @@ public class AuthController {
      * @return mensagem genérica de confirmação
      */
     @PostMapping("/recuperar-senha")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.NOT_IMPLEMENTED)
     public MessageResponse recuperarSenha(@RequestBody java.util.Map<String, String> ignored) {
-        return new MessageResponse("Se o e-mail estiver cadastrado, você receberá as instruções de recuperação.");
+        return new MessageResponse("A recuperação de senha ainda não está disponível. Procure a secretaria da escola.");
     }
 }

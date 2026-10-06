@@ -20,6 +20,8 @@ export default function AdminBimestre() {
   const [anoLetivo, setAnoLetivo] = useState(new Date().getFullYear());
   const [bimestre, setBimestre] = useState(1);
   const [turmaId, setTurmaId] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -34,7 +36,7 @@ export default function AdminBimestre() {
   async function handleConfirm() {
     setProcessing(true);
     try {
-      const body = { anoLetivo: Number(anoLetivo), bimestre: Number(bimestre) };
+      const body = { anoLetivo: Number(anoLetivo), bimestre: Number(bimestre), dataInicio, dataFim };
       if (turmaId) body.turmaId = Number(turmaId);
 
       const response = await api.post('/boletins/gerar', body);
@@ -69,6 +71,15 @@ export default function AdminBimestre() {
             <Field label="Ano Letivo" required htmlFor="f-ano">
               <Input id="f-ano" type="number" min={2000} value={anoLetivo} onChange={(e) => setAnoLetivo(e.target.value)} required />
             </Field>
+
+            <div className="grid grid--2">
+              <Field label="Início do bimestre" required htmlFor="f-data-inicio">
+                <Input id="f-data-inicio" type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} required />
+              </Field>
+              <Field label="Fim do bimestre" required htmlFor="f-data-fim">
+                <Input id="f-data-fim" type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} min={dataInicio || undefined} required />
+              </Field>
+            </div>
 
             <Field label="Bimestre" required htmlFor="f-bimestre">
               <Select id="f-bimestre" value={bimestre} onChange={(e) => setBimestre(e.target.value)}>

@@ -16,4 +16,5 @@ public interface ApiOcorrenciaRepository extends JpaRepository<ApiOcorrencia, Lo
      * @return lista de ocorrências do aluno
      */
     List<ApiOcorrencia> findByAlunoId(Long alunoId);
+    List<ApiOcorrencia> findByProfessorId(Long professorId);
 }

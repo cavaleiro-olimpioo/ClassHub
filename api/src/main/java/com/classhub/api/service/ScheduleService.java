@@ -155,6 +155,7 @@ public class ScheduleService {
         if (!PRESENCE_STATUS.contains(request.status())) throw new BadRequestException("Status de presença inválido.");
         ApiAluno aluno = directory.requireAluno(request.alunoId());
         ApiTurma turma = directory.requireTurma(request.turmaId());
+        if (aluno.getTurma() == null || !aluno.getTurma().getId().equals(turma.getId())) throw new BadRequestException("O aluno não está matriculado na turma informada.");
         ApiDisciplina disciplina = directory.requireDisciplina(request.disciplinaId());
         ApiPresenca entity = presencas.findByAlunoIdAndTurmaIdAndDisciplinaIdAndData(aluno.getId(), turma.getId(), disciplina.getId(), request.data()).orElseGet(ApiPresenca::new);
         entity.setAluno(aluno); entity.setTurma(turma); entity.setDisciplina(disciplina); entity.setData(request.data());

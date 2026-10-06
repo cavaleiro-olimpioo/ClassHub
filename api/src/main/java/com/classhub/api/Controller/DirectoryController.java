@@ -5,6 +5,7 @@ import com.classhub.api.service.DirectoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 /**
@@ -13,6 +14,7 @@ import java.util.List;
  * (professor + turma + disciplina).
  */
 @RestController
+@PreAuthorize("hasRole('ADMIN')")
 @RequestMapping(path = {"", "/api"})
 public class DirectoryController {
     private final DirectoryService service;
@@ -30,14 +32,28 @@ public class DirectoryController {
      * @param nome parte do nome do aluno para busca (opcional)
      * @return lista de alunos que atendem aos filtros informados
      */
-    @GetMapping("/alunos") public List<AlunoResponse> alunos(@RequestParam(required = false) Long turmaId, @RequestParam(required = false) String nome) { return service.listAlunos(turmaId, nome); }
+    @GetMapping("/alunos") @PreAuthorize("hasAnyRole('ADMIN','PROFESSOR')") public List<AlunoResponse> alunos(@RequestParam(required = false) Long turmaId, @RequestParam(required = false) String nome, org.springframework.security.core.Authentication authentication) {
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"))) {
+            var turmasPermitidas = service.listVinculos(Long.valueOf(authentication.getName())).stream().map(VinculoResponse::turmaId).collect(java.util.stream.Collectors.toSet());
+            if (turmaId != null && !turmasPermitidas.contains(turmaId)) return List.of();
+            return service.listAlunos(turmaId, nome).stream().filter(a -> turmasPermitidas.contains(a.turmaId())).toList();
+        }
+        return service.listAlunos(turmaId, nome);
+    }
     /**
      * Busca um aluno pelo identificador.
      *
      * @param id identificador do aluno
      * @return os dados completos do aluno
      */
-    @GetMapping("/alunos/{id}") public AlunoResponse aluno(@PathVariable Long id) { return service.getAluno(id); }
+    @GetMapping("/alunos/{id}") @PreAuthorize("hasAnyRole('ADMIN','PROFESSOR') or (hasRole('ALUNO') and authentication.name == #p0.toString())") public AlunoResponse aluno(@PathVariable Long id, org.springframework.security.core.Authentication authentication) {
+        AlunoResponse aluno = service.getAluno(id);
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"))) {
+            boolean linked = service.listVinculos(Long.valueOf(authentication.getName())).stream().anyMatch(v -> java.util.Objects.equals(v.turmaId(), aluno.turmaId()));
+            if (!linked) throw new com.classhub.api.exception.ApiExceptions.ForbiddenException("Acesso negado ao aluno.");
+        }
+        return aluno;
+    }
     /**
      * Cria um novo aluno.
      *
@@ -186,7 +202,10 @@ public class DirectoryController {
      * @param professorId identificador do professor (opcional)
      * @return lista de vínculos que atendem ao filtro informado
      */
-    @GetMapping("/vinculos") public List<VinculoResponse> vinculos(@RequestParam(required = false) Long professorId) { return service.listVinculos(professorId); }
+    @GetMapping("/vinculos") @PreAuthorize("hasAnyRole('ADMIN','PROFESSOR')") public List<VinculoResponse> vinculos(@RequestParam(required = false) Long professorId, org.springframework.security.core.Authentication authentication) {
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"))) professorId = Long.valueOf(authentication.getName());
+        return service.listVinculos(professorId);
+    }
     /**
      * Cria um novo vínculo entre professor, turma e disciplina.
      *

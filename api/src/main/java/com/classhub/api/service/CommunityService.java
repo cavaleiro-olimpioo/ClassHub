@@ -53,8 +53,9 @@ public class CommunityService {
      * @return lista de ocorrências convertidas em DTO de resposta
      */
     @Transactional(readOnly = true)
-    public List<OcorrenciaResponse> listOcorrencias(Long alunoId, Long turmaId) {
-        List<ApiOcorrencia> result = alunoId != null ? ocorrencias.findByAlunoId(alunoId) : ocorrencias.findAll();
+    public List<OcorrenciaResponse> listOcorrencias(Long alunoId, Long turmaId, Long professorId) {
+        List<ApiOcorrencia> result = professorId != null ? ocorrencias.findByProfessorId(professorId)
+            : alunoId != null ? ocorrencias.findByAlunoId(alunoId) : ocorrencias.findAll();
         if (turmaId != null) {
             result = result.stream().filter(o -> o.getAluno() != null && o.getAluno().getTurma() != null && o.getAluno().getTurma().getId().equals(turmaId)).toList();
         }

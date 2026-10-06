@@ -131,6 +131,8 @@ Use este caminho quando quiser rodar a API e a interface fora de containers. É 
 
    ```bash
    cd api
+   export APP_SEED_DEMO_USERS=true
+   export APP_JWT_SECRET=classhub-development-only-secret-change-this-before-sharing
    SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/classhubdb \
    SPRING_DATASOURCE_USERNAME=root \
    SPRING_DATASOURCE_PASSWORD=root \
@@ -144,6 +146,8 @@ Use este caminho quando quiser rodar a API e a interface fora de containers. É 
    $env:SPRING_DATASOURCE_URL = "jdbc:postgresql://localhost:5432/classhubdb"
    $env:SPRING_DATASOURCE_USERNAME = "root"
    $env:SPRING_DATASOURCE_PASSWORD = "root"
+    $env:APP_SEED_DEMO_USERS = "true"
+    $env:APP_JWT_SECRET = "classhub-development-only-secret-change-this-before-sharing"
    .\mvnw.cmd spring-boot:run
    ```
 
@@ -169,12 +173,13 @@ Use este caminho quando quiser rodar a API e a interface fora de containers. É 
 
 ### Login de demonstração
 
-Quando `app.seed-demo-users=true` (padrão deste projeto), a API cria dados e contas demonstrativas na primeira inicialização:
+Quando `app.seed-demo-users=true` (ativado no Compose local), a API cria dados e contas demonstrativas na primeira inicialização:
 
 | Perfil | E-mail | Senha |
 | --- | --- | --- |
 | Professor | `professor@classhub.local` | `professor123` |
 | Aluno | `aluno@classhub.local` | `aluno123` |
+| Secretaria/administração | `funcionario@classhub.local` | `funcionario123` |
 
 Essas credenciais são somente para desenvolvimento local. Não as use em um ambiente acessível pela internet.
 
@@ -260,17 +265,19 @@ npm run build
 | `SPRING_DATASOURCE_URL` | JDBC URL do PostgreSQL | `jdbc:postgresql://localhost:5432/classhubdb` |
 | `SPRING_DATASOURCE_USERNAME` | Usuário do banco | `root` no Compose local |
 | `SPRING_DATASOURCE_PASSWORD` | Senha do banco | `root` no Compose local |
-| `APP_JWT_SECRET` | Chave de assinatura dos tokens | Existe uma chave de desenvolvimento no `application.properties` |
+| `APP_JWT_SECRET` | Chave de assinatura dos tokens | Definida para uso local no Compose; obrigatória fora dele |
 | `APP_CORS_ALLOWED_ORIGINS` | Origens aceitas pelo CORS | Configurada no `docker-compose.yaml` |
+| `APP_SEED_DEMO_USERS` | Cria dados e contas de demonstração na inicialização | `true` no Compose local; defina `false` fora do desenvolvimento |
 | `VITE_API_BASE_URL` | Prefixo da API usado no frontend | `/api` |
 | `VITE_DEV_API_TARGET` | Destino do proxy do Vite | `http://localhost:8080` |
 
 O arquivo `frontend/.env.example` pode ser copiado para `frontend/.env` para ajustar a URL da API no desenvolvimento. Variáveis `VITE_*` são incorporadas ao bundle durante o build.
 
-Os valores de banco e JWT incluídos no projeto servem apenas para desenvolvimento. Em implantação, configure credenciais próprias, uma chave JWT forte e origens CORS restritas. O schema do backend é atualizado pelo Hibernate; os testes usam H2 em memória com `create-drop`.
+Os valores de banco e JWT definidos no Compose servem apenas para desenvolvimento. Fora do Compose, a API exige `APP_JWT_SECRET`; configure uma chave própria com pelo menos 32 bytes e origens CORS restritas. O schema do backend é atualizado pelo Hibernate; os testes usam H2 em memória com `create-drop`.
 
 ## Limitações conhecidas
 
-- A interface reconhece os perfis `ADMIN`, `PROFESSOR` e `ALUNO`, mas a API semeia `FUNCIONARIO` como perfil da conta administrativa e não cria uma conta `ADMIN`. Assim, as credenciais de funcionário não abrem atualmente o painel administrativo pelo fluxo de login da interface.
-- O endpoint de recuperação de senha retorna uma resposta genérica, mas o código atual não envia e-mail nem redefine a senha.
+- A recuperação de senha ainda não está disponível. A tela informa isso e orienta o usuário a procurar a secretaria; nenhum e-mail de redefinição é enviado.
+- Ao fechar um bimestre, a secretaria informa as datas de início e fim usadas para calcular a frequência. Fechamentos anteriores que não tenham esse intervalo precisam ser refeitos para liberar o boletim.
+- As senhas listadas acima e as senhas iniciais definidas ao cadastrar contas são somente para demonstração local. Configure um fluxo seguro de credenciais antes de disponibilizar o sistema a usuários reais.
 - `start.sh` não é necessário para desenvolvimento local: além do Compose, ele configura o Tailscale Funnel no host. Para uso local, prefira `docker compose up --build -d`.

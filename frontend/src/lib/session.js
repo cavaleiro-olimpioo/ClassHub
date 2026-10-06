@@ -22,6 +22,10 @@ const KEYS = {
   vinculoId: 'classhub.vinculoId'
 };
 
+function normalizePerfil(perfil) {
+  return perfil === 'FUNCIONARIO' ? 'ADMIN' : perfil;
+}
+
 /**
  * Decodifica a carga útil (payload) de um token JWT, sem validar a
  * assinatura (a validação de fato é feita pelo backend).
@@ -86,7 +90,7 @@ export function getSession() {
   let vinculoId = null;
   let email = null;
   try {
-    perfil = sessionStorage.getItem(KEYS.perfil);
+    perfil = normalizePerfil(sessionStorage.getItem(KEYS.perfil));
     vinculoId = sessionStorage.getItem(KEYS.vinculoId);
     email = sessionStorage.getItem(KEYS.email);
   } catch {
@@ -96,7 +100,7 @@ export function getSession() {
   // O token e a fonte da verdade: claims tem prioridade sobre o storage.
   const claims = decodeJwtPayload(token);
   if (claims) {
-    if (claims.perfil) perfil = claims.perfil;
+    if (claims.perfil) perfil = normalizePerfil(claims.perfil);
     if (claims.sub) vinculoId = String(claims.sub);
     if (claims.email) email = claims.email;
   }
@@ -126,7 +130,7 @@ export function setSession({ token, perfil, nome, email }) {
   const claims = decodeJwtPayload(token) || {};
 
   const data = {
-    perfil: perfil || claims.perfil,
+    perfil: normalizePerfil(perfil || claims.perfil),
     nome: nome || claims.nome,
     email: email || claims.email,
     vinculoId: claims.sub ? String(claims.sub) : null
@@ -183,6 +187,7 @@ export async function login(email, senha) {
 export function dashboardPathFor(perfil) {
   switch (perfil) {
     case 'ADMIN':
+    case 'FUNCIONARIO':
       return '/admin';
     case 'PROFESSOR':
       return '/professor';

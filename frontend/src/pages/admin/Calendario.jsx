@@ -15,7 +15,7 @@ export default function AdminCalendario() {
   return (
     <CrudPage
       title="Calendário Escolar"
-      subtitle="Registre dias letivos, feriados, recesses e eventos que se aplicam a toda a escola."
+      subtitle="Registre dias letivos, feriados, recessos e eventos que se aplicam a toda a escola."
       icon="calendar"
       endpoint="/calendario"
       createLabel="Novo Registro"

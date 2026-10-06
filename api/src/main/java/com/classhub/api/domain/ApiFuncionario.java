@@ -25,6 +25,6 @@ public class ApiFuncionario extends ApiUser {
     /** {@inheritDoc} Sempre retorna {@code "FUNCIONARIO"} para esta entidade. */
     @Override
     public String getPerfil() {
-        return "FUNCIONARIO";
+        return "ADMIN";
     }
 }

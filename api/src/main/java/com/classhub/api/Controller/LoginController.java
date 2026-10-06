@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
  * aplicação (ver {@link com.classhub.api.Controller.AuthController} e
  * {@code com.classhub.api.service.AuthService}).
  */
-@RestController
-@RequestMapping("/login")
 @RequiredArgsConstructor
 public class LoginController {
 
@@ -34,7 +32,6 @@ public class LoginController {
      * @param user dados de login (nome, senha e papel/whoami)
      * @return vetor booleano indicando o resultado da verificação
      */
-    @PostMapping
     public boolean[] returnData(@RequestBody User user){
         LoginService loginVerify = new LoginService();
         verify = loginVerify.verifyLogin(user.getName(), user.getPassword(), user.getWhoami());

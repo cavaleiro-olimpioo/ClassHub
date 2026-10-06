@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDate;
 
 /**
  * Entidade JPA que marca o fechamento (encerramento) do boletim de uma turma
@@ -24,4 +25,6 @@ public class ApiFechamentoBoletim {
     @Column(nullable = false) private Integer bimestre;
     /** Turma cujo boletim foi fechado. */
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "turma_id") private ApiTurma turma;
+    @Column private LocalDate dataInicio;
+    @Column private LocalDate dataFim;
 }

@@ -47,7 +47,7 @@ public class DemoDataInitializer {
      */
     @Bean
     @Order(1)
-    @ConditionalOnProperty(name = "app.seed-demo-users", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "app.seed-demo-users", havingValue = "true", matchIfMissing = false)
     CommandLineRunner seedDemoUsers(ApiUserRepository users,
                                     ApiProfessorRepository professors,
                                     ApiAlunoRepository alunos,
@@ -288,7 +288,7 @@ public class DemoDataInitializer {
                 ApiCalendario e2 = new ApiCalendario();
                 e2.setAnoLetivo(currentYear);
                 e2.setData(LocalDate.of(currentYear, 4, 15));
-                e2.setTipo("AVALIACAO");
+                e2.setTipo("EVENTO");
                 e2.setTitulo("Semana de Avaliações Bimestrais");
                 e2.setDescricao("Aplicação das provas oficiais do 1º bimestre.");
                 calendario.save(e2);
@@ -296,7 +296,7 @@ public class DemoDataInitializer {
                 ApiCalendario e3 = new ApiCalendario();
                 e3.setAnoLetivo(currentYear);
                 e3.setData(LocalDate.of(currentYear, 4, 25));
-                e3.setTipo("REUNIAO");
+                e3.setTipo("EVENTO");
                 e3.setTitulo("Reunião de Pais e Mestres");
                 e3.setDescricao("Entrega de boletins e alinhamento pedagógico.");
                 calendario.save(e3);
@@ -309,7 +309,7 @@ public class DemoDataInitializer {
                 n1.setDisciplina(mat);
                 n1.setTurma(turma9A);
                 n1.setBimestre(1);
-                n1.setTipo("P1");
+                n1.setTipo("PROVA");
                 n1.setPeso(1.0);
                 n1.setValor(8.5);
                 notas.save(n1);
@@ -330,7 +330,7 @@ public class DemoDataInitializer {
                 ApiOcorrencia oc = new ApiOcorrencia();
                 oc.setAluno(alunoDemo);
                 oc.setProfessor(professor);
-                oc.setTipo("INFORMATIVA");
+                oc.setTipo("PEDAGOGICO");
                 oc.setDescricao("Aluno esqueceu o material didático de ciências.");
                 oc.setStatus("ABERTA");
                 oc.setData(LocalDate.now());
@@ -342,12 +342,44 @@ public class DemoDataInitializer {
                 ApiAchadoPerdido ap = new ApiAchadoPerdido();
                 ap.setDescricao("Casaco de moletom azul escuro com capuz");
                 ap.setLocalEncontrado("Quadra Poliesportiva");
-                ap.setCategoria("Vestuário");
-                ap.setStatus("DISPONIVEL");
+                ap.setCategoria("UNIFORME");
+                ap.setStatus("NAO_REIVINDICADO");
                 ap.setData(LocalDate.now());
                 ap.setFuncionarioRegistrou(funcionario);
                 achadosPerdidos.save(ap);
             }
+
+            // Normalize values written by older demo seeds to the current API enums.
+            calendario.findAll().forEach(evento -> {
+                if ("AVALIACAO".equals(evento.getTipo()) || "REUNIAO".equals(evento.getTipo())) {
+                    evento.setTipo("EVENTO");
+                    calendario.save(evento);
+                }
+            });
+            notas.findAll().forEach(nota -> {
+                if ("P1".equals(nota.getTipo())) {
+                    nota.setTipo("PROVA");
+                    notas.save(nota);
+                }
+            });
+            ocorrencias.findAll().forEach(ocorrencia -> {
+                if ("INFORMATIVA".equals(ocorrencia.getTipo())) {
+                    ocorrencia.setTipo("PEDAGOGICO");
+                    ocorrencias.save(ocorrencia);
+                }
+            });
+            achadosPerdidos.findAll().forEach(item -> {
+                boolean changed = false;
+                if ("Vestuário".equalsIgnoreCase(item.getCategoria())) {
+                    item.setCategoria("UNIFORME");
+                    changed = true;
+                }
+                if ("DISPONIVEL".equals(item.getStatus())) {
+                    item.setStatus("NAO_REIVINDICADO");
+                    changed = true;
+                }
+                if (changed) achadosPerdidos.save(item);
+            });
         };
     }
 }

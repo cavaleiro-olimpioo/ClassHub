@@ -1,12 +1,13 @@
 package com.classhub.api.Controller;
 
 import com.classhub.api.dto.ApiDtos.*;
-import com.classhub.api.exception.ApiExceptions.ForbiddenException;
 import com.classhub.api.service.CommunityService;
+import com.classhub.api.service.DirectoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 /**
@@ -18,12 +19,13 @@ import java.util.List;
 @RequestMapping(path = {"", "/api"})
 public class CommunityController {
     private final CommunityService service;
+    private final DirectoryService directory;
     /**
      * Cria o controlador injetando o serviço de comunidade.
      *
      * @param service serviço com a lógica de negócio de ocorrências, achados e perdidos e calendário
      */
-    public CommunityController(CommunityService service) { this.service = service; }
+    public CommunityController(CommunityService service, DirectoryService directory) { this.service = service; this.directory = directory; }
 
     /**
      * Lista as ocorrências registradas, com filtros opcionais por aluno e/ou turma.
@@ -33,8 +35,12 @@ public class CommunityController {
      * @return lista de ocorrências que atendem aos filtros informados
      */
     @GetMapping("/ocorrencias")
-    public List<OcorrenciaResponse> ocorrencias(@RequestParam(required = false) Long alunoId, @RequestParam(required = false) Long turmaId) {
-        return service.listOcorrencias(alunoId, turmaId);
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESSOR','ALUNO')")
+    public List<OcorrenciaResponse> ocorrencias(@RequestParam(required = false) Long alunoId, @RequestParam(required = false) Long turmaId, Authentication authentication) {
+        boolean aluno = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"));
+        boolean professor = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"));
+        if (aluno) alunoId = Long.valueOf(authentication.getName());
+        return service.listOcorrencias(alunoId, turmaId, professor ? Long.valueOf(authentication.getName()) : null);
     }
     /**
      * Cria uma nova ocorrência para um aluno. Somente usuários com papel de
@@ -46,11 +52,12 @@ public class CommunityController {
      * @throws ForbiddenException se o usuário autenticado não for um professor
      */
     @PostMapping("/ocorrencias") @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('PROFESSOR')")
     public OcorrenciaResponse criarOcorrencia(@Valid @RequestBody OcorrenciaRequest request, Authentication authentication) {
         Long professorId = Long.valueOf(authentication.getName());
-        if (authentication.getAuthorities().stream().noneMatch(authority -> authority.getAuthority().equals("ROLE_PROFESSOR"))) {
-            throw new ForbiddenException("Apenas professores podem registrar ocorrências.");
-        }
+        Long turmaId = directory.getAluno(request.alunoId()).turmaId();
+        boolean linked = turmaId != null && directory.listVinculos(professorId).stream().anyMatch(v -> v.turmaId().equals(turmaId));
+        if (!linked) throw new com.classhub.api.exception.ApiExceptions.ForbiddenException("O professor não possui vínculo com a turma do aluno.");
         return service.createOcorrencia(request, professorId);
     }
     /**
@@ -60,20 +67,20 @@ public class CommunityController {
      * @param request novos dados da ocorrência
      * @return a ocorrência atualizada
      */
-    @PutMapping("/ocorrencias/{id}") public OcorrenciaResponse editarOcorrencia(@PathVariable Long id, @Valid @RequestBody OcorrenciaRequest request) { return service.updateOcorrencia(id, request); }
+    @PutMapping("/ocorrencias/{id}") @PreAuthorize("hasRole('ADMIN')") public OcorrenciaResponse editarOcorrencia(@PathVariable Long id, @Valid @RequestBody OcorrenciaRequest request) { return service.updateOcorrencia(id, request); }
     /**
      * Marca uma ocorrência como encerrada/resolvida.
      *
      * @param id identificador da ocorrência
      * @return a ocorrência com o status atualizado
      */
-    @PutMapping("/ocorrencias/{id}/encerrar") public OcorrenciaResponse encerrarOcorrencia(@PathVariable Long id) { return service.encerrarOcorrencia(id); }
+    @PutMapping("/ocorrencias/{id}/encerrar") @PreAuthorize("hasRole('ADMIN')") public OcorrenciaResponse encerrarOcorrencia(@PathVariable Long id) { return service.encerrarOcorrencia(id); }
     /**
      * Exclui uma ocorrência.
      *
      * @param id identificador da ocorrência a ser excluída
      */
-    @DeleteMapping("/ocorrencias/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirOcorrencia(@PathVariable Long id) { service.deleteOcorrencia(id); }
+    @DeleteMapping("/ocorrencias/{id}") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirOcorrencia(@PathVariable Long id) { service.deleteOcorrencia(id); }
 
     /**
      * Lista os itens de achados e perdidos, com filtros opcionais por categoria e status.
@@ -89,7 +96,7 @@ public class CommunityController {
      * @param request dados do item encontrado
      * @return o item recém-criado
      */
-    @PostMapping("/achados-perdidos") @ResponseStatus(HttpStatus.CREATED) public AchadoPerdidoResponse criarAchado(@Valid @RequestBody AchadoPerdidoRequest request) { return service.createAchado(request); }
+    @PostMapping("/achados-perdidos") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.CREATED) public AchadoPerdidoResponse criarAchado(@Valid @RequestBody AchadoPerdidoRequest request) { return service.createAchado(request); }
     /**
      * Atualiza os dados de um item de achados e perdidos.
      *
@@ -97,20 +104,20 @@ public class CommunityController {
      * @param request novos dados do item
      * @return o item atualizado
      */
-    @PutMapping("/achados-perdidos/{id}") public AchadoPerdidoResponse editarAchado(@PathVariable Long id, @Valid @RequestBody AchadoPerdidoRequest request) { return service.updateAchado(id, request); }
+    @PutMapping("/achados-perdidos/{id}") @PreAuthorize("hasRole('ADMIN')") public AchadoPerdidoResponse editarAchado(@PathVariable Long id, @Valid @RequestBody AchadoPerdidoRequest request) { return service.updateAchado(id, request); }
     /**
      * Marca um item de achados e perdidos como devolvido ao dono.
      *
      * @param id identificador do item
      * @return o item com o status atualizado
      */
-    @PutMapping("/achados-perdidos/{id}/devolver") public AchadoPerdidoResponse devolverAchado(@PathVariable Long id) { return service.devolverAchado(id); }
+    @PutMapping("/achados-perdidos/{id}/devolver") @PreAuthorize("hasRole('ADMIN')") public AchadoPerdidoResponse devolverAchado(@PathVariable Long id) { return service.devolverAchado(id); }
     /**
      * Exclui um item de achados e perdidos.
      *
      * @param id identificador do item a ser excluído
      */
-    @DeleteMapping("/achados-perdidos/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirAchado(@PathVariable Long id) { service.deleteAchado(id); }
+    @DeleteMapping("/achados-perdidos/{id}") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirAchado(@PathVariable Long id) { service.deleteAchado(id); }
 
     /**
      * Lista os eventos do calendário escolar, com filtros opcionais por ano letivo e mês.
@@ -126,7 +133,7 @@ public class CommunityController {
      * @param request dados do evento
      * @return o evento recém-criado
      */
-    @PostMapping("/calendario") @ResponseStatus(HttpStatus.CREATED) public CalendarioResponse criarCalendario(@Valid @RequestBody CalendarioRequest request) { return service.createCalendario(request); }
+    @PostMapping("/calendario") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.CREATED) public CalendarioResponse criarCalendario(@Valid @RequestBody CalendarioRequest request) { return service.createCalendario(request); }
     /**
      * Atualiza um evento existente do calendário escolar.
      *
@@ -134,11 +141,11 @@ public class CommunityController {
      * @param request novos dados do evento
      * @return o evento atualizado
      */
-    @PutMapping("/calendario/{id}") public CalendarioResponse editarCalendario(@PathVariable Long id, @Valid @RequestBody CalendarioRequest request) { return service.updateCalendario(id, request); }
+    @PutMapping("/calendario/{id}") @PreAuthorize("hasRole('ADMIN')") public CalendarioResponse editarCalendario(@PathVariable Long id, @Valid @RequestBody CalendarioRequest request) { return service.updateCalendario(id, request); }
     /**
      * Exclui um evento do calendário escolar.
      *
      * @param id identificador do evento a ser excluído
      */
-    @DeleteMapping("/calendario/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirCalendario(@PathVariable Long id) { service.deleteCalendario(id); }
+    @DeleteMapping("/calendario/{id}") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.NO_CONTENT) public void excluirCalendario(@PathVariable Long id) { service.deleteCalendario(id); }
 }

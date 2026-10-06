@@ -3,6 +3,7 @@ package com.classhub.api.service;
 import com.classhub.api.domain.*;
 import com.classhub.api.dto.ApiDtos.*;
 import com.classhub.api.exception.ApiExceptions.BusinessRuleException;
+import com.classhub.api.exception.ApiExceptions.BadRequestException;
 import com.classhub.api.exception.ApiExceptions.NotFoundException;
 import com.classhub.api.repository.*;
 import org.springframework.stereotype.Service;
@@ -103,7 +104,13 @@ public class GradeService {
      */
     public void deleteNota(Long id) {
         ApiNota entity = notas.findById(id).orElseThrow(() -> new NotFoundException("Nota não encontrada."));
+        assertBimestreAberto(entity.getTurma().getId(), entity.getBimestre());
         notas.delete(entity);
+    }
+
+    public boolean professorHasAccessToNota(Long notaId, Long professorId) {
+        ApiNota nota = notas.findById(notaId).orElseThrow(() -> new NotFoundException("Nota não encontrada."));
+        return directory.listVinculos(professorId).stream().anyMatch(v -> v.turmaId().equals(nota.getTurma().getId()) && v.disciplinaId().equals(nota.getDisciplina().getId()));
     }
 
     /**
@@ -117,15 +124,20 @@ public class GradeService {
      * @throws NotFoundException se a turma informada não existir
      */
     public MessageResponse fecharBimestre(GerarBoletimRequest request) {
-        ApiTurma turma = request.turmaId() == null ? null : directory.requireTurma(request.turmaId());
-        boolean exists = turma == null
-            ? fechamentos.findByAnoLetivoAndBimestreAndTurmaIsNull(request.anoLetivo(), request.bimestre()).isPresent()
-            : fechamentos.findByAnoLetivoAndBimestreAndTurmaId(request.anoLetivo(), request.bimestre(), turma.getId()).isPresent();
-        if (!exists) {
-            ApiFechamentoBoletim fechamento = new ApiFechamentoBoletim();
-            fechamento.setAnoLetivo(request.anoLetivo()); fechamento.setBimestre(request.bimestre()); fechamento.setTurma(turma);
-            fechamentos.save(fechamento);
+        if (request.dataInicio().isAfter(request.dataFim()) || request.dataInicio().getYear() != request.anoLetivo() || request.dataFim().getYear() != request.anoLetivo()) {
+            throw new BadRequestException("O intervalo do bimestre deve estar dentro do ano letivo informado.");
         }
+        ApiTurma turma = request.turmaId() == null ? null : directory.requireTurma(request.turmaId());
+        ApiFechamentoBoletim fechamento = (turma == null
+            ? fechamentos.findByAnoLetivoAndBimestreAndTurmaIsNull(request.anoLetivo(), request.bimestre())
+            : fechamentos.findByAnoLetivoAndBimestreAndTurmaId(request.anoLetivo(), request.bimestre(), turma.getId()))
+            .orElseGet(ApiFechamentoBoletim::new);
+        fechamento.setAnoLetivo(request.anoLetivo());
+        fechamento.setBimestre(request.bimestre());
+        fechamento.setTurma(turma);
+        fechamento.setDataInicio(request.dataInicio());
+        fechamento.setDataFim(request.dataFim());
+        fechamentos.save(fechamento);
         return new MessageResponse("Boletins gerados para o " + request.bimestre() + "º bimestre.");
     }
 
@@ -147,9 +159,11 @@ public class GradeService {
         ApiAluno aluno = directory.requireAluno(alunoId);
         int ano = aluno.getTurma() == null ? LocalDate.now().getYear() : aluno.getTurma().getAnoLetivo();
         Long turmaId = aluno.getTurma() == null ? null : aluno.getTurma().getId();
-        boolean fechado = fechamentos.findByAnoLetivoAndBimestreAndTurmaIsNull(ano, bimestre).isPresent()
-            || turmaId != null && fechamentos.findByAnoLetivoAndBimestreAndTurmaId(ano, bimestre, turmaId).isPresent();
-        if (!fechado) throw new BusinessRuleException("Bimestre ainda não fechado.");
+        ApiFechamentoBoletim fechamento = turmaId == null ? null : fechamentos.findByAnoLetivoAndBimestreAndTurmaId(ano, bimestre, turmaId).orElse(null);
+        if (fechamento == null) fechamento = fechamentos.findByAnoLetivoAndBimestreAndTurmaIsNull(ano, bimestre).orElse(null);
+        if (fechamento == null) throw new BusinessRuleException("Bimestre ainda não fechado.");
+        if (fechamento.getDataInicio() == null || fechamento.getDataFim() == null) throw new BusinessRuleException("O fechamento precisa ser refeito com o intervalo de datas do bimestre.");
+        final ApiFechamentoBoletim periodo = fechamento;
 
         Map<Long, List<ApiNota>> porDisciplina = notas.findByAlunoIdAndBimestre(alunoId, bimestre).stream()
             .collect(Collectors.groupingBy(n -> n.getDisciplina().getId()));
@@ -159,8 +173,10 @@ public class GradeService {
             double media = peso == 0 ? 0 : group.stream().mapToDouble(n -> n.getValor() * n.getPeso()).sum() / peso;
             List<ApiPresenca> frequencias = presencas.findByAlunoId(alunoId).stream()
                 .filter(p -> p.getDisciplina().getId().equals(disciplina.getId()))
+                .filter(p -> turmaId != null && p.getTurma().getId().equals(turmaId))
+                .filter(p -> !p.getData().isBefore(periodo.getDataInicio()) && !p.getData().isAfter(periodo.getDataFim()))
                 .toList();
-            int frequencia = frequencias.isEmpty() ? 100 : (int) Math.round(100d * frequencias.stream().filter(p -> !"FALTA".equals(p.getStatus())).count() / frequencias.size());
+            int frequencia = frequencias.isEmpty() ? 0 : (int) Math.round(100d * frequencias.stream().filter(p -> !"FALTA".equals(p.getStatus())).count() / frequencias.size());
             String situacao = media >= 6.0 && frequencia >= 75 ? "APROVADO" : "EM_RECUPERACAO";
             return new BoletimItemResponse(disciplina.getId(), disciplina.getNome(), round(media), frequencia, situacao);
         }).sorted(Comparator.comparing(BoletimItemResponse::disciplinaNome, String.CASE_INSENSITIVE_ORDER)).toList();
@@ -180,8 +196,8 @@ public class GradeService {
     @Transactional(readOnly = true)
     public byte[] boletimPdf(Long alunoId, int bimestre) {
         BoletimResponse boletim = boletim(alunoId, bimestre);
-        String lines = "Boletim - " + bimestre + "o Bimestre\\n" + boletim.disciplinas().stream()
-            .map(item -> item.disciplinaNome() + " - Media: " + item.media() + " - " + item.situacao()).collect(Collectors.joining("\\n"));
+        String lines = "Boletim - " + bimestre + "o Bimestre\n" + boletim.disciplinas().stream()
+            .map(item -> item.disciplinaNome() + " - Media: " + item.media() + " - " + item.situacao()).collect(Collectors.joining("\n"));
         return minimalPdf(lines).getBytes(StandardCharsets.ISO_8859_1);
     }
 
@@ -193,12 +209,19 @@ public class GradeService {
      * @param request dados de entrada
      */
     private void apply(ApiNota entity, NotaRequest request) {
+        assertBimestreAberto(request.turmaId(), request.bimestre());
         entity.setAluno(directory.requireAluno(request.alunoId())); entity.setDisciplina(directory.requireDisciplina(request.disciplinaId()));
         entity.setTurma(directory.requireTurma(request.turmaId())); entity.setBimestre(request.bimestre());
         entity.setTipo(request.tipo().trim().toUpperCase()); entity.setValor(request.valor()); entity.setPeso(request.peso());
     }
     /** Converte uma entidade {@link ApiNota} para o DTO {@link NotaResponse}. */
     private NotaResponse nota(ApiNota n) { return new NotaResponse(n.getId(), n.getAluno().getId(), n.getDisciplina().getId(), n.getDisciplina().getNome(), n.getBimestre(), n.getTipo(), n.getPeso(), n.getValor()); }
+    private void assertBimestreAberto(Long turmaId, int bimestre) {
+        Integer anoLetivo = directory.requireTurma(turmaId).getAnoLetivo();
+        boolean fechado = fechamentos.findByAnoLetivoAndBimestreAndTurmaIsNull(anoLetivo, bimestre).isPresent()
+            || fechamentos.findByAnoLetivoAndBimestreAndTurmaId(anoLetivo, bimestre, turmaId).isPresent();
+        if (fechado) throw new BusinessRuleException("O bimestre está fechado; não é possível alterar as notas.");
+    }
     /**
      * Arredonda um valor para duas casas decimais.
      *

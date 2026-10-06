@@ -120,7 +120,7 @@ public final class ApiDtos {
 
     /** Parâmetros usados para solicitar a geração do boletim de um aluno/turma em um bimestre. */
     public record GerarBoletimRequest(@NotNull @Min(2000) Integer anoLetivo, @NotNull @Min(1) @Max(4) Integer bimestre,
-                                      Long turmaId) { }
+                                      @NotNull LocalDate dataInicio, @NotNull LocalDate dataFim, Long turmaId) { }
     /** Item do boletim referente a uma única disciplina: média, frequência e situação final. */
     public record BoletimItemResponse(Long disciplinaId, String disciplinaNome, Double media, Integer frequencia, String situacao) { }
     /** Boletim completo de um aluno, composto pela lista de itens (um por disciplina). */

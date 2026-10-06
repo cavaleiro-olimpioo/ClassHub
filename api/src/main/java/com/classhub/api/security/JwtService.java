@@ -29,7 +29,7 @@ public class JwtService {
      * @param secret segredo usado para gerar a chave de assinatura HMAC (configurável via {@code app.jwt.secret})
      * @param expirationHours quantidade de horas até o token expirar (configurável via {@code app.jwt.expiration-hours})
      */
-    public JwtService(@Value("${app.jwt.secret:classhub-development-jwt-secret-change-me-before-production-2026}") String secret,
+    public JwtService(@Value("${app.jwt.secret}") String secret,
                       @Value("${app.jwt.expiration-hours:8}") long expirationHours) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationHours = expirationHours;

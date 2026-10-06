@@ -34,10 +34,11 @@ export default function RecuperarSenha() {
 
     setSubmitting(true);
     try {
-      // O backend sempre responde a mesma mensagem (nao revela se o e-mail existe).
-      await api.post('/auth/recuperar-senha', { email: email.trim() }).catch(() => null);
+      const response = await api.post('/auth/recuperar-senha', { email: email.trim() });
       setSent(true);
-      toast.success('Se o e-mail estiver cadastrado, as instruções foram enviadas.', 6000);
+      toast.success(response?.mensagem || 'Solicitação registrada.', 6000);
+    } catch (err) {
+      toast.error(err.message || 'Não foi possível solicitar a recuperação de senha.');
     } finally {
       setSubmitting(false);
     }

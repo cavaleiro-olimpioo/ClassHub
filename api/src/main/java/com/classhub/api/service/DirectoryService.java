@@ -97,6 +97,7 @@ public class DirectoryService {
     public AlunoResponse createAluno(AlunoRequest request) {
         ApiAluno entity = new ApiAluno();
         applyAluno(entity, request);
+        entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("aluno123"));
         return aluno(alunos.save(entity));
     }
 
@@ -163,6 +164,7 @@ public class DirectoryService {
      */
     public ProfessorResponse createProfessor(ProfessorRequest request) {
         ApiProfessor entity = new ApiProfessor(); applyProfessor(entity, request);
+        entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("professor123"));
         return professor(professores.save(entity));
     }
 
@@ -436,7 +438,6 @@ public class DirectoryService {
     private void applyAluno(ApiAluno entity, AlunoRequest request) {
         entity.setNome(request.nome().trim());
         entity.setEmail(request.email().trim().toLowerCase());
-        entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("aluno123"));
         entity.setTelefone("(11) 90000-0000");
         entity.setMatricula(request.matricula().trim());
         entity.setDataNascimento(request.dataNascimento());
@@ -453,7 +454,6 @@ public class DirectoryService {
     private void applyProfessor(ApiProfessor entity, ProfessorRequest request) {
         entity.setNome(request.nome().trim());
         entity.setEmail(request.email().trim().toLowerCase());
-        entity.setSenhaHash(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("professor123"));
         entity.setTelefone("(11) 90000-0000");
         entity.setDataNascimento(java.time.LocalDate.of(1990, 1, 1));
     }
