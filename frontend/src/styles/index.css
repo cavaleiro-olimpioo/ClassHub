@@ -341,6 +341,7 @@ img { max-width: 100%; display: block; }
 .card__title svg { color: var(--primary); }
 .card__sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 .card__spacer { flex: 1; }
+.card__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .card__body { padding: 18px; }
 .card__body--flush { padding: 0; }
 .card__foot {
@@ -435,8 +436,18 @@ img { max-width: 100%; display: block; }
   cursor: not-allowed;
 }
 .input.is-error, .select.is-error { border-color: var(--danger); }
-.textarea { resize: vertical; min-height: 84px; }
-.select { appearance: none; background-image: none; cursor: pointer; }
+.select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475467' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+[data-theme="dark"] .select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
 
 .form-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .form-grid--full { grid-template-columns: 1fr; }

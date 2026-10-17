@@ -33,10 +33,18 @@ public class ScheduleController {
      * @param turmaId identificador da turma
      * @return lista de horários da turma
      */
-    @GetMapping("/horarios/turma/{turmaId}") @PreAuthorize("hasAnyRole('ADMIN','ALUNO')") public List<HorarioResponse> horariosTurma(@PathVariable Long turmaId, Authentication authentication) {
+    @GetMapping("/horarios/turma/{turmaId}")
+    @PreAuthorize("hasAnyRole('ADMIN','ALUNO','PROFESSOR')")
+    public List<HorarioResponse> horariosTurma(@PathVariable Long turmaId, Authentication authentication) {
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"))) {
             var turma = directory.requireAluno(Long.valueOf(authentication.getName())).getTurma();
             if (turma == null || !turma.getId().equals(turmaId)) throw new com.classhub.api.exception.ApiExceptions.ForbiddenException("Acesso negado à turma.");
+        }
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"))) {
+            Long professorId = Long.valueOf(authentication.getName());
+            var links = directory.listVinculos(professorId);
+            boolean teachesTurma = links.stream().anyMatch(v -> v.turmaId().equals(turmaId));
+            if (!teachesTurma) throw new com.classhub.api.exception.ApiExceptions.ForbiddenException("O professor não possui vínculo com esta turma.");
         }
         return service.horariosTurma(turmaId);
     }

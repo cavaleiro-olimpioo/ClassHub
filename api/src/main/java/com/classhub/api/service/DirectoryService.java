@@ -501,15 +501,32 @@ public class DirectoryService {
     /** Converte uma entidade {@link ApiSerie} para o DTO {@link SerieResponse}. */
     public SerieResponse serie(ApiSerie s) { return new SerieResponse(s.getId(), s.getNome(), s.getNivel()); }
     /** Converte uma entidade {@link ApiSerie} para o resumo {@link SerieSummary}. */
-    public SerieSummary serieSummary(ApiSerie s) { return new SerieSummary(s.getId(), s.getNome()); }
+    public SerieSummary serieSummary(ApiSerie s) { return s == null ? null : new SerieSummary(s.getId(), s.getNome()); }
     /** Converte uma entidade {@link ApiTurma} para o DTO {@link TurmaResponse}. */
-    public TurmaResponse turma(ApiTurma t) { return new TurmaResponse(t.getId(), t.getNome(), serieSummary(t.getSerie()), t.getSerie().getId(), t.getAnoLetivo()); }
+    public TurmaResponse turma(ApiTurma t) {
+        Long serieId = t.getSerie() == null ? null : t.getSerie().getId();
+        return new TurmaResponse(t.getId(), t.getNome(), serieSummary(t.getSerie()), serieId, t.getAnoLetivo());
+    }
     /** Converte uma entidade {@link ApiTurma} para o resumo {@link TurmaSummary}. */
-    public TurmaSummary turmaSummary(ApiTurma t) { return new TurmaSummary(t.getId(), t.getNome(), t.getAnoLetivo()); }
+    public TurmaSummary turmaSummary(ApiTurma t) { return t == null ? null : new TurmaSummary(t.getId(), t.getNome(), t.getAnoLetivo()); }
     /** Converte uma entidade {@link ApiDisciplina} para o DTO {@link DisciplinaResponse}. */
     public DisciplinaResponse disciplina(ApiDisciplina d) { return new DisciplinaResponse(d.getId(), d.getNome(), d.getCargaHoraria()); }
     /** Converte uma entidade {@link ApiDisciplina} para o resumo {@link DisciplinaSummary}. */
-    public DisciplinaSummary disciplinaSummary(ApiDisciplina d) { return new DisciplinaSummary(d.getId(), d.getNome()); }
+    public DisciplinaSummary disciplinaSummary(ApiDisciplina d) { return d == null ? null : new DisciplinaSummary(d.getId(), d.getNome()); }
     /** Converte uma entidade {@link ApiVinculo} para o DTO {@link VinculoResponse}. */
-    private VinculoResponse vinculo(ApiVinculo v) { return new VinculoResponse(v.getId(), v.getProfessor().getId(), professorSummary(v.getProfessor()), v.getTurma().getId(), turmaSummary(v.getTurma()), v.getDisciplina().getId(), disciplinaSummary(v.getDisciplina()), v.getAnoLetivo()); }
+    private VinculoResponse vinculo(ApiVinculo v) {
+        Long profId = v.getProfessor() == null ? null : v.getProfessor().getId();
+        Long turmaId = v.getTurma() == null ? null : v.getTurma().getId();
+        Long discId = v.getDisciplina() == null ? null : v.getDisciplina().getId();
+        return new VinculoResponse(
+            v.getId(),
+            profId,
+            v.getProfessor() == null ? null : professorSummary(v.getProfessor()),
+            turmaId,
+            v.getTurma() == null ? null : turmaSummary(v.getTurma()),
+            discId,
+            v.getDisciplina() == null ? null : disciplinaSummary(v.getDisciplina()),
+            v.getAnoLetivo()
+        );
+    }
 }

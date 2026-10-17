@@ -54,8 +54,17 @@ public class CommunityService {
      */
     @Transactional(readOnly = true)
     public List<OcorrenciaResponse> listOcorrencias(Long alunoId, Long turmaId, Long professorId) {
-        List<ApiOcorrencia> result = professorId != null ? ocorrencias.findByProfessorId(professorId)
-            : alunoId != null ? ocorrencias.findByAlunoId(alunoId) : ocorrencias.findAll();
+        List<ApiOcorrencia> result;
+        if (professorId != null) {
+            result = ocorrencias.findByProfessorId(professorId);
+            if (alunoId != null) {
+                result = result.stream().filter(o -> o.getAluno() != null && o.getAluno().getId().equals(alunoId)).toList();
+            }
+        } else if (alunoId != null) {
+            result = ocorrencias.findByAlunoId(alunoId);
+        } else {
+            result = ocorrencias.findAll();
+        }
         if (turmaId != null) {
             result = result.stream().filter(o -> o.getAluno() != null && o.getAluno().getTurma() != null && o.getAluno().getTurma().getId().equals(turmaId)).toList();
         }

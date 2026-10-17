@@ -66,10 +66,60 @@ public class DemoDataInitializer {
             // 1. Professores
             ApiProfessor professor = professors.findByEmailIgnoreCase("professor@classhub.local").orElseGet(() -> {
                 ApiProfessor created = new ApiProfessor();
-                created.setNome("Professor Demo");
+                created.setNome("Prof. Marcelo Souza (Matemática)");
                 created.setEmail("professor@classhub.local");
                 created.setTelefone("(11) 90000-0001");
                 created.setDataNascimento(LocalDate.of(1985, 1, 15));
+                created.setSenhaHash(passwordEncoder.encode("professor123"));
+                return professors.save(created);
+            });
+
+            ApiProfessor profPort = professors.findByEmailIgnoreCase("ana.portugues@classhub.local").orElseGet(() -> {
+                ApiProfessor created = new ApiProfessor();
+                created.setNome("Profa. Ana Santos (Língua Portuguesa)");
+                created.setEmail("ana.portugues@classhub.local");
+                created.setTelefone("(11) 90000-0010");
+                created.setDataNascimento(LocalDate.of(1988, 4, 12));
+                created.setSenhaHash(passwordEncoder.encode("professor123"));
+                return professors.save(created);
+            });
+
+            ApiProfessor profCien = professors.findByEmailIgnoreCase("carlos.ciencias@classhub.local").orElseGet(() -> {
+                ApiProfessor created = new ApiProfessor();
+                created.setNome("Prof. Carlos Oliveira (Ciências)");
+                created.setEmail("carlos.ciencias@classhub.local");
+                created.setTelefone("(11) 90000-0011");
+                created.setDataNascimento(LocalDate.of(1982, 8, 25));
+                created.setSenhaHash(passwordEncoder.encode("professor123"));
+                return professors.save(created);
+            });
+
+            ApiProfessor profHumanas = professors.findByEmailIgnoreCase("juliana.humanas@classhub.local").orElseGet(() -> {
+                ApiProfessor created = new ApiProfessor();
+                created.setNome("Profa. Juliana Lima (História e Geografia)");
+                created.setEmail("juliana.humanas@classhub.local");
+                created.setTelefone("(11) 90000-0012");
+                created.setDataNascimento(LocalDate.of(1991, 11, 3));
+                created.setSenhaHash(passwordEncoder.encode("professor123"));
+                return professors.save(created);
+            });
+
+            ApiProfessor profLinguagens = professors.findByEmailIgnoreCase("roberto.linguagens@classhub.local").orElseGet(() -> {
+                ApiProfessor created = new ApiProfessor();
+                created.setNome("Prof. Roberto Costa (Inglês e Arte)");
+                created.setEmail("roberto.linguagens@classhub.local");
+                created.setTelefone("(11) 90000-0013");
+                created.setDataNascimento(LocalDate.of(1986, 6, 18));
+                created.setSenhaHash(passwordEncoder.encode("professor123"));
+                return professors.save(created);
+            });
+
+            ApiProfessor profEdFisica = professors.findByEmailIgnoreCase("fernanda.edfisica@classhub.local").orElseGet(() -> {
+                ApiProfessor created = new ApiProfessor();
+                created.setNome("Profa. Fernanda Rocha (Educação Física)");
+                created.setEmail("fernanda.edfisica@classhub.local");
+                created.setTelefone("(11) 90000-0014");
+                created.setDataNascimento(LocalDate.of(1993, 2, 9));
                 created.setSenhaHash(passwordEncoder.encode("professor123"));
                 return professors.save(created);
             });
@@ -106,14 +156,18 @@ public class DemoDataInitializer {
                         return turmas.save(t);
                     });
 
-            if (turmas.findAll().stream().noneMatch(t -> "9º Ano B".equalsIgnoreCase(t.getNome()))) {
-                ApiTurma t9B = new ApiTurma();
-                t9B.setNome("9º Ano B");
-                t9B.setSerie(serie9);
-                t9B.setAnoLetivo(LocalDate.now().getYear());
-                t9B.setTurno("VESPERTINO");
-                turmas.save(t9B);
-            }
+            ApiTurma turma9B = turmas.findAll().stream()
+                    .filter(t -> "9º Ano B".equalsIgnoreCase(t.getNome()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ApiTurma t9B = new ApiTurma();
+                        t9B.setNome("9º Ano B");
+                        t9B.setSerie(serie9);
+                        t9B.setAnoLetivo(LocalDate.now().getYear());
+                        t9B.setTurno("VESPERTINO");
+                        t9B.setProfessorResponsavel(profPort);
+                        return turmas.save(t9B);
+                    });
 
             // 4. Aluno Demo & Colegas de Turma
             ApiAluno alunoDemo = alunos.findByEmailIgnoreCase("aluno@classhub.local").orElseGet(() -> {
@@ -201,77 +255,159 @@ public class DemoDataInitializer {
                         return disciplinas.save(d);
                     });
 
-            if (disciplinas.findAll().stream().noneMatch(d -> "História".equalsIgnoreCase(d.getNome()))) {
-                ApiDisciplina d = new ApiDisciplina();
-                d.setNome("História");
-                d.setCargaHoraria(60);
-                disciplinas.save(d);
+            ApiDisciplina hist = disciplinas.findAll().stream()
+                    .filter(d -> "História".equalsIgnoreCase(d.getNome()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ApiDisciplina d = new ApiDisciplina();
+                        d.setNome("História");
+                        d.setCargaHoraria(60);
+                        return disciplinas.save(d);
+                    });
+
+            ApiDisciplina geo = disciplinas.findAll().stream()
+                    .filter(d -> "Geografia".equalsIgnoreCase(d.getNome()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ApiDisciplina d = new ApiDisciplina();
+                        d.setNome("Geografia");
+                        d.setCargaHoraria(60);
+                        return disciplinas.save(d);
+                    });
+
+            ApiDisciplina ing = disciplinas.findAll().stream()
+                    .filter(d -> "Inglês".equalsIgnoreCase(d.getNome()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ApiDisciplina d = new ApiDisciplina();
+                        d.setNome("Inglês");
+                        d.setCargaHoraria(40);
+                        return disciplinas.save(d);
+                    });
+
+            ApiDisciplina arte = disciplinas.findAll().stream()
+                    .filter(d -> "Arte".equalsIgnoreCase(d.getNome()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ApiDisciplina d = new ApiDisciplina();
+                        d.setNome("Arte");
+                        d.setCargaHoraria(40);
+                        return disciplinas.save(d);
+                    });
+
+            ApiDisciplina edfis = disciplinas.findAll().stream()
+                    .filter(d -> "Educação Física".equalsIgnoreCase(d.getNome()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ApiDisciplina d = new ApiDisciplina();
+                        d.setNome("Educação Física");
+                        d.setCargaHoraria(40);
+                        return disciplinas.save(d);
+                    });
+
+            // 7. Vínculos dos Professores com as Turmas (9º Ano A e 9º Ano B)
+            java.util.List<Object[]> corpoDocente = java.util.List.of(
+                    new Object[]{professor, mat},
+                    new Object[]{profPort, port},
+                    new Object[]{profCien, cien},
+                    new Object[]{profHumanas, hist},
+                    new Object[]{profHumanas, geo},
+                    new Object[]{profLinguagens, ing},
+                    new Object[]{profLinguagens, arte},
+                    new Object[]{profEdFisica, edfis}
+            );
+
+            for (ApiTurma targetTurma : java.util.List.of(turma9A, turma9B)) {
+                for (Object[] par : corpoDocente) {
+                    ApiProfessor p = (ApiProfessor) par[0];
+                    ApiDisciplina d = (ApiDisciplina) par[1];
+                    if (vinculos.findAll().stream().noneMatch(v -> v.getProfessor().getId().equals(p.getId()) &&
+                            v.getTurma().getId().equals(targetTurma.getId()) &&
+                            v.getDisciplina().getId().equals(d.getId()))) {
+                        ApiVinculo v = new ApiVinculo();
+                        v.setProfessor(p);
+                        v.setTurma(targetTurma);
+                        v.setDisciplina(d);
+                        v.setAnoLetivo(LocalDate.now().getYear());
+                        vinculos.save(v);
+                    }
+                }
             }
 
-            // 7. Vínculos do Professor Demo
-            if (vinculos.findAll().stream().noneMatch(v -> v.getProfessor().getId().equals(professor.getId()) &&
-                    v.getTurma().getId().equals(turma9A.getId()) &&
-                    v.getDisciplina().getId().equals(mat.getId()))) {
-                ApiVinculo v = new ApiVinculo();
-                v.setProfessor(professor);
-                v.setTurma(turma9A);
-                v.setDisciplina(mat);
-                v.setAnoLetivo(LocalDate.now().getYear());
-                vinculos.save(v);
-            }
+            // 8. Horários da Semana (6 aulas por dia, Seg a Sex = 30 aulas por turma)
+            // Priorizando a repetição diária de Matemática e Língua Portuguesa (6 aulas/semana cada)
+            if (horarios.count() < 30) {
+                horarios.deleteAll();
 
-            if (vinculos.findAll().stream().noneMatch(v -> v.getProfessor().getId().equals(professor.getId()) &&
-                    v.getTurma().getId().equals(turma9A.getId()) &&
-                    v.getDisciplina().getId().equals(cien.getId()))) {
-                ApiVinculo v = new ApiVinculo();
-                v.setProfessor(professor);
-                v.setTurma(turma9A);
-                v.setDisciplina(cien);
-                v.setAnoLetivo(LocalDate.now().getYear());
-                vinculos.save(v);
-            }
+                LocalTime[][] slotsMatutino = {
+                        {LocalTime.of(7, 30), LocalTime.of(8, 20)},
+                        {LocalTime.of(8, 20), LocalTime.of(9, 10)},
+                        {LocalTime.of(9, 30), LocalTime.of(10, 20)},
+                        {LocalTime.of(10, 20), LocalTime.of(11, 10)},
+                        {LocalTime.of(11, 10), LocalTime.of(12, 0)},
+                        {LocalTime.of(12, 0), LocalTime.of(12, 50)}
+                };
 
-            // 8. Horários da Semana
-            if (horarios.count() == 0) {
-                // Segunda (1): Mat 07:30 - 08:20
-                ApiHorario h1 = new ApiHorario();
-                h1.setTurma(turma9A);
-                h1.setDisciplina(mat);
-                h1.setProfessor(professor);
-                h1.setDiaSemana(1);
-                h1.setHoraInicio(LocalTime.of(7, 30));
-                h1.setHoraFim(LocalTime.of(8, 20));
-                horarios.save(h1);
+                LocalTime[][] slotsVespertino = {
+                        {LocalTime.of(13, 0), LocalTime.of(13, 50)},
+                        {LocalTime.of(13, 50), LocalTime.of(14, 40)},
+                        {LocalTime.of(15, 0), LocalTime.of(15, 50)},
+                        {LocalTime.of(15, 50), LocalTime.of(16, 40)},
+                        {LocalTime.of(16, 40), LocalTime.of(17, 30)},
+                        {LocalTime.of(17, 30), LocalTime.of(18, 20)}
+                };
 
-                // Segunda (1): Mat 08:20 - 09:10
-                ApiHorario h2 = new ApiHorario();
-                h2.setTurma(turma9A);
-                h2.setDisciplina(mat);
-                h2.setProfessor(professor);
-                h2.setDiaSemana(1);
-                h2.setHoraInicio(LocalTime.of(8, 20));
-                h2.setHoraFim(LocalTime.of(9, 10));
-                horarios.save(h2);
+                // Grade semanal (5 dias úteis x 6 aulas diárias = 30 aulas)
+                Object[][][] gradeSemanal = {
+                        // Dia 1 (Segunda-feira): Matemática (x2), Português, Ciências, História (x2)
+                        {
+                                {mat, professor}, {mat, professor}, {port, profPort},
+                                {cien, profCien}, {hist, profHumanas}, {hist, profHumanas}
+                        },
+                        // Dia 2 (Terça-feira): Português (x2), Matemática, Geografia (x2), Educação Física
+                        {
+                                {port, profPort}, {port, profPort}, {mat, professor},
+                                {geo, profHumanas}, {geo, profHumanas}, {edfis, profEdFisica}
+                        },
+                        // Dia 3 (Quarta-feira): Ciências (x2), Matemática, Português, Inglês, Educação Física
+                        {
+                                {cien, profCien}, {cien, profCien}, {mat, professor},
+                                {port, profPort}, {ing, profLinguagens}, {edfis, profEdFisica}
+                        },
+                        // Dia 4 (Quinta-feira): História (x2), Português, Matemática, Ciências, Inglês
+                        {
+                                {hist, profHumanas}, {hist, profHumanas}, {port, profPort},
+                                {mat, professor}, {cien, profCien}, {ing, profLinguagens}
+                        },
+                        // Dia 5 (Sexta-feira): Matemática, Português, Geografia (x2), Arte (x2)
+                        {
+                                {mat, professor}, {port, profPort}, {geo, profHumanas},
+                                {geo, profHumanas}, {arte, profLinguagens}, {arte, profLinguagens}
+                        }
+                };
 
-                // Quarta (3): Ciências 09:30 - 10:20
-                ApiHorario h3 = new ApiHorario();
-                h3.setTurma(turma9A);
-                h3.setDisciplina(cien);
-                h3.setProfessor(professor);
-                h3.setDiaSemana(3);
-                h3.setHoraInicio(LocalTime.of(9, 30));
-                h3.setHoraFim(LocalTime.of(10, 20));
-                horarios.save(h3);
+                for (int d = 0; d < 5; d++) {
+                    int diaSemana = d + 1;
+                    for (int s = 0; s < 6; s++) {
+                        ApiHorario hA = new ApiHorario();
+                        hA.setTurma(turma9A);
+                        hA.setDisciplina((ApiDisciplina) gradeSemanal[d][s][0]);
+                        hA.setProfessor((ApiProfessor) gradeSemanal[d][s][1]);
+                        hA.setDiaSemana(diaSemana);
+                        hA.setHoraInicio(slotsMatutino[s][0]);
+                        hA.setHoraFim(slotsMatutino[s][1]);
+                        horarios.save(hA);
 
-                // Sexta (5): Mat 10:20 - 11:10
-                ApiHorario h4 = new ApiHorario();
-                h4.setTurma(turma9A);
-                h4.setDisciplina(mat);
-                h4.setProfessor(professor);
-                h4.setDiaSemana(5);
-                h4.setHoraInicio(LocalTime.of(10, 20));
-                h4.setHoraFim(LocalTime.of(11, 10));
-                horarios.save(h4);
+                        ApiHorario hB = new ApiHorario();
+                        hB.setTurma(turma9B);
+                        hB.setDisciplina((ApiDisciplina) gradeSemanal[d][s][0]);
+                        hB.setProfessor((ApiProfessor) gradeSemanal[d][s][1]);
+                        hB.setDiaSemana(diaSemana);
+                        hB.setHoraInicio(slotsVespertino[s][0]);
+                        hB.setHoraFim(slotsVespertino[s][1]);
+                        horarios.save(hB);
+                    }
+                }
             }
 
             // 9. Calendário Escolar

@@ -186,6 +186,28 @@ public class ApiExceptionHandler {
     }
 
     /**
+     * Trata {@link org.springframework.security.access.AccessDeniedException}, retornando HTTP 403.
+     *
+     * @param ex exceção de acesso negado
+     * @return resposta HTTP 403 com mensagem amigável
+     */
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    ResponseEntity<MessageResponse> accessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        return response(HttpStatus.FORBIDDEN, "Acesso negado. Você não tem permissão para acessar este recurso.");
+    }
+
+    /**
+     * Trata {@link org.springframework.security.core.AuthenticationException}, retornando HTTP 401.
+     *
+     * @param ex exceção de autenticação
+     * @return resposta HTTP 401 com mensagem amigável
+     */
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    ResponseEntity<MessageResponse> authentication(org.springframework.security.core.AuthenticationException ex) {
+        return response(HttpStatus.UNAUTHORIZED, "Não autenticado ou sessão expirada.");
+    }
+
+    /**
      * Tratador de última instância para qualquer exceção não mapeada
      * explicitamente, retornando HTTP 500 com uma mensagem genérica (para
      * não expor detalhes internos ao cliente).
@@ -195,6 +217,7 @@ public class ApiExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     ResponseEntity<MessageResponse> unknown(Exception ex) {
+        log.error("Erro interno inesperado: {}", ex.getMessage(), ex);
         return response(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor.");
     }
 
