@@ -18,7 +18,9 @@ import lombok.Setter;
 @Getter @Setter @NoArgsConstructor
 public abstract class ApiUser {
     /** Identificador único do usuário. */
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "api_user_seq")
+    @SequenceGenerator(name = "api_user_seq", sequenceName = "api_user_seq", allocationSize = 50)
     private Long id;
     /** E-mail do usuário, usado como identificador de login (único). */
     @Column(nullable = false, unique = true)

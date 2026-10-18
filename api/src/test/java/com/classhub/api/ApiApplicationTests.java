@@ -2,6 +2,7 @@ package com.classhub.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.classhub.api.domain.ApiAluno;
 import com.classhub.api.repository.ApiAlunoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import jakarta.servlet.Filter;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.UUID;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -85,6 +89,62 @@ class ApiApplicationTests {
 
         mockMvc.perform(get("/alunos").header("Authorization", "Bearer " + response.path("token").asText()))
             .andExpect(status().isOk());
+    }
+
+    /** Professor e coordenador (o funcionário com autoridade ADMIN) podem listar alunos. */
+    @Test
+    void studentListReturnsOkForProfessorAndCoordinator() throws Exception {
+        MockMvc mockMvc = mockMvc();
+
+        mockMvc.perform(get("/alunos").header("Authorization", "Bearer " + loginToken(mockMvc, "professor@classhub.local", "professor123")))
+            .andExpect(status().isOk());
+        mockMvc.perform(get("/alunos").header("Authorization", "Bearer " + loginToken(mockMvc, "funcionario@classhub.local", "funcionario123")))
+            .andExpect(status().isOk());
+    }
+
+    /**
+     * Exercita a sequence compartilhada depois de ultrapassar a faixa que a
+     * migração reserva para os dados legados (ids até 140).
+     */
+    @Test
+    void newStudentAndTeacherReceiveDistinctIdsAboveLegacyReservedRange() throws Exception {
+        var padding = new ArrayList<ApiAluno>();
+        for (int index = 0; index < 150; index++) {
+            ApiAluno aluno = new ApiAluno();
+            aluno.setNome("Reserva de sequence " + index);
+            aluno.setEmail("sequence-padding-" + index + "@classhub.local");
+            aluno.setSenhaHash("hash-de-teste");
+            aluno.setMatricula("SEQ" + index);
+            aluno.setDataNascimento(LocalDate.of(2012, 1, 1));
+            padding.add(aluno);
+        }
+        alunos.saveAllAndFlush(padding);
+
+        String suffix = UUID.randomUUID().toString();
+        MockMvc mockMvc = mockMvc();
+        String coordinatorToken = loginToken(mockMvc, "funcionario@classhub.local", "funcionario123");
+        long alunoId = objectMapper.readTree(mockMvc.perform(post("/alunos")
+                .header("Authorization", "Bearer " + coordinatorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Aluno Sequence\",\"email\":\"aluno-" + suffix + "@classhub.local\",\"matricula\":\"NEW" + suffix + "\",\"dataNascimento\":\"2012-01-01\"}"))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString()).path("id").asLong();
+        long professorId = objectMapper.readTree(mockMvc.perform(post("/professores")
+                .header("Authorization", "Bearer " + coordinatorToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nome\":\"Professor Sequence\",\"email\":\"professor-" + suffix + "@classhub.local\"}"))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString()).path("id").asLong();
+
+        assertThat(alunoId).isGreaterThan(140L);
+        assertThat(professorId).isGreaterThan(140L).isNotEqualTo(alunoId);
+        assertThat(userIdCollisions()).isZero();
+    }
+
+    /** O conjunto polimórfico ApiUser nunca pode ter o mesmo id em duas subclasses. */
+    @Test
+    void userIdsAreUniqueAcrossAllThreeUserTables() {
+        assertThat(userIdCollisions()).isZero();
     }
 
     /** Verifica se listas de alunos toleram vínculos legados para turmas inexistentes. */
@@ -253,6 +313,23 @@ class ApiApplicationTests {
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(login).path("token").asText();
+    }
+
+    private long userIdCollisions() {
+        Long result = jdbcTemplate.queryForObject("""
+            SELECT count(*)
+            FROM (
+                SELECT id
+                FROM (
+                    SELECT id FROM api_alunos
+                    UNION ALL SELECT id FROM api_professores
+                    UNION ALL SELECT id FROM api_funcionarios
+                ) all_user_ids
+                GROUP BY id
+                HAVING count(*) > 1
+            ) collisions
+            """, Long.class);
+        return result == null ? 0L : result;
     }
 
 }

@@ -16,12 +16,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * Como as entidades {@link com.classhub.api.domain.ApiAluno},
  * {@link com.classhub.api.domain.ApiFuncionario} e
  * {@link com.classhub.api.domain.ApiProfessor} usam herança
- * {@code TABLE_PER_CLASS} com {@code GenerationType.AUTO}, é necessário
+ * {@code TABLE_PER_CLASS} com a sequência compartilhada {@code api_user_seq}, é necessário
  * garantir que todas compartilhem a mesma sequência de ids
  * ({@code api_user_seq}) para evitar colisões entre elas.
  */
 @Configuration
 public class UserIdSchemaMigrator {
+    private static final long USER_ID_SEQUENCE_INCREMENT = 50L;
+
     /** Nomes das tabelas de usuários que devem compartilhar a mesma sequência de ids. */
     private static final List<String> USER_TABLES = List.of(
         "api_alunos",
@@ -50,7 +52,8 @@ public class UserIdSchemaMigrator {
                 if (!"PostgreSQL".equalsIgnoreCase(metadata.getDatabaseProductName())) return;
             }
 
-            jdbcTemplate.execute("CREATE SEQUENCE IF NOT EXISTS api_user_seq START WITH 1 INCREMENT BY 50");
+            jdbcTemplate.execute("CREATE SEQUENCE IF NOT EXISTS api_user_seq START WITH 1 INCREMENT BY " + USER_ID_SEQUENCE_INCREMENT);
+            jdbcTemplate.execute("ALTER SEQUENCE api_user_seq INCREMENT BY " + USER_ID_SEQUENCE_INCREMENT);
             for (String table : USER_TABLES) {
                 if (isIdentityColumn(jdbcTemplate, table)) {
                     jdbcTemplate.execute("ALTER TABLE " + table + " ALTER COLUMN id DROP IDENTITY IF EXISTS");
@@ -58,18 +61,27 @@ public class UserIdSchemaMigrator {
                 jdbcTemplate.execute("ALTER TABLE " + table + " ALTER COLUMN id SET DEFAULT nextval('api_user_seq')");
             }
 
-            jdbcTemplate.execute("""
-                SELECT setval(
-                    'api_user_seq',
-                    GREATEST(
-                        1,
-                        COALESCE((SELECT MAX(id) FROM api_alunos), 0),
-                        COALESCE((SELECT MAX(id) FROM api_funcionarios), 0),
-                        COALESCE((SELECT MAX(id) FROM api_professores), 0)
-                    ),
-                    true
+            Long nextSequenceValue = jdbcTemplate.queryForObject("""
+                SELECT GREATEST(
+                    1,
+                    (SELECT COALESCE(MAX(id), 0) FROM (
+                        SELECT id FROM api_alunos
+                        UNION ALL SELECT id FROM api_funcionarios
+                        UNION ALL SELECT id FROM api_professores
+                    ) users) + ?,
+                    COALESCE((
+                        SELECT last_value
+                        FROM pg_sequences
+                        WHERE schemaname = current_schema()
+                          AND sequencename = 'api_user_seq'
+                    ), 1)
                 )
-                """);
+                """, Long.class, USER_ID_SEQUENCE_INCREMENT);
+            jdbcTemplate.queryForObject(
+                "SELECT setval('api_user_seq'::regclass, ?, true)",
+                Long.class,
+                nextSequenceValue
+            );
         };
     }
 
