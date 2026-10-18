@@ -1,7 +1,9 @@
 package com.classhub.api.repository;
 
 import com.classhub.api.domain.ApiAluno;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,19 +13,22 @@ import java.util.Optional;
  */
 public interface ApiAlunoRepository extends JpaRepository<ApiAluno, Long> {
     /**
-     * Busca os alunos matriculados em uma turma específica.
+     * Lista alunos carregando a turma em uma consulta com junção externa,
+     * preservando alunos cujas referências legadas de turma estejam ausentes.
      *
-     * @param turmaId identificador da turma
-     * @return lista de alunos da turma
+     * @return alunos com a turma carregada, quando existente
      */
+    @Query("select a from ApiAluno a left join fetch a.turma")
+    List<ApiAluno> findAllWithTurma();
+
+    /** Busca alunos por turma, carregando a associação usada no DTO da lista. */
+    @EntityGraph(attributePaths = "turma")
     List<ApiAluno> findByTurmaId(Long turmaId);
-    /**
-     * Busca alunos cujo nome contenha o texto informado (ignorando maiúsculas/minúsculas).
-     *
-     * @param nome trecho do nome a ser buscado
-     * @return lista de alunos correspondentes
-     */
+
+    /** Busca alunos por nome, carregando a associação usada no DTO da lista. */
+    @EntityGraph(attributePaths = "turma")
     List<ApiAluno> findByNomeContainingIgnoreCase(String nome);
+
     /**
      * Busca um aluno pelo e-mail, ignorando maiúsculas/minúsculas.
      *

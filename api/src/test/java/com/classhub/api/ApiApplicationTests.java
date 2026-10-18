@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import jakarta.servlet.Filter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -31,6 +32,7 @@ class ApiApplicationTests {
     @Autowired WebApplicationContext context;
     @Autowired ObjectMapper objectMapper;
     @Autowired ApiAlunoRepository alunos;
+    @Autowired JdbcTemplate jdbcTemplate;
 
     /** Verifica se o contexto do Spring Boot sobe corretamente. */
     @Test
@@ -83,6 +85,49 @@ class ApiApplicationTests {
 
         mockMvc.perform(get("/alunos").header("Authorization", "Bearer " + response.path("token").asText()))
             .andExpect(status().isOk());
+    }
+
+    /** Verifica se listas de alunos toleram vínculos legados para turmas inexistentes. */
+    @Test
+    void studentListsHandleMissingLegacyClassForAdminAndProfessor() throws Exception {
+        MockMvc mockMvc = mockMvc();
+        var aluno = alunos.findByEmailIgnoreCase("aluno@classhub.local").orElseThrow();
+        Long alunoId = aluno.getId();
+        Long turmaId = aluno.getTurma().getId();
+        Long turmaInexistente = turmaId + 999_999L;
+
+        try {
+            jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
+            jdbcTemplate.update("UPDATE api_alunos SET turma_id = ? WHERE id = ?", turmaInexistente, alunoId);
+            jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE");
+
+            String tokenAdmin = loginToken(mockMvc, "funcionario@classhub.local", "funcionario123");
+            String respostaAdmin = mockMvc.perform(get("/alunos").header("Authorization", "Bearer " + tokenAdmin))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+            JsonNode alunosAdmin = objectMapper.readTree(respostaAdmin);
+            JsonNode alunoLegado = null;
+            for (JsonNode item : alunosAdmin) {
+                if (item.path("id").asLong() == alunoId) {
+                    alunoLegado = item;
+                    break;
+                }
+            }
+            assertThat(alunoLegado).isNotNull();
+            assertThat(alunoLegado.path("turmaId").isNull()).isTrue();
+            assertThat(alunoLegado.path("turma").isNull()).isTrue();
+
+            String tokenProfessor = loginToken(mockMvc, "professor@classhub.local", "professor123");
+            String respostaProfessor = mockMvc.perform(get("/alunos").header("Authorization", "Bearer " + tokenProfessor))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+            JsonNode alunosProfessor = objectMapper.readTree(respostaProfessor);
+            assertThat(alunosProfessor).noneMatch(item -> item.path("id").asLong() == alunoId);
+        } finally {
+            jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
+            jdbcTemplate.update("UPDATE api_alunos SET turma_id = ? WHERE id = ?", turmaId, alunoId);
+            jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE");
+        }
     }
 
     /** Verifica se a rota de login também funciona com o prefixo "/api" usado pelo servidor remoto. */

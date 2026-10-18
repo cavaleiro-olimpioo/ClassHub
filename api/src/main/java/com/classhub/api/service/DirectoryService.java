@@ -70,7 +70,7 @@ public class DirectoryService {
     @Transactional(readOnly = true)
     public List<AlunoResponse> listAlunos(Long turmaId, String nome) {
         List<ApiAluno> result = turmaId != null ? alunos.findByTurmaId(turmaId)
-            : nome != null && !nome.isBlank() ? alunos.findByNomeContainingIgnoreCase(nome.trim()) : alunos.findAll();
+            : nome != null && !nome.isBlank() ? alunos.findByNomeContainingIgnoreCase(nome.trim()) : alunos.findAllWithTurma();
         if (turmaId != null && nome != null && !nome.isBlank()) {
             result = result.stream().filter(a -> a.getNome().toLowerCase().contains(nome.trim().toLowerCase())).toList();
         }
