@@ -305,6 +305,15 @@ public class DemoDataInitializer {
                         return disciplinas.save(d);
                     });
 
+            ApiDisciplina prog = disciplinas.findAll().stream()
+                    .filter(d -> "Programação".equalsIgnoreCase(d.getNome()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ApiDisciplina d = new ApiDisciplina();
+                        d.setNome("Programação");
+                        d.setCargaHoraria(60);
+                        return disciplinas.save(d);
+                    });
             // 7. Vínculos dos Professores com as Turmas (9º Ano A e 9º Ano B)
             java.util.List<Object[]> corpoDocente = java.util.List.of(
                     new Object[]{professor, mat},
@@ -314,7 +323,8 @@ public class DemoDataInitializer {
                     new Object[]{profHumanas, geo},
                     new Object[]{profLinguagens, ing},
                     new Object[]{profLinguagens, arte},
-                    new Object[]{profEdFisica, edfis}
+                    new Object[]{profEdFisica, edfis},
+                    new Object[]{profLinguagens, prog}
             );
 
             for (ApiTurma targetTurma : java.util.List.of(turma9A, turma9B)) {
@@ -334,82 +344,77 @@ public class DemoDataInitializer {
                 }
             }
 
-            // 8. Horários da Semana (6 aulas por dia, Seg a Sex = 30 aulas por turma)
-            // Priorizando a repetição diária de Matemática e Língua Portuguesa (6 aulas/semana cada)
-            if (horarios.count() < 30) {
-                horarios.deleteAll();
+            // 8. Grade semanal: 30 aulas por turma, com seis períodos por dia.
+            turma9A.setTurno("VESPERTINO");
+            turmas.save(turma9A);
+            turma9B.setTurno("VESPERTINO");
+            turmas.save(turma9B);
+            LocalTime[][] slotsVespertino = {
+                    {LocalTime.of(13, 15), LocalTime.of(14, 5)},
+                    {LocalTime.of(14, 5), LocalTime.of(14, 55)},
+                    {LocalTime.of(14, 55), LocalTime.of(15, 45)},
+                    {LocalTime.of(16, 0), LocalTime.of(16, 50)},
+                    {LocalTime.of(16, 50), LocalTime.of(17, 40)},
+                    {LocalTime.of(17, 40), LocalTime.of(18, 30)}
+            };
 
-                LocalTime[][] slotsMatutino = {
-                        {LocalTime.of(7, 30), LocalTime.of(8, 20)},
-                        {LocalTime.of(8, 20), LocalTime.of(9, 10)},
-                        {LocalTime.of(9, 30), LocalTime.of(10, 20)},
-                        {LocalTime.of(10, 20), LocalTime.of(11, 10)},
-                        {LocalTime.of(11, 10), LocalTime.of(12, 0)},
-                        {LocalTime.of(12, 0), LocalTime.of(12, 50)}
-                };
+            Object[][][] gradeSemanal9A = {
+                    {{port, profPort}, {mat, professor}, {cien, profCien}, {hist, profHumanas}, {ing, profLinguagens}, {geo, profHumanas}},
+                    {{mat, professor}, {port, profPort}, {prog, profLinguagens}, {edfis, profEdFisica}, {cien, profCien}, {geo, profHumanas}},
+                    {{port, profPort}, {mat, professor}, {hist, profHumanas}, {prog, profLinguagens}, {arte, profLinguagens}, {ing, profLinguagens}},
+                    {{mat, professor}, {cien, profCien}, {port, profPort}, {geo, profHumanas}, {prog, profLinguagens}, {edfis, profEdFisica}},
+                    {{port, profPort}, {mat, professor}, {hist, profHumanas}, {arte, profLinguagens}, {ing, profLinguagens}, {edfis, profEdFisica}}
+            };
+            Object[][][] gradeSemanal9B = {
+                    {{mat, professor}, {cien, profCien}, {hist, profHumanas}, {ing, profLinguagens}, {geo, profHumanas}, {port, profPort}},
+                    {{port, profPort}, {prog, profLinguagens}, {edfis, profEdFisica}, {cien, profCien}, {geo, profHumanas}, {mat, professor}},
+                    {{prog, profLinguagens}, {arte, profLinguagens}, {ing, profLinguagens}, {port, profPort}, {mat, professor}, {hist, profHumanas}},
+                    {{cien, profCien}, {port, profPort}, {geo, profHumanas}, {prog, profLinguagens}, {edfis, profEdFisica}, {mat, professor}},
+                    {{arte, profLinguagens}, {ing, profLinguagens}, {edfis, profEdFisica}, {port, profPort}, {mat, professor}, {hist, profHumanas}}
+            };
 
-                LocalTime[][] slotsVespertino = {
-                        {LocalTime.of(13, 0), LocalTime.of(13, 50)},
-                        {LocalTime.of(13, 50), LocalTime.of(14, 40)},
-                        {LocalTime.of(15, 0), LocalTime.of(15, 50)},
-                        {LocalTime.of(15, 50), LocalTime.of(16, 40)},
-                        {LocalTime.of(16, 40), LocalTime.of(17, 30)},
-                        {LocalTime.of(17, 30), LocalTime.of(18, 20)}
-                };
-
-                // Grade semanal (5 dias úteis x 6 aulas diárias = 30 aulas)
-                Object[][][] gradeSemanal = {
-                        // Dia 1 (Segunda-feira): Matemática (x2), Português, Ciências, História (x2)
-                        {
-                                {mat, professor}, {mat, professor}, {port, profPort},
-                                {cien, profCien}, {hist, profHumanas}, {hist, profHumanas}
-                        },
-                        // Dia 2 (Terça-feira): Português (x2), Matemática, Geografia (x2), Educação Física
-                        {
-                                {port, profPort}, {port, profPort}, {mat, professor},
-                                {geo, profHumanas}, {geo, profHumanas}, {edfis, profEdFisica}
-                        },
-                        // Dia 3 (Quarta-feira): Ciências (x2), Matemática, Português, Inglês, Educação Física
-                        {
-                                {cien, profCien}, {cien, profCien}, {mat, professor},
-                                {port, profPort}, {ing, profLinguagens}, {edfis, profEdFisica}
-                        },
-                        // Dia 4 (Quinta-feira): História (x2), Português, Matemática, Ciências, Inglês
-                        {
-                                {hist, profHumanas}, {hist, profHumanas}, {port, profPort},
-                                {mat, professor}, {cien, profCien}, {ing, profLinguagens}
-                        },
-                        // Dia 5 (Sexta-feira): Matemática, Português, Geografia (x2), Arte (x2)
-                        {
-                                {mat, professor}, {port, profPort}, {geo, profHumanas},
-                                {geo, profHumanas}, {arte, profLinguagens}, {arte, profLinguagens}
-                        }
-                };
-
+            var grade9A = horarios.findByTurmaIdOrderByDiaSemanaAscHoraInicioAsc(turma9A.getId());
+            var grade9B = horarios.findByTurmaIdOrderByDiaSemanaAscHoraInicioAsc(turma9B.getId());
+            java.util.Set<Long> disciplinasPermitidas = java.util.Set.of(mat.getId(), port.getId(), cien.getId(),
+                    hist.getId(), geo.getId(), ing.getId(), edfis.getId(), arte.getId(), prog.getId());
+            boolean conflitoProfessor = grade9A.stream().anyMatch(aulaA -> grade9B.stream().anyMatch(aulaB ->
+                    aulaA.getDiaSemana().equals(aulaB.getDiaSemana())
+                            && aulaA.getProfessor().getId().equals(aulaB.getProfessor().getId())
+                            && aulaA.getHoraInicio().isBefore(aulaB.getHoraFim())
+                            && aulaB.getHoraInicio().isBefore(aulaA.getHoraFim())));
+            boolean horariosCorretos = grade9A.size() == 30 && grade9B.size() == 30 && !conflitoProfessor
+                    && java.util.stream.Stream.concat(grade9A.stream(), grade9B.stream()).allMatch(h -> {
+                        if (h.getDiaSemana() == null || h.getDiaSemana() < 1 || h.getDiaSemana() > 5
+                                || !disciplinasPermitidas.contains(h.getDisciplina().getId())) return false;
+                        return java.util.Arrays.stream(slotsVespertino).anyMatch(faixa ->
+                                faixa[0].equals(h.getHoraInicio()) && faixa[1].equals(h.getHoraFim()));
+                    });
+            if (!horariosCorretos) {
+                horarios.deleteAll(grade9A);
+                horarios.deleteAll(grade9B);
                 for (int d = 0; d < 5; d++) {
                     int diaSemana = d + 1;
-                    for (int s = 0; s < 6; s++) {
+                    for (int slot = 0; slot < 6; slot++) {
                         ApiHorario hA = new ApiHorario();
                         hA.setTurma(turma9A);
-                        hA.setDisciplina((ApiDisciplina) gradeSemanal[d][s][0]);
-                        hA.setProfessor((ApiProfessor) gradeSemanal[d][s][1]);
+                        hA.setDisciplina((ApiDisciplina) gradeSemanal9A[d][slot][0]);
+                        hA.setProfessor((ApiProfessor) gradeSemanal9A[d][slot][1]);
                         hA.setDiaSemana(diaSemana);
-                        hA.setHoraInicio(slotsMatutino[s][0]);
-                        hA.setHoraFim(slotsMatutino[s][1]);
+                        hA.setHoraInicio(slotsVespertino[slot][0]);
+                        hA.setHoraFim(slotsVespertino[slot][1]);
                         horarios.save(hA);
 
                         ApiHorario hB = new ApiHorario();
                         hB.setTurma(turma9B);
-                        hB.setDisciplina((ApiDisciplina) gradeSemanal[d][s][0]);
-                        hB.setProfessor((ApiProfessor) gradeSemanal[d][s][1]);
+                        hB.setDisciplina((ApiDisciplina) gradeSemanal9B[d][slot][0]);
+                        hB.setProfessor((ApiProfessor) gradeSemanal9B[d][slot][1]);
                         hB.setDiaSemana(diaSemana);
-                        hB.setHoraInicio(slotsVespertino[s][0]);
-                        hB.setHoraFim(slotsVespertino[s][1]);
+                        hB.setHoraInicio(slotsVespertino[slot][0]);
+                        hB.setHoraFim(slotsVespertino[slot][1]);
                         horarios.save(hB);
                     }
                 }
             }
-
             // 9. Calendário Escolar
             if (calendario.count() == 0) {
                 int currentYear = LocalDate.now().getYear();
