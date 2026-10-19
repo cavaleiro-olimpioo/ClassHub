@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Icon from '../../components/Icon.jsx';
 import {
   Badge,
@@ -30,8 +30,12 @@ const LEGENDA = [
   { tipo: 'LETIVO', cor: '#0d7fd4', label: 'Dia Letivo' },
   { tipo: 'FERIADO', cor: '#d93a3a', label: 'Feriado' },
   { tipo: 'RECESSO', cor: '#b8860b', label: 'Recesso' },
-  { tipo: 'EVENTO', cor: '#2f4bd8', label: 'Evento' }
+  { tipo: 'EVENTO', cor: '#2f4bd8', label: 'Evento' },
+  { tipo: 'FIM_DE_SEMANA', cor: '#94a3b8', label: 'Fim de semana' }
 ];
+
+const PRIORIDADE_TIPO = { FERIADO: 1, RECESSO: 2, LETIVO: 3, EVENTO: 4 };
+const WEEKDAYS_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
 /**
  * Conta quantos eventos de uma lista pertencem a um determinado tipo.
@@ -55,24 +59,34 @@ export default function AlunoCalendario() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    let active = true;
+  const carregar = useCallback(async () => {
     setLoading(true);
-    api
-      .get('/calendario', { anoLetivo, mes })
-      .then((data) => {
-        if (active) setEventos(Array.isArray(data) ? data : []);
-      })
-      .catch(() => {
-        if (active) setEventos([]);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
+    try {
+      const data = await api.get('/calendario', { anoLetivo, mes });
+      setEventos(Array.isArray(data) ? data : []);
+    } catch {
+      setEventos([]);
+    } finally {
+      setLoading(false);
+    }
   }, [anoLetivo, mes]);
+
+  useEffect(() => {
+    carregar();
+    // Mantém a visão do aluno sincronizada após alterações administrativas,
+    // inclusive quando o usuário retorna a esta aba.
+    const interval = window.setInterval(carregar, 30000);
+    const atualizarAoRetornar = () => {
+      if (document.visibilityState === 'visible') carregar();
+    };
+    window.addEventListener('focus', atualizarAoRetornar);
+    document.addEventListener('visibilitychange', atualizarAoRetornar);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', atualizarAoRetornar);
+      document.removeEventListener('visibilitychange', atualizarAoRetornar);
+    };
+  }, [carregar]);
 
   const anos = useMemo(() => {
     const lista = new Set([ANO_ATUAL]);
@@ -113,6 +127,7 @@ export default function AlunoCalendario() {
       futuros={futuros}
       safePage={safePage}
       setPage={setPage}
+      recarregar={carregar}
     />
   );
 }
@@ -138,7 +153,7 @@ export default function AlunoCalendario() {
  * @param {Function} props.setPage função para alterar a página atual
  * @returns {JSX.Element} a interface completa do calendário escolar
  */
-function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loading, letivos, diasNoMes, proximo, futuros, safePage, setPage }) {
+function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loading, letivos, diasNoMes, proximo, futuros, safePage, setPage, recarregar }) {
   return (
     <>
       <PageHead title="Calendário Escolar" subtitle="Consulte dias letivos, feriados, recesses e eventos do ano letivo." />
@@ -183,7 +198,7 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
           </div>
         }
       >
-        <div className="legend">
+        <div className="calendar-filter__legend legend">
           {LEGENDA.map((item) => (
             <span className="legend__item" key={item.tipo}>
               <span className="legend__dot" style={{ background: item.cor }} />
@@ -191,6 +206,17 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
             </span>
           ))}
         </div>
+      </Card>
+
+      <div style={{ height: 16 }} />
+
+      <Card
+        title={`Calendário de ${MONTHS[mes - 1]}`}
+        icon="calendar"
+        subtitle="Registros oficiais cadastrados pela administração são atualizados automaticamente."
+        actions={<button type="button" className="calendar-refresh" onClick={recarregar} disabled={loading}>Atualizar</button>}
+      >
+        <MonthGrid ano={anoLetivo} mes={mes} eventos={eventos} loading={loading} />
       </Card>
 
       <div style={{ height: 16 }} />
@@ -238,7 +264,7 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
 
         <Card title="Resumo do Mês" icon="trending">
           <div className="stack" style={{ gap: 8 }}>
-            {LEGENDA.map((item) => (
+            {LEGENDA.filter((item) => item.tipo !== 'FIM_DE_SEMANA').map((item) => (
               <div className="row" key={item.tipo} style={{ justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                   <span className="legend__dot" style={{ background: item.cor }} />
@@ -264,5 +290,66 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
         </div>
       </div>
     </>
+  );
+}
+
+/** Grade mensal que combina os dias naturais do mês com os registros oficiais da administração. */
+function MonthGrid({ ano, mes, eventos, loading }) {
+  const eventosPorData = useMemo(() => {
+    const mapa = new Map();
+    eventos.forEach((evento) => {
+      const data = String(evento.data).slice(0, 10);
+      mapa.set(data, [...(mapa.get(data) || []), evento]);
+    });
+    return mapa;
+  }, [eventos]);
+
+  const primeiroDia = new Date(ano, mes - 1, 1).getDay();
+  const diasNoMes = new Date(ano, mes, 0).getDate();
+  const hoje = new Date();
+  const hojeIso = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+  const celulas = Array.from({ length: primeiroDia + diasNoMes }, (_, indice) => {
+    if (indice < primeiroDia) return null;
+    const dia = indice - primeiroDia + 1;
+    const data = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+    const registros = eventosPorData.get(data) || [];
+    const principal = [...registros].sort((a, b) => (PRIORIDADE_TIPO[String(a.tipo).toUpperCase()] || 99) - (PRIORIDADE_TIPO[String(b.tipo).toUpperCase()] || 99))[0];
+    return { data, dia, registros, tipo: principal ? String(principal.tipo).toUpperCase() : null, fimDeSemana: new Date(ano, mes - 1, dia).getDay() % 6 === 0 };
+  });
+
+  return (
+    <div className="month-calendar-wrap">
+      <div className={`month-calendar${loading ? ' is-loading' : ''}`} aria-label={`Calendário de ${MONTHS[mes - 1]} de ${ano}`}>
+        <div className="month-calendar__weekdays">
+          {WEEKDAYS_SHORT.map((dia) => <span key={dia}>{dia}</span>)}
+        </div>
+        <div className="month-calendar__days">
+          {celulas.map((celula, indice) => {
+            if (!celula) return <div className="month-calendar__blank" key={`blank-${indice}`} aria-hidden="true" />;
+            const classes = [
+              'month-calendar__day',
+              celula.fimDeSemana ? 'is-weekend' : '',
+              celula.tipo ? `is-${celula.tipo.toLowerCase()}` : '',
+              celula.data === hojeIso ? 'is-today' : ''
+            ].filter(Boolean).join(' ');
+            return (
+              <article className={classes} key={celula.data}>
+                <time dateTime={celula.data}>{celula.dia}</time>
+                {celula.registros.length > 0 ? (
+                  <div className="month-calendar__events">
+                    {celula.registros.slice(0, 2).map((evento) => (
+                      <span className={`month-calendar__event is-${String(evento.tipo).toLowerCase()}`} key={evento.id} title={evento.descricao || evento.titulo}>
+                        {evento.titulo}
+                      </span>
+                    ))}
+                    {celula.registros.length > 2 && <span className="month-calendar__more">+{celula.registros.length - 2}</span>}
+                  </div>
+                ) : celula.fimDeSemana ? <span className="month-calendar__weekend-label">Fim de semana</span> : <span className="month-calendar__empty-label">Sem registro</span>}
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

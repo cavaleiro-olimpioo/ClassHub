@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Icon from '../../components/Icon.jsx';
-import { Alert, Button, Card, ConfirmDialog, Field, Input, Loading, PageHead, Select } from '../../components/ui.jsx';
+import { Alert, Button, Card, ConfirmDialog, DataTable, Field, Input, Loading, PageHead, Select } from '../../components/ui.jsx';
 import { useToast } from '../../components/ToastProvider.jsx';
 import { api } from '../../lib/api.js';
 import useReference, { toOptions } from '../../lib/useReference.js';
-import { BIMESTRES } from '../../lib/format.js';
+import { BIMESTRES, formatDate } from '../../lib/format.js';
 
 /**
  * Página administrativa de fechamento de bimestre: consolida as notas de
@@ -26,6 +26,29 @@ export default function AdminBimestre() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState(null);
+  const [fechamentos, setFechamentos] = useState([]);
+  const [loadingFechamentos, setLoadingFechamentos] = useState(true);
+  const [fechamentoParaReabrir, setFechamentoParaReabrir] = useState(null);
+
+  /** Busca os fechamentos reais que estão bloqueando, ou liberando, os lançamentos. */
+  async function carregarFechamentos() {
+    setLoadingFechamentos(true);
+    try {
+      const data = await api.get('/boletins/fechamentos');
+      setFechamentos(Array.isArray(data) ? data : []);
+    } catch (error) {
+      toast.error(error.message || 'Não foi possível carregar os fechamentos.');
+      setFechamentos([]);
+    } finally {
+      setLoadingFechamentos(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarFechamentos();
+    // O carregamento inicial não deve ser repetido ao mudar o formulário.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const turmaOptions = toOptions(turmas, 'id', (t) => `${t.nome} (${t.anoLetivo})`);
 
@@ -43,8 +66,25 @@ export default function AdminBimestre() {
       setResult(response?.mensagem || 'Boletins gerados com sucesso.');
       toast.success('Fechamento de bimestre concluído com sucesso!', 6000);
       setConfirmOpen(false);
+      await carregarFechamentos();
     } catch (error) {
       toast.error(error.message || 'Não foi possível fechar o bimestre.');
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  /** Reabre um período sem excluir as notas já lançadas. */
+  async function reabrirBimestre() {
+    if (!fechamentoParaReabrir) return;
+    setProcessing(true);
+    try {
+      await api.delete(`/boletins/fechamentos/${fechamentoParaReabrir.id}`);
+      toast.success('Bimestre reaberto. Os professores já podem corrigir e lançar notas.');
+      setFechamentoParaReabrir(null);
+      await carregarFechamentos();
+    } catch (error) {
+      toast.error(error.message || 'Não foi possível reabrir o bimestre.');
     } finally {
       setProcessing(false);
     }
@@ -141,6 +181,39 @@ export default function AdminBimestre() {
         </div>
       </div>
 
+      <div style={{ height: 16 }} />
+
+      <Card
+        title="Bimestres fechados"
+        icon="clipboard"
+        subtitle="Estes são os únicos registros que bloqueiam o lançamento de notas. Reabra um período se ele tiver sido fechado por engano."
+        flush
+      >
+        <DataTable
+          loading={loadingFechamentos}
+          rows={fechamentos}
+          emptyIcon="checkSquare"
+          emptyTitle="Nenhum bimestre fechado"
+          emptySubtitle="Os professores podem lançar e corrigir notas em todos os períodos."
+          columns={[
+            { key: 'anoLetivo', label: 'Ano letivo', width: 120 },
+            { key: 'bimestre', label: 'Bimestre', width: 120, render: (v) => `${v}º Bimestre` },
+            { key: 'turmaNome', label: 'Turma', render: (v) => v || 'Todas as turmas' },
+            { key: 'dataInicio', label: 'Período', render: (v, row) => `${formatDate(v)} a ${formatDate(row.dataFim)}` },
+            {
+              key: '__acoes',
+              label: 'Ações',
+              width: 150,
+              render: (_value, row) => (
+                <Button variant="secondary" size="sm" icon="refresh" onClick={() => setFechamentoParaReabrir(row)}>
+                  Reabrir
+                </Button>
+              )
+            }
+          ]}
+        />
+      </Card>
+
       <ConfirmDialog
         open={confirmOpen}
         title="Confirmação de fechamento"
@@ -149,6 +222,17 @@ export default function AdminBimestre() {
         loading={processing}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={handleConfirm}
+      />
+
+      <ConfirmDialog
+        open={Boolean(fechamentoParaReabrir)}
+        title="Reabrir bimestre"
+        message={`O ${fechamentoParaReabrir?.bimestre}º bimestre de ${fechamentoParaReabrir?.anoLetivo} será reaberto. As notas existentes serão mantidas e voltarão a poder ser corrigidas. Deseja prosseguir?`}
+        confirmText="Reabrir bimestre"
+        tone="warning"
+        loading={processing}
+        onCancel={() => !processing && setFechamentoParaReabrir(null)}
+        onConfirm={reabrirBimestre}
       />
     </>
   );

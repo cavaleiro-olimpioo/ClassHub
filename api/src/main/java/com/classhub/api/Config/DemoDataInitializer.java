@@ -443,30 +443,7 @@ public class DemoDataInitializer {
                 calendario.save(e3);
             }
 
-            // 10. Notas Demonstrativas
-            if (notas.count() == 0) {
-                ApiNota n1 = new ApiNota();
-                n1.setAluno(alunoDemo);
-                n1.setDisciplina(mat);
-                n1.setTurma(turma9A);
-                n1.setBimestre(1);
-                n1.setTipo("PROVA");
-                n1.setPeso(1.0);
-                n1.setValor(8.5);
-                notas.save(n1);
-
-                ApiNota n2 = new ApiNota();
-                n2.setAluno(alunoDemo);
-                n2.setDisciplina(mat);
-                n2.setTurma(turma9A);
-                n2.setBimestre(1);
-                n2.setTipo("TRABALHO");
-                n2.setPeso(1.0);
-                n2.setValor(9.0);
-                notas.save(n2);
-            }
-
-            // 11. Ocorrência Exemplo
+            // 10. Ocorrência Exemplo
             if (ocorrencias.count() == 0) {
                 ApiOcorrencia oc = new ApiOcorrencia();
                 oc.setAluno(alunoDemo);

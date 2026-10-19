@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -243,6 +244,44 @@ class ApiApplicationTests {
                 .content("{\"alunoId\":9223372036854775807,\"tipo\":\"OUTRO\",\"descricao\":\"Registro de teste\"}"))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.mensagem").value("Aluno não encontrado."));
+    }
+
+    /** A coordenação visualiza e pode reabrir um fechamento que esteja bloqueando lançamentos. */
+    @Test
+    void coordinatorCanListAndReopenClosedBimestre() throws Exception {
+        MockMvc mockMvc = mockMvc();
+        String token = loginToken(mockMvc, "funcionario@classhub.local", "funcionario123");
+        int anoLetivo = LocalDate.now().getYear();
+
+        mockMvc.perform(post("/boletins/gerar")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"anoLetivo\":" + anoLetivo + ",\"bimestre\":4,\"dataInicio\":\"" + anoLetivo + "-10-01\",\"dataFim\":\"" + anoLetivo + "-12-20\"}"))
+            .andExpect(status().isOk());
+
+        JsonNode fechamentos = objectMapper.readTree(mockMvc.perform(get("/boletins/fechamentos")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString());
+        JsonNode fechamento = null;
+        for (JsonNode item : fechamentos) {
+            if (item.path("anoLetivo").asInt() == anoLetivo && item.path("bimestre").asInt() == 4 && item.path("turmaId").isNull()) {
+                fechamento = item;
+                break;
+            }
+        }
+        assertThat(fechamento).isNotNull();
+        long fechamentoId = fechamento.path("id").asLong();
+
+        mockMvc.perform(delete("/boletins/fechamentos/" + fechamentoId)
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNoContent());
+
+        JsonNode aposReabrir = objectMapper.readTree(mockMvc.perform(get("/boletins/fechamentos")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString());
+        assertThat(aposReabrir).noneMatch(item -> item.path("id").asLong() == fechamentoId);
     }
 
     /** Verifica se um funcionário autenticado consegue registrar um novo item de achados e perdidos. */

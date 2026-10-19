@@ -844,6 +844,85 @@ img { max-width: 100%; display: block; }
 .legend__item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-soft); }
 .legend__dot { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 10px; }
 
+/* ========================= Calendário mensal =========================== */
+
+.calendar-filter__legend { padding: 2px 0; }
+.calendar-refresh {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--primary);
+  border-radius: 7px;
+  padding: 7px 11px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.calendar-refresh:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-soft); }
+.calendar-refresh:disabled { opacity: .55; cursor: wait; }
+.month-calendar-wrap { overflow-x: auto; padding-bottom: 2px; }
+.month-calendar { min-width: 680px; }
+.month-calendar.is-loading { opacity: .62; transition: opacity .15s ease; }
+.month-calendar__weekdays,
+.month-calendar__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.month-calendar__weekdays {
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  background: var(--surface-alt);
+}
+.month-calendar__weekdays span { padding: 9px 6px; text-align: center; color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+.month-calendar__weekdays span:first-child,
+.month-calendar__weekdays span:last-child { color: var(--danger); }
+.month-calendar__days { border-left: 1px solid var(--border); }
+.month-calendar__blank,
+.month-calendar__day {
+  min-height: 102px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 8px;
+  background: var(--surface);
+}
+.month-calendar__blank { background: var(--surface-alt); }
+.month-calendar__day { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.month-calendar__day time { font-size: 12px; font-weight: 800; color: var(--text); line-height: 18px; }
+.month-calendar__day.is-weekend:not([class*="is-feriado"]):not([class*="is-recesso"]) { background: color-mix(in srgb, var(--surface-alt) 70%, var(--surface)); }
+.month-calendar__day.is-today { box-shadow: inset 0 0 0 2px var(--primary); z-index: 1; }
+.month-calendar__day.is-letivo time { color: #0765ad; }
+.month-calendar__day.is-feriado { background: #fff5f5; }
+.month-calendar__day.is-feriado time { color: #bd2525; }
+.month-calendar__day.is-recesso { background: #fff9ed; }
+.month-calendar__day.is-recesso time { color: #956800; }
+.month-calendar__day.is-evento time { color: var(--primary); }
+.month-calendar__events { display: grid; gap: 4px; }
+.month-calendar__event {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 4px;
+  padding: 3px 5px;
+  background: var(--primary-soft);
+  color: var(--primary-700);
+  font-size: 10px;
+  font-weight: 700;
+}
+.month-calendar__event.is-letivo { background: #e3f3ff; color: #0765ad; }
+.month-calendar__event.is-feriado { background: #ffe4e4; color: #b42323; }
+.month-calendar__event.is-recesso { background: #fff0c9; color: #8b6400; }
+.month-calendar__more, .month-calendar__weekend-label, .month-calendar__empty-label { font-size: 10px; color: var(--text-muted); }
+.month-calendar__more { font-weight: 700; }
+.month-calendar__weekend-label { margin-top: auto; }
+.month-calendar__empty-label { opacity: .6; margin-top: auto; }
+
+@media (max-width: 760px) {
+  .month-calendar { min-width: 570px; }
+  .month-calendar__blank,
+  .month-calendar__day { min-height: 82px; padding: 6px; }
+  .month-calendar__event { font-size: 9px; padding: 2px 4px; }
+}
+
 /* ============================== Auth pages ============================== */
 
 .auth {

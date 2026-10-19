@@ -142,6 +142,34 @@ public class GradeService {
     }
 
     /**
+     * Lista os bimestres efetivamente fechados, incluindo fechamentos antigos
+     * que poderiam bloquear novos lançamentos de nota.
+     *
+     * @return fechamentos ordenados do mais recente para o mais antigo
+     */
+    @Transactional(readOnly = true)
+    public List<FechamentoBoletimResponse> listFechamentos() {
+        return fechamentos.findAll().stream()
+            .sorted(Comparator.comparing(ApiFechamentoBoletim::getAnoLetivo).reversed()
+                .thenComparing(ApiFechamentoBoletim::getBimestre, Comparator.reverseOrder()))
+            .map(this::fechamento)
+            .toList();
+    }
+
+    /**
+     * Reabre um bimestre apagando seu registro de fechamento. As notas do
+     * período são preservadas para que possam ser corrigidas pelos professores.
+     *
+     * @param id identificador do fechamento a ser removido
+     * @throws NotFoundException se o fechamento não existir
+     */
+    public void reabrirBimestre(Long id) {
+        ApiFechamentoBoletim fechamento = fechamentos.findById(id)
+            .orElseThrow(() -> new NotFoundException("Fechamento de bimestre não encontrado."));
+        fechamentos.delete(fechamento);
+    }
+
+    /**
      * Calcula e monta o boletim de um aluno para um bimestre específico:
      * agrupa as notas por disciplina, calcula a média ponderada pelo peso
      * de cada avaliação, calcula o percentual de frequência a partir dos
@@ -216,6 +244,13 @@ public class GradeService {
     }
     /** Converte uma entidade {@link ApiNota} para o DTO {@link NotaResponse}. */
     private NotaResponse nota(ApiNota n) { return new NotaResponse(n.getId(), n.getAluno().getId(), n.getDisciplina().getId(), n.getDisciplina().getNome(), n.getBimestre(), n.getTipo(), n.getPeso(), n.getValor()); }
+    /** Converte um fechamento persistido em resposta para a coordenação. */
+    private FechamentoBoletimResponse fechamento(ApiFechamentoBoletim fechamento) {
+        ApiTurma turma = fechamento.getTurma();
+        return new FechamentoBoletimResponse(fechamento.getId(), fechamento.getAnoLetivo(), fechamento.getBimestre(),
+            turma == null ? null : turma.getId(), turma == null ? null : turma.getNome(),
+            fechamento.getDataInicio(), fechamento.getDataFim());
+    }
     private void assertBimestreAberto(Long turmaId, int bimestre) {
         Integer anoLetivo = directory.requireTurma(turmaId).getAnoLetivo();
         boolean fechado = fechamentos.findByAnoLetivoAndBimestreAndTurmaIsNull(anoLetivo, bimestre).isPresent()

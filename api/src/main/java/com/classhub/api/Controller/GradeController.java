@@ -91,6 +91,12 @@ public class GradeController {
      * @return mensagem de confirmação do fechamento
      */
     @PostMapping("/boletins/gerar") @PreAuthorize("hasRole('ADMIN')") public MessageResponse gerarBoletim(@Valid @RequestBody GerarBoletimRequest request) { return service.fecharBimestre(request); }
+    /** Lista os fechamentos registrados para conferência da coordenação. */
+    @GetMapping("/boletins/fechamentos") @PreAuthorize("hasRole('ADMIN')")
+    public List<FechamentoBoletimResponse> fechamentos() { return service.listFechamentos(); }
+    /** Reabre o bimestre, preservando as notas para correção. */
+    @DeleteMapping("/boletins/fechamentos/{id}") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reabrirBimestre(@PathVariable Long id) { service.reabrirBimestre(id); }
     /**
      * Retorna o boletim de um aluno para um bimestre específico, em formato JSON.
      *
