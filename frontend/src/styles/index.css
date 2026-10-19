@@ -412,6 +412,28 @@ img { max-width: 100%; display: block; }
 .field__help { font-size: 11.5px; color: var(--text-muted); }
 .field__error { font-size: 11.5px; color: var(--danger); font-weight: 500; }
 
+.password-input { position: relative; }
+.password-input .input { padding-right: 42px; }
+.password-input__toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.password-input__toggle:hover { color: var(--text); background: var(--surface-alt); }
+.password-input__toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+
 .input,
 .select,
 .textarea {

@@ -33,6 +33,9 @@ public class ScheduleController {
      * @param turmaId identificador da turma
      * @return lista de horários da turma
      */
+    @GetMapping("/horarios")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<HorarioResponse> horariosGeral() { return service.horariosGeral(); }
     @GetMapping("/horarios/turma/{turmaId}")
     @PreAuthorize("hasAnyRole('ADMIN','ALUNO','PROFESSOR')")
     public List<HorarioResponse> horariosTurma(@PathVariable Long turmaId, Authentication authentication) {

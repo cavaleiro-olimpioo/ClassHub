@@ -17,6 +17,7 @@ import { useToast } from '../../components/ToastProvider.jsx';
 import { api } from '../../lib/api.js';
 import { toOptions } from '../../lib/useReference.js';
 import { WEEKDAYS, WEEKDAYS_SHORT } from '../../lib/format.js';
+import { SCHEDULE_BREAK, SCHEDULE_PERIODS } from '../../lib/schedule.js';
 
 /** Valores iniciais (vazios) do formulário de novo horário. */
 const EMPTY_FORM = { turmaId: '', diaSemana: '1', horaInicio: '', horaFim: '', disciplinaId: '', professorId: '' };
@@ -37,6 +38,8 @@ export default function AdminHorarios() {
   const [turmas, setTurmas] = useState([]);
   const [disciplinas, setDisciplinas] = useState([]);
   const [professores, setProfessores] = useState([]);
+  const [overviewHorarios, setOverviewHorarios] = useState([]);
+  const [overviewLoading, setOverviewLoading] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const [selectedTurma, setSelectedTurma] = useState('');
@@ -52,14 +55,17 @@ export default function AdminHorarios() {
   /** Carrega as listas de apoio (turmas, disciplinas e professores) usadas nos seletores. */
   const loadSupport = useCallback(async () => {
     setLoading(true);
-    const [t, d, p] = await Promise.all([
+    const [t, d, p, g] = await Promise.all([
       api.get('/turmas').catch(() => []),
       api.get('/disciplinas').catch(() => []),
-      api.get('/professores').catch(() => [])
+      api.get('/professores').catch(() => []),
+      api.get('/horarios').catch(() => [])
     ]);
     setTurmas(Array.isArray(t) ? t : []);
     setDisciplinas(Array.isArray(d) ? d : []);
     setProfessores(Array.isArray(p) ? p : []);
+    setOverviewHorarios(Array.isArray(g) ? g : []);
+    setOverviewLoading(false);
     setLoading(false);
   }, []);
 
@@ -88,6 +94,27 @@ export default function AdminHorarios() {
     reloadGrid();
   }, [reloadGrid]);
 
+  const reloadOverview = useCallback(async () => {
+    setOverviewLoading(true);
+    try {
+      const data = await api.get('/horarios');
+      setOverviewHorarios(Array.isArray(data) ? data : []);
+    } catch {
+      setOverviewHorarios([]);
+    } finally {
+      setOverviewLoading(false);
+    }
+  }, []);
+
+  const overviewByTurma = useMemo(() => {
+    const groups = new Map(turmas.map((turma) => [String(turma.id), { id: String(turma.id), nome: turma.nome, items: [] }]));
+    overviewHorarios.forEach((item) => {
+      const id = String(item.turmaId ?? item.turma?.id ?? 'sem-turma');
+      if (!groups.has(id)) groups.set(id, { id, nome: item.turmaNome || item.turma?.nome || 'Turma', items: [] });
+      groups.get(id).items.push(item);
+    });
+    return [...groups.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  }, [turmas, overviewHorarios]);
   // Agrupa por dia da semana
   const byDay = useMemo(() => {
     const map = new Map(WEEK.map((day) => [day, []]));
@@ -132,7 +159,7 @@ export default function AdminHorarios() {
       });
       toast.success('Horário criado com sucesso!');
       setModalOpen(false);
-      await reloadGrid();
+      await Promise.all([reloadGrid(), reloadOverview()]);
     } catch (error) {
       setFormError(error.message || 'Não foi possível salvar o horário.');
     } finally {
@@ -147,7 +174,7 @@ export default function AdminHorarios() {
       await api.delete(`/horarios/${removing.id}`);
       toast.success('Horário removido.');
       setRemoving(null);
-      await reloadGrid();
+      await Promise.all([reloadGrid(), reloadOverview()]);
     } catch (error) {
       toast.error(error.message || 'Não foi possível remover o horário.');
     }
@@ -162,6 +189,50 @@ export default function AdminHorarios() {
         subtitle="Monte a grade semanal de aulas por turma, definindo disciplina, professor e faixa de horário."
       />
 
+      <Card title="Visão Geral das Turmas" icon="clock" subtitle="Grade semanal completa para coordenação">
+        {overviewLoading ? <Loading /> : overviewByTurma.length === 0 ? (
+          <EmptyState icon="clock" title="Nenhuma grade cadastrada" subtitle="As grades das turmas aparecerão aqui após a atualização da API." />
+        ) : (
+          <div className="grid grid--3">
+            {overviewByTurma.map((group) => (
+              <article className="card" key={group.id}>
+                <header className="card__head" style={{ padding: '12px 14px' }}>
+                  <div className="card__title"><Icon name="clock" size={15} />{group.nome}</div>
+                  <div className="card__spacer" />
+                  <span className="badge badge--neutral">{group.items.length}</span>
+                </header>
+                <div className="card__body" style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {WEEK.map((day) => {
+                    const remaining = group.items.filter((item) => Number(item.diaSemana) === day)
+                      .sort((a, b) => String(a.horaInicio).localeCompare(String(b.horaInicio)));
+                    const periods = SCHEDULE_PERIODS.map((period) => {
+                      let index = remaining.findIndex((item) => String(item.horaInicio).slice(0, 5) === period.start);
+                      if (index < 0 && remaining.length) index = 0;
+                      return { period, item: index >= 0 ? remaining.splice(index, 1)[0] : null };
+                    });
+                    return (
+                      <section key={day}>
+                        <strong style={{ display: 'block', marginBottom: 6, fontSize: 12.5 }}>{WEEKDAYS[day]}</strong>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 5 }}>
+                          {periods.map(({ period, item }, index) => (
+                            <div key={period.number} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '6px 8px', minHeight: 50 }}>
+                              <strong style={{ display: 'block', fontSize: 11.5 }}>{item?.disciplina?.nome || item?.disciplinaNome || `Aula ${period.number}`}</strong>
+                              <span className="text-muted" style={{ fontSize: 10.5 }}>{period.start}–{period.end}</span>
+                              {item && <span style={{ display: 'block', fontSize: 10.5, color: 'var(--text-soft)' }}>{item.professor?.nome || item.professorNome || 'Professor'}</span>}
+                              {!item && <span className="text-muted" style={{ display: 'block', fontSize: 10.5 }}>Aula a definir</span>}
+                              {index === 2 && <span style={{ display: 'block', gridColumn: '1 / -1', textAlign: 'center', fontSize: 10, color: 'var(--text-muted)' }}>Intervalo {SCHEDULE_BREAK.start}–{SCHEDULE_BREAK.end}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    );
+                  })}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </Card>
       <Card
         title="Filtros de Consulta"
         icon="filter"

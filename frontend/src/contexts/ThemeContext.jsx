@@ -25,10 +25,6 @@ function getStoredTheme() {
  *
  * @returns {'dark'|'light'} o tema do sistema
  */
-function getSystemTheme() {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
 /**
  * Determina o tema inicial da aplicação: usa a preferência salva pelo
  * usuário, ou a preferência do sistema operacional caso não haja nenhuma salva.
@@ -38,7 +34,7 @@ function getSystemTheme() {
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light';
 
-  return getStoredTheme() || getSystemTheme();
+  return getStoredTheme() || 'light';
 }
 
 /**
@@ -53,22 +49,12 @@ function getInitialTheme() {
  */
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(getInitialTheme);
-  const [hasUserPreference, setHasUserPreference] = useState(() => Boolean(getStoredTheme()));
 
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
     root.style.colorScheme = theme;
   }, [theme]);
-
-  useEffect(() => {
-    if (!window.matchMedia || hasUserPreference) return;
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (event) => setThemeState(event.matches ? 'dark' : 'light');
-
-    mediaQuery.addEventListener?.('change', handleChange);
-    return () => mediaQuery.removeEventListener?.('change', handleChange);
-  }, [hasUserPreference]);
 
   /** Alterna o tema atual entre claro e escuro. */
   function toggleTheme() {
@@ -85,7 +71,6 @@ export function ThemeProvider({ children }) {
     if (nextTheme !== 'dark' && nextTheme !== 'light') return;
 
     setThemeState(nextTheme);
-    setHasUserPreference(true);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     } catch {

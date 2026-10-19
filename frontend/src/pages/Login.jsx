@@ -8,7 +8,7 @@ import { dashboardPathFor, login as doLogin } from '../lib/session.js';
 
 /** Lista de recursos do sistema destacados na tela de login. */
 const HIGHLIGHTS = [
-  'Notas, boletins e médias consolidated por bimestre',
+  'Notas, boletins e médias por bimestre',
   'Frequência e justificativa de faltas em tempo real',
   'Grade de horários, calendário e comunicados da escola',
   'Achados e perdidos e ocorrências do dia a dia'
@@ -29,6 +29,7 @@ export default function Login() {
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // Mensagem de sessao expirada vinda do 401 (apenas uma vez)
@@ -116,15 +117,26 @@ export default function Login() {
           </Field>
 
           <Field label="Senha" required htmlFor="senha">
-            <Input
-              id="senha"
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
-            />
+            <div className="password-input">
+              <Input
+                id="senha"
+                type={senhaVisivel ? 'text' : 'password'}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                required
+              />
+              <button
+                className="password-input__toggle"
+                type="button"
+                aria-label={senhaVisivel ? 'Ocultar senha' : 'Mostrar senha'}
+                aria-pressed={senhaVisivel}
+                onClick={() => setSenhaVisivel((visivel) => !visivel)}
+              >
+                <Icon name={senhaVisivel ? 'eyeOff' : 'eye'} size={18} />
+              </button>
+            </div>
           </Field>
 
           <Button type="submit" block size="lg" loading={submitting} icon="logout2">

@@ -69,6 +69,15 @@ public class ScheduleService {
         directory.requireProfessor(professorId);
         return horarios.findByProfessorIdOrderByDiaSemanaAscHoraInicioAsc(professorId).stream().map(this::horario).toList();
     }
+    /** Lista a grade completa para a visão geral da coordenação. */
+    @Transactional(readOnly = true)
+    public List<HorarioResponse> horariosGeral() {
+        return horarios.findAll().stream()
+                .sorted(Comparator.comparing((ApiHorario h) -> h.getTurma().getNome(), String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(ApiHorario::getDiaSemana)
+                        .thenComparing(ApiHorario::getHoraInicio))
+                .map(this::horario).toList();
+    }
 
     /**
      * Cria um novo horário de aula, validando o formato dos horários
