@@ -25,6 +25,11 @@ public final class ApiDtos {
     public record MessageResponse(String mensagem) { }
     /** Dados enviados no login: e-mail e senha em texto puro. */
     public record LoginRequest(@NotBlank @Email String email, @NotBlank String senha) { }
+    /**
+     * DTO para solicitar a troca de senha do usuário.
+     * Contém o e‑mail que identifica o usuário e a nova senha em texto puro.
+     */
+    public record ChangePasswordRequest(@NotBlank @Email String email, @NotBlank String senha) { }
     /** Resposta do login bem-sucedido: token JWT, perfil do usuário (papel/role) e nome de exibição. */
     public record LoginResponse(String token, String perfil, String nome) { }
 

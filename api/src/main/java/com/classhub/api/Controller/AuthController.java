@@ -27,6 +27,16 @@ public class AuthController {
      * @param request credenciais informadas (e-mail e senha)
      * @return token JWT, perfil e nome do usuário autenticado
      */
+    /**
+     * Altera a senha do usuário autenticado ou de outro usuário via e‑mail.
+     * Não requer confirmação; a nova senha fornecida é aplicada diretamente.
+     */
+    @PostMapping("/alterar-senha")
+    public MessageResponse alterarSenha(@Valid @RequestBody ChangePasswordRequest request) {
+        return authService.changePassword(request);
+    }
+
+    // Existing login method remains unchanged
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) { return authService.login(request); }
 

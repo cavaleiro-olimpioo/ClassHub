@@ -3,6 +3,8 @@ package com.classhub.api.service;
 import com.classhub.api.domain.ApiUser;
 import com.classhub.api.dto.ApiDtos.LoginRequest;
 import com.classhub.api.dto.ApiDtos.LoginResponse;
+import com.classhub.api.dto.ApiDtos.MessageResponse;
+import com.classhub.api.dto.ApiDtos.ChangePasswordRequest;
 import com.classhub.api.exception.ApiExceptions.UnauthorizedException;
 import com.classhub.api.repository.ApiUserRepository;
 import com.classhub.api.security.JwtService;
@@ -50,4 +52,20 @@ public class AuthService {
         }
         return new LoginResponse(jwtService.generate(user), user.getPerfil(), user.getNome());
     }
+    /**
+     * Altera a senha de um usuário identificado por e‑mail.
+     * Não há verificação de confirmação; a nova senha é definida
+     * diretamente após a codificação com o encoder configurado.
+     *
+     * @param request DTO contendo e‑mail e a nova senha
+     * @return mensagem de sucesso
+     */
+    public MessageResponse changePassword(ChangePasswordRequest request) {
+        ApiUser user = users.findByEmailIgnoreCase(request.email().trim())
+            .orElseThrow(() -> new UnauthorizedException("E‑mail não encontrado."));
+        user.setSenhaHash(passwordEncoder.encode(request.senha()));
+        users.save(user);
+        return new MessageResponse("Senha alterada com sucesso.");
+    }
 }
+
