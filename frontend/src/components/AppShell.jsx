@@ -5,6 +5,7 @@ import ThemeToggle from './ThemeToggle.jsx';
 import { clearSession, getSession } from '../lib/session.js';
 import { menuFor, SECTION_LABEL, titleForPath } from '../lib/menu.js';
 import { firstName, greetingFor, initials, longDateBR } from '../lib/format.js';
+import { Button } from '../components/ui.jsx';
 import '../styles/index.css';
 
 /**
@@ -102,6 +103,17 @@ export default function AppShell() {
             <Icon name="logout" size={15} />
             Sair
           </button>
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="btn btn--block"
+          style={{ marginTop: 10, background: 'rgba(255,255,255,.08)', color: '#dfe5f7' }}
+          onClick={() => navigate('/alterar-senha')}
+        >
+          <Icon name="lock" size={15} />
+          Alterar senha
+        </Button>
         </div>
       </aside>
 

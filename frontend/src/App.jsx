@@ -9,6 +9,7 @@ import { getSession } from './lib/session.js';
 
 import Login from './pages/Login.jsx';
 import RecuperarSenha from './pages/RecuperarSenha.jsx';
+import AlterarSenha from './pages/AlterarSenha.jsx';
 
 // Code-splitting por area para manter o bundle inicial enxuto
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard.jsx'));
@@ -93,6 +94,7 @@ export default function App() {
             {/* Publicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+            <Route path="/alterar-senha" element={<AlterarSenha />} />
             <Route path="/" element={<HomeRedirect />} />
 
             {/* Admin */}
@@ -107,6 +109,7 @@ export default function App() {
               <Route path="/admin/calendario" element={<AdminCalendario />} />
               <Route path="/admin/bimestre" element={<AdminBimestre />} />
               <Route path="/admin/achados-perdidos" element={<AdminAchadosPerdidos />} />
+                <Route path="/alterar-senha" element={<AlterarSenha />} />
               <Route path="/admin/*" element={<NotFound />} />
             </Route>
 
