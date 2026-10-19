@@ -251,13 +251,21 @@ class ApiApplicationTests {
         MockMvc mockMvc = mockMvc();
         String token = loginToken(mockMvc, "funcionario@classhub.local", "funcionario123");
 
-        mockMvc.perform(post("/achados-perdidos")
+        String response = mockMvc.perform(post("/achados-perdidos")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"descricao\":\"Chave de teste\",\"categoria\":\"OUTRO\",\"data\":\"2026-09-29\",\"localEncontrado\":\"Biblioteca\"}"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.descricao").value("Chave de teste"))
-            .andExpect(jsonPath("$.status").value("NAO_REIVINDICADO"));
+            .andExpect(jsonPath("$.status").value("NAO_REIVINDICADO"))
+            .andReturn().getResponse().getContentAsString();
+
+        long itemId = objectMapper.readTree(response).path("id").asLong();
+        Long responsavelId = jdbcTemplate.queryForObject(
+            "SELECT funcionario_id FROM api_achados_perdidos WHERE id = ?", Long.class, itemId);
+        Long funcionarioId = jdbcTemplate.queryForObject(
+            "SELECT id FROM api_funcionarios WHERE email = ?", Long.class, "funcionario@classhub.local");
+        assertThat(responsavelId).isEqualTo(funcionarioId);
     }
 
     /** Verifica se tentar criar um professor com e-mail já cadastrado retorna HTTP 409 com mensagem específica. */

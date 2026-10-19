@@ -94,9 +94,13 @@ public class CommunityController {
      * Registra um novo item encontrado.
      *
      * @param request dados do item encontrado
+     * @param authentication contexto de autenticação, usado para registrar o funcionário responsável
      * @return o item recém-criado
      */
-    @PostMapping("/achados-perdidos") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.CREATED) public AchadoPerdidoResponse criarAchado(@Valid @RequestBody AchadoPerdidoRequest request) { return service.createAchado(request); }
+    @PostMapping("/achados-perdidos") @PreAuthorize("hasRole('ADMIN')") @ResponseStatus(HttpStatus.CREATED)
+    public AchadoPerdidoResponse criarAchado(@Valid @RequestBody AchadoPerdidoRequest request, Authentication authentication) {
+        return service.createAchado(request, Long.valueOf(authentication.getName()));
+    }
     /**
      * Atualiza os dados de um item de achados e perdidos.
      *

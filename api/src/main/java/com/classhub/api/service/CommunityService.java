@@ -28,6 +28,7 @@ public class CommunityService {
     private static final Set<String> TIPOS_CALENDARIO = Set.of("LETIVO", "FERIADO", "RECESSO", "EVENTO");
     private final ApiOcorrenciaRepository ocorrencias;
     private final ApiAchadoPerdidoRepository achados;
+    private final ApiFuncionarioRepository funcionarios;
     private final ApiCalendarioRepository calendario;
     private final DirectoryService directory;
 
@@ -36,12 +37,14 @@ public class CommunityService {
      *
      * @param ocorrencias repositório de ocorrências
      * @param achados repositório de itens de achados e perdidos
+     * @param funcionarios repositório de funcionários que registram os itens
      * @param calendario repositório de eventos do calendário escolar
      * @param directory serviço de diretório, usado para buscar alunos e professores
      */
     public CommunityService(ApiOcorrenciaRepository ocorrencias, ApiAchadoPerdidoRepository achados,
-                            ApiCalendarioRepository calendario, DirectoryService directory) {
-        this.ocorrencias = ocorrencias; this.achados = achados; this.calendario = calendario; this.directory = directory;
+                            ApiFuncionarioRepository funcionarios, ApiCalendarioRepository calendario, DirectoryService directory) {
+        this.ocorrencias = ocorrencias; this.achados = achados; this.funcionarios = funcionarios;
+        this.calendario = calendario; this.directory = directory;
     }
 
     /**
@@ -158,11 +161,16 @@ public class CommunityService {
      * sempre {@code "NAO_REIVINDICADO"}.
      *
      * @param request dados do item encontrado
+     * @param funcionarioId identificador do funcionário autenticado que registrou o item
      * @return o item recém-criado
      * @throws BadRequestException se a categoria informada não for válida
      */
-    public AchadoPerdidoResponse createAchado(AchadoPerdidoRequest request) {
-        ApiAchadoPerdido entity = new ApiAchadoPerdido(); applyAchado(entity, request); entity.setStatus("NAO_REIVINDICADO");
+    public AchadoPerdidoResponse createAchado(AchadoPerdidoRequest request, Long funcionarioId) {
+        ApiAchadoPerdido entity = new ApiAchadoPerdido();
+        applyAchado(entity, request);
+        entity.setStatus("NAO_REIVINDICADO");
+        entity.setFuncionarioRegistrou(funcionarios.findById(funcionarioId)
+            .orElseThrow(() -> new NotFoundException("Funcionário responsável não encontrado.")));
         return achado(achados.save(entity));
     }
 
