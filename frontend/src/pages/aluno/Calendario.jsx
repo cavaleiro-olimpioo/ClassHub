@@ -44,7 +44,23 @@ const WEEKDAYS_SHORT = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
  * @param {string} tipo tipo de evento a ser contado (ex.: "LETIVO", "FERIADO")
  * @returns {number} a quantidade de eventos do tipo informado
  */
-const contar = (eventos, tipo) => eventos.filter((e) => String(e.tipo).toUpperCase() === tipo).length;
+function calcularResumoMensal(ano, mes, eventos) {
+  const datasPorTipo = new Map();
+  ['FERIADO', 'RECESSO', 'EVENTO'].forEach((tipo) => datasPorTipo.set(tipo, new Set()));
+  eventos.forEach((evento) => {
+    const tipo = String(evento.tipo).toUpperCase();
+    if (datasPorTipo.has(tipo)) datasPorTipo.get(tipo).add(String(evento.data).slice(0, 10));
+  });
+
+  const diasBloqueados = new Set([...datasPorTipo.get('FERIADO'), ...datasPorTipo.get('RECESSO')]);
+  let letivos = 0;
+  for (let dia = 1; dia <= new Date(ano, mes, 0).getDate(); dia += 1) {
+    const data = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+    const semana = new Date(ano, mes - 1, dia).getDay();
+    if (semana !== 0 && semana !== 6 && !diasBloqueados.has(data)) letivos += 1;
+  }
+  return { LETIVO: letivos, FERIADO: datasPorTipo.get('FERIADO').size, RECESSO: datasPorTipo.get('RECESSO').size, EVENTO: datasPorTipo.get('EVENTO').size };
+}
 
 /**
  * Página "Calendário Escolar" do aluno: busca os eventos do calendário para
@@ -95,7 +111,8 @@ export default function AlunoCalendario() {
   }, [eventos]);
 
   const diasNoMes = new Date(anoLetivo, mes, 0).getDate();
-  const letivos = contar(eventos, 'LETIVO');
+  const resumo = useMemo(() => calcularResumoMensal(anoLetivo, mes, eventos), [anoLetivo, mes, eventos]);
+  const letivos = resumo.LETIVO;
 
   const proximo = useMemo(
     () =>
@@ -122,6 +139,7 @@ export default function AlunoCalendario() {
       eventos={eventos}
       loading={loading}
       letivos={letivos}
+      resumo={resumo}
       diasNoMes={diasNoMes}
       proximo={proximo}
       futuros={futuros}
@@ -153,7 +171,7 @@ export default function AlunoCalendario() {
  * @param {Function} props.setPage função para alterar a página atual
  * @returns {JSX.Element} a interface completa do calendário escolar
  */
-function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loading, letivos, diasNoMes, proximo, futuros, safePage, setPage, recarregar }) {
+function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loading, letivos, resumo, diasNoMes, proximo, futuros, safePage, setPage, recarregar }) {
   return (
     <>
       <PageHead title="Calendário Escolar" subtitle="Consulte dias letivos, feriados, recesses e eventos do ano letivo." />
@@ -270,7 +288,7 @@ function CalendarBody({ anoLetivo, setAnoLetivo, anos, mes, setMes, eventos, loa
                   <span className="legend__dot" style={{ background: item.cor }} />
                   {item.label}
                 </span>
-                <strong className="mono">{contar(eventos, item.tipo)}</strong>
+                <strong className="mono">{resumo[item.tipo]}</strong>
               </div>
             ))}
           </div>
