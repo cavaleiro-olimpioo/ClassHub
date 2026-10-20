@@ -24,6 +24,8 @@ public class GradeService {
     private final ApiNotaRepository notas;
     private final ApiPresencaRepository presencas;
     private final ApiFechamentoBoletimRepository fechamentos;
+    private final ApiAlunoRepository alunos;
+    private final ApiVinculoRepository vinculos;
     private final DirectoryService directory;
 
     /**
@@ -35,8 +37,9 @@ public class GradeService {
      * @param directory serviço de diretório, usado para buscar alunos, turmas e disciplinas
      */
     public GradeService(ApiNotaRepository notas, ApiPresencaRepository presencas, ApiFechamentoBoletimRepository fechamentos,
-                        DirectoryService directory) {
-        this.notas = notas; this.presencas = presencas; this.fechamentos = fechamentos; this.directory = directory;
+                        ApiAlunoRepository alunos, ApiVinculoRepository vinculos, DirectoryService directory) {
+        this.notas = notas; this.presencas = presencas; this.fechamentos = fechamentos;
+        this.alunos = alunos; this.vinculos = vinculos; this.directory = directory;
     }
 
     /**
@@ -205,6 +208,42 @@ public class GradeService {
     }
 
     /**
+     * Recria um período com dados fictícios coerentes para demonstração. O
+     * período é limpo e reaberto antes da geração para nunca misturar notas
+     * reais anteriores às notas de demonstração.
+     *
+     * @param request ano, bimestre e, opcionalmente, turma alvo
+     * @return quantidade de avaliações fictícias geradas
+     */
+    public MessageResponse gerarNotasDemonstracao(GerarNotasDemonstracaoRequest request) {
+        limparNotasEReabrirBimestre(request.anoLetivo(), request.bimestre(), request.turmaId());
+        ApiTurma turmaAlvo = request.turmaId() == null ? null : directory.requireTurma(request.turmaId());
+
+        Map<Long, List<ApiVinculo>> vinculosPorTurma = vinculos.findAll().stream()
+            .filter(vinculo -> Objects.equals(vinculo.getAnoLetivo(), request.anoLetivo()))
+            .filter(vinculo -> turmaAlvo == null || Objects.equals(vinculo.getTurma().getId(), turmaAlvo.getId()))
+            .collect(Collectors.groupingBy(vinculo -> vinculo.getTurma().getId()));
+        List<ApiNota> geradas = new ArrayList<>();
+
+        for (ApiAluno aluno : alunos.findAllWithTurma()) {
+            ApiTurma turma = aluno.getTurma();
+            if (turma == null || !Objects.equals(turma.getAnoLetivo(), request.anoLetivo())) continue;
+            if (turmaAlvo != null && !Objects.equals(turma.getId(), turmaAlvo.getId())) continue;
+
+            Set<Long> disciplinasIncluidas = new HashSet<>();
+            for (ApiVinculo vinculo : vinculosPorTurma.getOrDefault(turma.getId(), List.of())) {
+                ApiDisciplina disciplina = vinculo.getDisciplina();
+                if (!disciplinasIncluidas.add(disciplina.getId())) continue;
+                geradas.add(notaDemonstracao(aluno, turma, disciplina, request.bimestre(), "PROVA", 5d, 1));
+                geradas.add(notaDemonstracao(aluno, turma, disciplina, request.bimestre(), "TRABALHO", 3d, 2));
+            }
+        }
+        notas.saveAll(geradas);
+        return new MessageResponse(geradas.size() + " nota(s) de demonstração gerada(s) para o "
+            + request.bimestre() + "º bimestre.");
+    }
+
+    /**
      * Calcula e monta o boletim de um aluno para um bimestre específico:
      * agrupa as notas por disciplina, calcula a média ponderada pelo peso
      * de cada avaliação, calcula o percentual de frequência a partir dos
@@ -279,6 +318,15 @@ public class GradeService {
     }
     /** Converte uma entidade {@link ApiNota} para o DTO {@link NotaResponse}. */
     private NotaResponse nota(ApiNota n) { return new NotaResponse(n.getId(), n.getAluno().getId(), n.getDisciplina().getId(), n.getDisciplina().getNome(), n.getBimestre(), n.getTipo(), n.getPeso(), n.getValor()); }
+    /** Cria uma avaliação fictícia estável, com nota entre 6,0 e 10,0. */
+    private ApiNota notaDemonstracao(ApiAluno aluno, ApiTurma turma, ApiDisciplina disciplina, int bimestre,
+                                     String tipo, double peso, int variacao) {
+        ApiNota nota = new ApiNota();
+        int decimos = 60 + Math.floorMod((int) (aluno.getId() * 31 + disciplina.getId() * 17 + variacao * 11), 41);
+        nota.setAluno(aluno); nota.setTurma(turma); nota.setDisciplina(disciplina); nota.setBimestre(bimestre);
+        nota.setTipo(tipo); nota.setPeso(peso); nota.setValor(decimos / 10d);
+        return nota;
+    }
     /** Converte um fechamento persistido em resposta para a coordenação. */
     private FechamentoBoletimResponse fechamento(ApiFechamentoBoletim fechamento) {
         ApiTurma turma = fechamento.getTurma();

@@ -30,6 +30,7 @@ export default function AdminBimestre() {
   const [loadingFechamentos, setLoadingFechamentos] = useState(true);
   const [fechamentoParaReabrir, setFechamentoParaReabrir] = useState(null);
   const [limpezaConfirmOpen, setLimpezaConfirmOpen] = useState(false);
+  const [demonstracaoConfirmOpen, setDemonstracaoConfirmOpen] = useState(false);
 
   /** Busca os fechamentos reais que estão bloqueando, ou liberando, os lançamentos. */
   async function carregarFechamentos() {
@@ -109,6 +110,24 @@ export default function AdminBimestre() {
     }
   }
 
+  /** Preenche o período com duas avaliações fictícias por disciplina e aluno. */
+  async function gerarNotasDemonstracao() {
+    setProcessing(true);
+    try {
+      const body = { anoLetivo: Number(anoLetivo), bimestre: Number(bimestre) };
+      if (turmaId) body.turmaId = Number(turmaId);
+      const response = await api.post('/notas/demonstracao', body);
+      setResult(response?.mensagem || 'Notas de demonstração geradas.');
+      toast.success('Notas de demonstração geradas com sucesso.');
+      setDemonstracaoConfirmOpen(false);
+      await carregarFechamentos();
+    } catch (error) {
+      toast.error(error.message || 'Não foi possível gerar as notas de demonstração.');
+    } finally {
+      setProcessing(false);
+    }
+  }
+
   return (
     <>
       <PageHead
@@ -165,6 +184,9 @@ export default function AdminBimestre() {
             </Button>
             <Button type="button" variant="danger" size="sm" block icon="trash" onClick={() => setLimpezaConfirmOpen(true)}>
               Limpar notas e reabrir período
+            </Button>
+            <Button type="button" variant="secondary" size="sm" block icon="edit" onClick={() => setDemonstracaoConfirmOpen(true)}>
+              Preencher com notas de demonstração
             </Button>
           </form>
         </Card>
@@ -266,6 +288,16 @@ export default function AdminBimestre() {
         loading={processing}
         onCancel={() => !processing && setLimpezaConfirmOpen(false)}
         onConfirm={limparNotasDoPeriodo}
+      />
+
+      <ConfirmDialog
+        open={demonstracaoConfirmOpen}
+        title="Preencher notas de demonstração"
+        message={`As notas atuais do ${bimestre}º bimestre de ${anoLetivo}${turmaId ? ' para a turma selecionada' : ' para todas as turmas'} serão removidas. Em seguida, cada aluno receberá notas fictícias de prova e trabalho em todas as disciplinas vinculadas. O período ficará reaberto.`}
+        confirmText="Sim, gerar notas"
+        loading={processing}
+        onCancel={() => !processing && setDemonstracaoConfirmOpen(false)}
+        onConfirm={gerarNotasDemonstracao}
       />
     </>
   );

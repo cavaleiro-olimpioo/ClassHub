@@ -91,6 +91,11 @@ public class GradeController {
                                                 @RequestParam(required = false) Long turmaId) {
         return service.limparNotasEReabrirBimestre(anoLetivo, bimestre, turmaId);
     }
+    /** Gera avaliações fictícias para demonstrar o fluxo de notas em um período. */
+    @PostMapping("/notas/demonstracao") @PreAuthorize("hasRole('ADMIN')")
+    public MessageResponse gerarNotasDemonstracao(@Valid @RequestBody GerarNotasDemonstracaoRequest request) {
+        return service.gerarNotasDemonstracao(request);
+    }
 
     /**
      * Fecha o bimestre informado (calcula e consolida os resultados finais

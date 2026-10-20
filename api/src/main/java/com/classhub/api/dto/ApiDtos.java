@@ -126,6 +126,9 @@ public final class ApiDtos {
     /** Parâmetros usados para solicitar a geração do boletim de um aluno/turma em um bimestre. */
     public record GerarBoletimRequest(@NotNull @Min(2000) Integer anoLetivo, @NotNull @Min(1) @Max(4) Integer bimestre,
                                       @NotNull LocalDate dataInicio, @NotNull LocalDate dataFim, Long turmaId) { }
+    /** Parâmetros para popular um período com notas fictícias de demonstração. */
+    public record GerarNotasDemonstracaoRequest(@NotNull @Min(2000) Integer anoLetivo,
+                                                @NotNull @Min(1) @Max(4) Integer bimestre, Long turmaId) { }
     /** Fechamento de bimestre registrado, usado pela coordenação para conferir ou reabrir o período. */
     public record FechamentoBoletimResponse(Long id, Integer anoLetivo, Integer bimestre, Long turmaId,
                                              String turmaNome, LocalDate dataInicio, LocalDate dataFim) { }

@@ -324,6 +324,31 @@ class ApiApplicationTests {
         assertThat(fechamentosRestantes).noneMatch(item -> item.path("anoLetivo").asInt() == anoLetivo && item.path("bimestre").asInt() == 3);
     }
 
+    /** A geração de demonstração cria prova e trabalho para cada disciplina do aluno. */
+    @Test
+    void coordinatorCanGenerateDemoGradesForEveryLinkedSubject() throws Exception {
+        MockMvc mockMvc = mockMvc();
+        String token = loginToken(mockMvc, "funcionario@classhub.local", "funcionario123");
+        ApiAluno aluno = alunos.findByEmailIgnoreCase("aluno@classhub.local").orElseThrow();
+        long turmaId = jdbcTemplate.queryForObject("SELECT turma_id FROM api_alunos WHERE id = ?", Long.class, aluno.getId());
+        int anoLetivo = jdbcTemplate.queryForObject("SELECT ano_letivo FROM api_turmas WHERE id = ?", Integer.class, turmaId);
+
+        mockMvc.perform(post("/notas/demonstracao")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"anoLetivo\":" + anoLetivo + ",\"bimestre\":2}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.mensagem").value(org.hamcrest.Matchers.containsString("nota(s) de demonstração gerada(s)")));
+
+        JsonNode notasSegundoBimestre = objectMapper.readTree(mockMvc.perform(get("/notas/aluno/" + aluno.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString());
+        int quantidade = 0;
+        for (JsonNode nota : notasSegundoBimestre) if (nota.path("bimestre").asInt() == 2) quantidade++;
+        assertThat(quantidade).isEqualTo(18);
+    }
+
     @Test
     void funcionarioCanCreateFoundItem() throws Exception {
         MockMvc mockMvc = mockMvc();
