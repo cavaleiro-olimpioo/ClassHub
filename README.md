@@ -2,7 +2,7 @@
 
 **Gestão escolar em um só lugar.** O ClassHub reúne secretaria, professores e alunos em uma aplicação web para acompanhar a rotina acadêmica: turmas, horários, frequência, notas, boletins, calendário, ocorrências e achados e perdidos.
 
-> Projeto acadêmico desenvolvido para a ETEC por Guilherme, Luiz e Thiago.
+> Projeto acadêmico desenvolvido para a ETEC por Guilherme, Luiz, Thiago, Daniel e Enzo.
 
 ## Índice
 
