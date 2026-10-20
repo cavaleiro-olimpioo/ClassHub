@@ -340,6 +340,14 @@ class ApiApplicationTests {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.mensagem").value(org.hamcrest.Matchers.containsString("nota(s) de demonstração gerada(s)")));
 
+        // A segunda execução substitui dados existentes com a mesma chave
+        // única, em vez de deixar o banco tentar inserir antes de apagar.
+        mockMvc.perform(post("/notas/demonstracao")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"anoLetivo\":" + anoLetivo + ",\"bimestre\":2}"))
+            .andExpect(status().isOk());
+
         JsonNode notasSegundoBimestre = objectMapper.readTree(mockMvc.perform(get("/notas/aluno/" + aluno.getId())
                 .header("Authorization", "Bearer " + token))
             .andExpect(status().isOk())

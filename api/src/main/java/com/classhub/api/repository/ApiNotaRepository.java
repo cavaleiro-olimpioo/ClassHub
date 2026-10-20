@@ -2,6 +2,7 @@ package com.classhub.api.repository;
 
 import com.classhub.api.domain.ApiNota;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,4 +35,11 @@ public interface ApiNotaRepository extends JpaRepository<ApiNota, Long> {
      * @return lista de notas do aluno no bimestre informado
      */
     List<ApiNota> findByAlunoIdAndBimestre(Long alunoId, Integer bimestre);
+
+    /**
+     * Recupera as notas de um conjunto de alunos em um bimestre. É usada na
+     * reposição de dados demonstrativos para respeitar a chave única da nota,
+     * que não inclui o ano letivo.
+     */
+    List<ApiNota> findByAlunoIdInAndBimestre(Collection<Long> alunoIds, Integer bimestre);
 }

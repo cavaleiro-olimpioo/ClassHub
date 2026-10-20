@@ -195,6 +195,9 @@ public class GradeService {
             .filter(nota -> turma == null || Objects.equals(nota.getTurma().getId(), turma.getId()))
             .toList();
         notas.deleteAll(notasDoPeriodo);
+        // A geração pode recriar exatamente as mesmas chaves de nota. Forçar
+        // o DELETE agora evita que o Hibernate tente inserir antes de apagar.
+        notas.flush();
 
         List<ApiFechamentoBoletim> fechamentosDoPeriodo = fechamentos.findAll().stream()
             .filter(fechamento -> Objects.equals(fechamento.getAnoLetivo(), anoLetivo))
@@ -219,16 +222,31 @@ public class GradeService {
         limparNotasEReabrirBimestre(request.anoLetivo(), request.bimestre(), request.turmaId());
         ApiTurma turmaAlvo = request.turmaId() == null ? null : directory.requireTurma(request.turmaId());
 
+        List<ApiAluno> alunosDoPeriodo = alunos.findAllWithTurma().stream()
+            .filter(aluno -> aluno.getTurma() != null)
+            .filter(aluno -> Objects.equals(aluno.getTurma().getAnoLetivo(), request.anoLetivo()))
+            .filter(aluno -> turmaAlvo == null || Objects.equals(aluno.getTurma().getId(), turmaAlvo.getId()))
+            .toList();
+
+        // A chave única de api_notas não contém ano/turma. Por isso, uma nota
+        // antiga do mesmo aluno, disciplina, bimestre e tipo também precisa
+        // ser removida antes da reposição demonstrativa do ano atual.
+        List<Long> idsDosAlunos = alunosDoPeriodo.stream().map(ApiAluno::getId).toList();
+        if (!idsDosAlunos.isEmpty()) {
+            notas.deleteAll(notas.findByAlunoIdInAndBimestre(idsDosAlunos, request.bimestre()));
+            notas.flush();
+        }
+
         Map<Long, List<ApiVinculo>> vinculosPorTurma = vinculos.findAll().stream()
+            .filter(vinculo -> vinculo.getTurma() != null && vinculo.getDisciplina() != null)
             .filter(vinculo -> Objects.equals(vinculo.getAnoLetivo(), request.anoLetivo()))
+            .filter(vinculo -> Objects.equals(vinculo.getTurma().getAnoLetivo(), request.anoLetivo()))
             .filter(vinculo -> turmaAlvo == null || Objects.equals(vinculo.getTurma().getId(), turmaAlvo.getId()))
             .collect(Collectors.groupingBy(vinculo -> vinculo.getTurma().getId()));
         List<ApiNota> geradas = new ArrayList<>();
 
-        for (ApiAluno aluno : alunos.findAllWithTurma()) {
+        for (ApiAluno aluno : alunosDoPeriodo) {
             ApiTurma turma = aluno.getTurma();
-            if (turma == null || !Objects.equals(turma.getAnoLetivo(), request.anoLetivo())) continue;
-            if (turmaAlvo != null && !Objects.equals(turma.getId(), turmaAlvo.getId())) continue;
 
             Set<Long> disciplinasIncluidas = new HashSet<>();
             for (ApiVinculo vinculo : vinculosPorTurma.getOrDefault(turma.getId(), List.of())) {
@@ -238,7 +256,7 @@ public class GradeService {
                 geradas.add(notaDemonstracao(aluno, turma, disciplina, request.bimestre(), "TRABALHO", 3d, 2));
             }
         }
-        notas.saveAll(geradas);
+        notas.saveAllAndFlush(geradas);
         return new MessageResponse(geradas.size() + " nota(s) de demonstração gerada(s) para o "
             + request.bimestre() + "º bimestre.");
     }
