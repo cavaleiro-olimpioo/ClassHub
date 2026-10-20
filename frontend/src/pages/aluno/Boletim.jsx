@@ -81,7 +81,10 @@ export default function AlunoBoletim() {
 
   if (loadingAluno) return <Loading message="Carregando seu boletim..." />;
 
-  const aprovados = itens.filter((i) => situacaoAluno(i.media, i.frequencia) === 'APROVADO').length;
+  const situacaoDoItem = (item) => item.situacao || situacaoAluno(item.media, item.frequencia);
+  const aprovados = itens.filter((item) => situacaoDoItem(item) === 'APROVADO').length;
+  const pendentes = itens.filter((item) => situacaoDoItem(item).startsWith('PENDENTE_')).length;
+  const requeremAtencao = itens.length - aprovados - pendentes;
 
   const acoes = (
     <div className="row">
@@ -135,11 +138,12 @@ export default function AlunoBoletim() {
                 <StatCard icon="check" tone="success" label="Aprovadas" value={aprovados} caption="Média ≥ 6 e frequência ≥ 75%" />
                 <StatCard
                   icon="xCircle"
-                  tone={itens.length - aprovados > 0 ? 'warning' : 'success'}
+                  tone={requeremAtencao > 0 ? 'warning' : 'success'}
                   label="Em Recuperação / Reprovação"
-                  value={itens.length - aprovados}
+                  value={requeremAtencao}
                   caption="Requerem atenção"
                 />
+                <StatCard icon="clock" tone={pendentes ? 'warning' : 'success'} label="Pendentes" value={pendentes} caption="Nota ou frequencia nao lancada" />
               </div>
               <div style={{ height: 16 }} />
             </>
@@ -155,7 +159,7 @@ export default function AlunoBoletim() {
               columns={[
                 { key: 'disciplinaNome', label: 'Disciplina', render: (v, row) => <span className="cell-strong">{v || `Disciplina ${row.disciplinaId}`}</span> },
                 { key: 'media', label: 'Média Bimestral', width: 150, render: (v) => <strong>{formatGrade(v)}</strong> },
-                { key: 'frequencia', label: 'Frequência', width: 130, className: 'num', render: (v) => (v === undefined || v === null ? '-' : `${v}%`) },
+                { key: 'frequencia', label: 'Frequência', width: 150, className: 'num', render: (v) => (v === undefined || v === null ? 'Não informada' : `${v}%`) },
                 {
                   key: 'situacao',
                   label: 'Situação',

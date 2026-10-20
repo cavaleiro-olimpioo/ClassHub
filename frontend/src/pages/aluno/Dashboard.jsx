@@ -4,7 +4,7 @@ import Icon from '../../components/Icon.jsx';
 import { Alert, Card, Loading, PageHead, StatCard } from '../../components/ui.jsx';
 import { api } from '../../lib/api.js';
 import { getSession } from '../../lib/session.js';
-import { BIMESTRES, firstName, formatGrade, MONTHS } from '../../lib/format.js';
+import { BIMESTRES, calcularFrequencia, firstName, formatGrade, MONTHS } from '../../lib/format.js';
 import useAluno from '../../lib/useAluno.js';
 
 /** Data de referência usada para destacar o mês atual no painel. */
@@ -69,8 +69,7 @@ export default function AlunoDashboard() {
   const notasDoBimestre = notas.filter((n) => Number(n.bimestre) === bimestreAtual);
   const faltas = presencas.filter((p) => p.status === 'FALTA');
   const justificadas = presencas.filter((p) => p.status === 'FALTA_JUSTIFICADA');
-  const presentes = presencas.filter((p) => p.status === 'PRESENTE');
-  const frequencia = presencas.length ? Math.round((presentes.length / presencas.length) * 100) : null;
+  const frequencia = calcularFrequencia(presencas);
 
   const subtitulo = aluno?.turma?.nome
     ? `Turma ${aluno.turma.nome} · Matrícula ${aluno.matricula || '—'} · ${bimestreAtual}º Bimestre`

@@ -139,7 +139,10 @@ export default function ProfessorNotas() {
       Object.entries(notas).forEach(([alunoId, porTipo]) => {
         TIPOS_NOTA.forEach((tipo) => {
           const item = porTipo[tipo];
-          if (item.valor === '' || item.valor === null) return;
+          if (item.valor === '' || item.valor === null) {
+            if (item.id) requests.push(api.delete(`/notas/${item.id}`));
+            return;
+          }
           const body = {
             alunoId: Number(alunoId),
             disciplinaId: Number(disciplinaId),

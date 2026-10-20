@@ -86,7 +86,12 @@ export default function ProfessorChamada() {
 
       setAlunos(Array.isArray(lista) ? lista : []);
 
+      // Uma chamada nova inicia todos os alunos como presentes; o professor
+      // altera somente as excecoes e a chamada completa fica registrada.
       const mapa = {};
+      (Array.isArray(lista) ? lista : []).forEach((aluno) => {
+        mapa[aluno.id] = { status: 'PRESENTE', justificativa: '' };
+      });
       (Array.isArray(existentes) ? existentes : []).forEach((p) => {
         mapa[p.alunoId] = { status: p.status, justificativa: p.justificativa || '' };
       });

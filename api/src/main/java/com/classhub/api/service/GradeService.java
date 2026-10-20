@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class GradeService {
+    private static final Set<String> TIPOS_NOTA = Set.of("PROVA", "TRABALHO", "ATIVIDADE");
     private final ApiNotaRepository notas;
     private final ApiPresencaRepository presencas;
     private final ApiFechamentoBoletimRepository fechamentos;
@@ -265,8 +266,9 @@ public class GradeService {
      * Calcula e monta o boletim de um aluno para um bimestre específico:
      * agrupa as notas por disciplina, calcula a média ponderada pelo peso
      * de cada avaliação, calcula o percentual de frequência a partir dos
-     * registros de presença e define a situação final ("APROVADO" se
-     * média &gt;= 6.0 e frequência &gt;= 75%, senão "EM_RECUPERACAO").
+     * registros de presença e define a situação final. Quando ainda não há
+     * nota ou chamada para uma disciplina, o item é devolvido como pendente
+     * em vez de ser indevidamente marcado como recuperação ou reprovação.
      *
      * @param alunoId identificador do aluno
      * @param bimestre número do bimestre
@@ -285,20 +287,35 @@ public class GradeService {
         if (fechamento.getDataInicio() == null || fechamento.getDataFim() == null) throw new BusinessRuleException("O fechamento precisa ser refeito com o intervalo de datas do bimestre.");
         final ApiFechamentoBoletim periodo = fechamento;
 
+        if (turmaId == null) throw new BusinessRuleException("O aluno não possui turma ativa para gerar o boletim.");
+
+        // Exibe todas as disciplinas da turma, inclusive quando ainda houver
+        // pendência de nota. Assim, o fechamento nunca produz um boletim parcial.
+        Map<Long, ApiDisciplina> disciplinas = new LinkedHashMap<>();
+        vinculos.findAll().stream()
+            .filter(v -> turmaId.equals(v.getTurma().getId()))
+            .filter(v -> Objects.equals(v.getAnoLetivo(), ano))
+            .forEach(v -> disciplinas.putIfAbsent(v.getDisciplina().getId(), v.getDisciplina()));
+
         Map<Long, List<ApiNota>> porDisciplina = notas.findByAlunoIdAndBimestre(alunoId, bimestre).stream()
+            .filter(n -> turmaId.equals(n.getTurma().getId()))
             .collect(Collectors.groupingBy(n -> n.getDisciplina().getId()));
-        List<BoletimItemResponse> items = porDisciplina.values().stream().map(group -> {
-            ApiDisciplina disciplina = group.get(0).getDisciplina();
-            double peso = group.stream().mapToDouble(ApiNota::getPeso).sum();
-            double media = peso == 0 ? 0 : group.stream().mapToDouble(n -> n.getValor() * n.getPeso()).sum() / peso;
-            List<ApiPresenca> frequencias = presencas.findByAlunoId(alunoId).stream()
+        porDisciplina.values().forEach(group -> disciplinas.putIfAbsent(group.get(0).getDisciplina().getId(), group.get(0).getDisciplina()));
+
+        List<ApiPresenca> presencasDoPeriodo = presencas.findByAlunoId(alunoId).stream()
+            .filter(p -> turmaId.equals(p.getTurma().getId()))
+            .filter(p -> !p.getData().isBefore(periodo.getDataInicio()) && !p.getData().isAfter(periodo.getDataFim()))
+            .toList();
+        List<BoletimItemResponse> items = disciplinas.values().stream().map(disciplina -> {
+            List<ApiNota> notasDaDisciplina = porDisciplina.getOrDefault(disciplina.getId(), List.of());
+            Double media = notasDaDisciplina.isEmpty() ? null : media(notasDaDisciplina);
+            List<ApiPresenca> frequencias = presencasDoPeriodo.stream()
                 .filter(p -> p.getDisciplina().getId().equals(disciplina.getId()))
-                .filter(p -> turmaId != null && p.getTurma().getId().equals(turmaId))
-                .filter(p -> !p.getData().isBefore(periodo.getDataInicio()) && !p.getData().isAfter(periodo.getDataFim()))
                 .toList();
-            int frequencia = frequencias.isEmpty() ? 0 : (int) Math.round(100d * frequencias.stream().filter(p -> !"FALTA".equals(p.getStatus())).count() / frequencias.size());
-            String situacao = media >= 6.0 && frequencia >= 75 ? "APROVADO" : "EM_RECUPERACAO";
-            return new BoletimItemResponse(disciplina.getId(), disciplina.getNome(), round(media), frequencia, situacao);
+            Integer frequencia = frequencias.isEmpty() ? null : (int) Math.round(100d
+                * frequencias.stream().filter(p -> !"FALTA".equals(p.getStatus())).count() / frequencias.size());
+            return new BoletimItemResponse(disciplina.getId(), disciplina.getNome(), media == null ? null : round(media), frequencia,
+                situacao(media, frequencia));
         }).sorted(Comparator.comparing(BoletimItemResponse::disciplinaNome, String.CASE_INSENSITIVE_ORDER)).toList();
         return new BoletimResponse(items);
     }
@@ -317,7 +334,9 @@ public class GradeService {
     public byte[] boletimPdf(Long alunoId, int bimestre) {
         BoletimResponse boletim = boletim(alunoId, bimestre);
         String lines = "Boletim - " + bimestre + "o Bimestre\n" + boletim.disciplinas().stream()
-            .map(item -> item.disciplinaNome() + " - Media: " + item.media() + " - " + item.situacao()).collect(Collectors.joining("\n"));
+            .map(item -> item.disciplinaNome() + " - Media: " + (item.media() == null ? "-" : item.media())
+                + " - Frequencia: " + (item.frequencia() == null ? "Nao informada" : item.frequencia() + "%")
+                + " - " + item.situacao()).collect(Collectors.joining("\n"));
         return minimalPdf(lines).getBytes(StandardCharsets.ISO_8859_1);
     }
 
@@ -330,9 +349,33 @@ public class GradeService {
      */
     private void apply(ApiNota entity, NotaRequest request) {
         assertBimestreAberto(request.turmaId(), request.bimestre());
-        entity.setAluno(directory.requireAluno(request.alunoId())); entity.setDisciplina(directory.requireDisciplina(request.disciplinaId()));
-        entity.setTurma(directory.requireTurma(request.turmaId())); entity.setBimestre(request.bimestre());
-        entity.setTipo(request.tipo().trim().toUpperCase()); entity.setValor(request.valor()); entity.setPeso(request.peso());
+        ApiAluno aluno = directory.requireAluno(request.alunoId());
+        ApiTurma turma = directory.requireTurma(request.turmaId());
+        ApiDisciplina disciplina = directory.requireDisciplina(request.disciplinaId());
+        String tipo = request.tipo().trim().toUpperCase(Locale.ROOT);
+        if (!TIPOS_NOTA.contains(tipo)) throw new BadRequestException("Tipo de avaliacao invalido.");
+        if (aluno.getTurma() == null || !turma.getId().equals(aluno.getTurma().getId())) {
+            throw new BadRequestException("O aluno nao esta matriculado na turma informada.");
+        }
+        boolean disciplinaDaTurma = vinculos.findAll().stream().anyMatch(v -> turma.getId().equals(v.getTurma().getId())
+            && disciplina.getId().equals(v.getDisciplina().getId()) && Objects.equals(v.getAnoLetivo(), turma.getAnoLetivo()));
+        if (!disciplinaDaTurma) throw new BadRequestException("A disciplina nao esta vinculada a turma informada.");
+        entity.setAluno(aluno); entity.setDisciplina(disciplina);
+        entity.setTurma(turma); entity.setBimestre(request.bimestre());
+        entity.setTipo(tipo); entity.setValor(request.valor()); entity.setPeso(request.peso());
+    }
+
+    private double media(List<ApiNota> notasDaDisciplina) {
+        double peso = notasDaDisciplina.stream().mapToDouble(ApiNota::getPeso).sum();
+        return peso == 0 ? 0 : notasDaDisciplina.stream().mapToDouble(n -> n.getValor() * n.getPeso()).sum() / peso;
+    }
+
+    /** Situações pendentes evitam classificar falta de lançamento como reprovação. */
+    private String situacao(Double media, Integer frequencia) {
+        if (media == null) return "PENDENTE_NOTA";
+        if (frequencia == null) return "PENDENTE_FREQUENCIA";
+        if (frequencia < 75 || media < 4) return "REPROVADO";
+        return media >= 6 ? "APROVADO" : "RECUPERACAO";
     }
     /** Converte uma entidade {@link ApiNota} para o DTO {@link NotaResponse}. */
     private NotaResponse nota(ApiNota n) { return new NotaResponse(n.getId(), n.getAluno().getId(), n.getDisciplina().getId(), n.getDisciplina().getNome(), n.getBimestre(), n.getTipo(), n.getPeso(), n.getValor()); }

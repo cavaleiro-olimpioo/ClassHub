@@ -103,7 +103,10 @@ const STATUS_MAP = {
   // Situacao escolar
   APROVADO: { label: 'Aprovado', tone: 'success' },
   RECUPERACAO: { label: 'Recuperacao', tone: 'warning' },
+  EM_RECUPERACAO: { label: 'Recuperacao', tone: 'warning' },
   REPROVADO: { label: 'Reprovado', tone: 'danger' },
+  PENDENTE_NOTA: { label: 'Nota pendente', tone: 'neutral' },
+  PENDENTE_FREQUENCIA: { label: 'Frequencia pendente', tone: 'neutral' },
   // Calendario
   LETIVO: { label: 'Dia Letivo', tone: 'info' },
   FERIADO: { label: 'Feriado', tone: 'danger' },
@@ -158,6 +161,18 @@ export function situacaoAluno(media, frequencia) {
   if (m >= 6 && f >= 75) return 'APROVADO';
   if (m >= 4 && f >= 75) return 'RECUPERACAO';
   return 'REPROVADO';
+}
+
+/**
+ * Calcula a frequencia com a mesma regra aplicada no boletim: somente a
+ * falta nao justificada reduz o percentual. Sem chamada, nao ha percentual.
+ */
+export function calcularFrequencia(presencas) {
+  if (!presencas?.length) return null;
+  const validas = presencas.filter((presenca) => presenca?.status);
+  if (!validas.length) return null;
+  const contabilizadas = validas.filter((presenca) => String(presenca.status).toUpperCase() !== 'FALTA').length;
+  return Math.round((contabilizadas / validas.length) * 100);
 }
 
 /**
