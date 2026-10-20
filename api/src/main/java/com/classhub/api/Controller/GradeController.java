@@ -82,6 +82,15 @@ public class GradeController {
         if (isProfessor(authentication) && !service.professorHasAccessToNota(id, Long.valueOf(authentication.getName()))) throw new com.classhub.api.exception.ApiExceptions.ForbiddenException("O professor não possui vínculo com essa nota.");
         service.deleteNota(id);
     }
+    /**
+     * Limpa notas gravadas por engano em um período e remove os fechamentos
+     * daquele mesmo escopo. Restrito à coordenação por ser uma ação destrutiva.
+     */
+    @DeleteMapping("/notas/periodo") @PreAuthorize("hasRole('ADMIN')")
+    public MessageResponse limparNotasDoPeriodo(@RequestParam Integer anoLetivo, @RequestParam Integer bimestre,
+                                                @RequestParam(required = false) Long turmaId) {
+        return service.limparNotasEReabrirBimestre(anoLetivo, bimestre, turmaId);
+    }
 
     /**
      * Fecha o bimestre informado (calcula e consolida os resultados finais

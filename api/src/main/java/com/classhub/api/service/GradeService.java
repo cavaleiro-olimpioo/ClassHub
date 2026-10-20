@@ -170,6 +170,41 @@ public class GradeService {
     }
 
     /**
+     * Remove todos os lançamentos de nota de um período e reabre os
+     * fechamentos correspondentes. Esta operação é destinada à correção de
+     * dados de demonstração que tenham ficado gravados no banco.
+     *
+     * @param anoLetivo ano letivo do período a limpar
+     * @param bimestre bimestre do período a limpar
+     * @param turmaId turma a limpar; se ausente, limpa todas as turmas do ano
+     * @return resumo da quantidade de notas e fechamentos removidos
+     */
+    public MessageResponse limparNotasEReabrirBimestre(int anoLetivo, int bimestre, Long turmaId) {
+        if (bimestre < 1 || bimestre > 4) throw new BadRequestException("Bimestre inválido.");
+        ApiTurma turma = turmaId == null ? null : directory.requireTurma(turmaId);
+        if (turma != null && !Objects.equals(turma.getAnoLetivo(), anoLetivo)) {
+            throw new BadRequestException("A turma selecionada não pertence ao ano letivo informado.");
+        }
+
+        List<ApiNota> notasDoPeriodo = notas.findAll().stream()
+            .filter(nota -> nota.getBimestre() == bimestre)
+            .filter(nota -> Objects.equals(nota.getTurma().getAnoLetivo(), anoLetivo))
+            .filter(nota -> turma == null || Objects.equals(nota.getTurma().getId(), turma.getId()))
+            .toList();
+        notas.deleteAll(notasDoPeriodo);
+
+        List<ApiFechamentoBoletim> fechamentosDoPeriodo = fechamentos.findAll().stream()
+            .filter(fechamento -> Objects.equals(fechamento.getAnoLetivo(), anoLetivo))
+            .filter(fechamento -> Objects.equals(fechamento.getBimestre(), bimestre))
+            .filter(fechamento -> turma == null || (fechamento.getTurma() != null && Objects.equals(fechamento.getTurma().getId(), turma.getId())))
+            .toList();
+        fechamentos.deleteAll(fechamentosDoPeriodo);
+
+        return new MessageResponse(notasDoPeriodo.size() + " nota(s) removida(s) e "
+            + fechamentosDoPeriodo.size() + " fechamento(s) reaberto(s).");
+    }
+
+    /**
      * Calcula e monta o boletim de um aluno para um bimestre específico:
      * agrupa as notas por disciplina, calcula a média ponderada pelo peso
      * de cada avaliação, calcula o percentual de frequência a partir dos

@@ -285,6 +285,45 @@ class ApiApplicationTests {
     }
 
     /** Verifica se um funcionário autenticado consegue registrar um novo item de achados e perdidos. */
+    /** Dados indevidos de um período podem ser removidos pela coordenação, liberando novos lançamentos. */
+    @Test
+    void coordinatorCanClearGradesAndReopenTheirPeriod() throws Exception {
+        MockMvc mockMvc = mockMvc();
+        String token = loginToken(mockMvc, "funcionario@classhub.local", "funcionario123");
+        ApiAluno aluno = alunos.findByEmailIgnoreCase("aluno@classhub.local").orElseThrow();
+        long turmaId = jdbcTemplate.queryForObject("SELECT turma_id FROM api_alunos WHERE id = ?", Long.class, aluno.getId());
+        long disciplinaId = jdbcTemplate.queryForObject("SELECT id FROM api_disciplinas ORDER BY id LIMIT 1", Long.class);
+        int anoLetivo = jdbcTemplate.queryForObject("SELECT ano_letivo FROM api_turmas WHERE id = ?", Integer.class, turmaId);
+
+        mockMvc.perform(post("/notas")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"alunoId\":" + aluno.getId() + ",\"turmaId\":" + turmaId + ",\"disciplinaId\":" + disciplinaId + ",\"bimestre\":3,\"tipo\":\"PROVA\",\"peso\":5,\"valor\":8}"))
+            .andExpect(status().isCreated());
+        mockMvc.perform(post("/boletins/gerar")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"anoLetivo\":" + anoLetivo + ",\"bimestre\":3,\"dataInicio\":\"" + anoLetivo + "-07-01\",\"dataFim\":\"" + anoLetivo + "-09-30\"}"))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/notas/periodo?anoLetivo=" + anoLetivo + "&bimestre=3")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.mensagem").value(org.hamcrest.Matchers.containsString("1 nota(s) removida(s)")));
+
+        JsonNode notasRestantes = objectMapper.readTree(mockMvc.perform(get("/notas/aluno/" + aluno.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString());
+        assertThat(notasRestantes).noneMatch(item -> item.path("bimestre").asInt() == 3);
+
+        JsonNode fechamentosRestantes = objectMapper.readTree(mockMvc.perform(get("/boletins/fechamentos")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString());
+        assertThat(fechamentosRestantes).noneMatch(item -> item.path("anoLetivo").asInt() == anoLetivo && item.path("bimestre").asInt() == 3);
+    }
+
     @Test
     void funcionarioCanCreateFoundItem() throws Exception {
         MockMvc mockMvc = mockMvc();

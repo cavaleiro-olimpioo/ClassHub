@@ -29,6 +29,7 @@ export default function AdminBimestre() {
   const [fechamentos, setFechamentos] = useState([]);
   const [loadingFechamentos, setLoadingFechamentos] = useState(true);
   const [fechamentoParaReabrir, setFechamentoParaReabrir] = useState(null);
+  const [limpezaConfirmOpen, setLimpezaConfirmOpen] = useState(false);
 
   /** Busca os fechamentos reais que estão bloqueando, ou liberando, os lançamentos. */
   async function carregarFechamentos() {
@@ -90,6 +91,24 @@ export default function AdminBimestre() {
     }
   }
 
+  /** Remove dados lançados por engano no período e reabre seus fechamentos. */
+  async function limparNotasDoPeriodo() {
+    setProcessing(true);
+    try {
+      const params = new URLSearchParams({ anoLetivo: String(anoLetivo), bimestre: String(bimestre) });
+      if (turmaId) params.set('turmaId', String(turmaId));
+      const response = await api.delete(`/notas/periodo?${params.toString()}`);
+      setResult(response?.mensagem || 'Notas removidas e bimestre reaberto.');
+      toast.success('Notas removidas e bimestre reaberto.');
+      setLimpezaConfirmOpen(false);
+      await carregarFechamentos();
+    } catch (error) {
+      toast.error(error.message || 'Não foi possível limpar as notas do período.');
+    } finally {
+      setProcessing(false);
+    }
+  }
+
   return (
     <>
       <PageHead
@@ -143,6 +162,9 @@ export default function AdminBimestre() {
 
             <Button type="submit" size="lg" block icon="clipboard">
               Fechar Bimestre e Gerar Boletins
+            </Button>
+            <Button type="button" variant="danger" size="sm" block icon="trash" onClick={() => setLimpezaConfirmOpen(true)}>
+              Limpar notas e reabrir período
             </Button>
           </form>
         </Card>
@@ -233,6 +255,17 @@ export default function AdminBimestre() {
         loading={processing}
         onCancel={() => !processing && setFechamentoParaReabrir(null)}
         onConfirm={reabrirBimestre}
+      />
+
+      <ConfirmDialog
+        open={limpezaConfirmOpen}
+        title="Limpar notas do período"
+        message={`Esta ação remove permanentemente todas as notas do ${bimestre}º bimestre de ${anoLetivo}${turmaId ? ' para a turma selecionada' : ' para todas as turmas'} e reabre os fechamentos desse período. Use somente para eliminar dados de demonstração ou lançamentos indevidos.`}
+        confirmText="Sim, limpar período"
+        tone="danger"
+        loading={processing}
+        onCancel={() => !processing && setLimpezaConfirmOpen(false)}
+        onConfirm={limparNotasDoPeriodo}
       />
     </>
   );
